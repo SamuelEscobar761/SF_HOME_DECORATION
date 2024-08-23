@@ -7,8 +7,8 @@ import ResponsiveNavbar from './app/layout/ResponsiveNavbar';
 function App() {
   return (
     <DeviceProvider>
-      <ResponsiveNavbar/>
       <Router>
+        <ResponsiveNavbar/>
         <AppRoutes />
       </Router>
     </DeviceProvider>
