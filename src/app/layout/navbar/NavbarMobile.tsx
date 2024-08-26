@@ -37,35 +37,21 @@ const isAuthorized = (label: NavItem['label']): boolean => {
   return authorizations[label];
 };
 
-// Componente principal del navbar móvil
 export const NavbarMobile: React.FC = () => {
-  // Estado para rastrear qué ítem está activo
   const [active, setActive] = useState<string | null>("home");
-  
-  // Estado para almacenar el ancho del navbar
   const [navbarWidth, setNavbarWidth] = useState(0);
-  
-  // Referencia al contenedor del navbar
   const navbarRef = useRef<HTMLDivElement>(null);
 
-  // Efecto para calcular y actualizar el ancho del navbar al montar el componente y en cambios de tamaño de ventana
   useEffect(() => {
-    // Establecer el ancho del navbar al montar el componente
     if (navbarRef.current) {
       setNavbarWidth(navbarRef.current.offsetWidth);
     }
-
-    // Función para manejar el cambio de tamaño de ventana
     const handleResize = () => {
       if (navbarRef.current) {
         setNavbarWidth(navbarRef.current.offsetWidth);
       }
     };
-
-    // Agregar listener de redimensionamiento de ventana
     window.addEventListener('resize', handleResize);
-    
-    // Limpiar el listener al desmontar el componente
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -78,7 +64,6 @@ export const NavbarMobile: React.FC = () => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
       <div ref={navbarRef} className="relative flex justify-around text-gray-600">
-        {/* Barra deslizante que indica el ítem activo */}
         <div
           className="absolute w-6 h-1 bg-secondary-light transition-all duration-300 rounded"
           style={{
@@ -86,7 +71,6 @@ export const NavbarMobile: React.FC = () => {
           }}
         ></div>
         
-        {/* Mapeo de ítems del navbar con autorizaciones */}
         {navItems.map((item, index) =>
           isAuthorized(item.label) && (
             <Link
