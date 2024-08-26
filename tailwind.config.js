@@ -31,6 +31,14 @@ export default {
           pressed: '#FFFFFF',
           disabled: '#FFFFFF',
         },
+        success: {
+          DEFAULT: '#81CB86',
+          light: '#8BD990',
+          dark: '#67A26B',
+          hover: '#FFFFFF',
+          pressed: '#FFFFFF',
+          disabled: '#FFFFFF',
+        },
         neutral: {
           900: '#1F1E1C',
           800: '#33322F',
