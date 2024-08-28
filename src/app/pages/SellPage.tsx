@@ -6,6 +6,7 @@ import { LateralMenuComponent } from "../components/LateralMenuComponent";
 interface SellItem {
   image: string;
   title: string;
+  provider: string;
   colors: string[];
   extraColors: number;
   discount: number;
@@ -21,6 +22,7 @@ export const SellPage = () => {
     {
       image: "",
       title: "Title 1",
+      provider: "",
       colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
       extraColors: 4,
       discount: 0,
@@ -31,8 +33,9 @@ export const SellPage = () => {
     {
       image: "",
       title: "Title 2",
+      provider: "",
       colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-      extraColors: 4,
+      extraColors: 5,
       discount: 0,
       previousPrice: 0,
       price: 0,
@@ -41,8 +44,9 @@ export const SellPage = () => {
     {
       image: "",
       title: "Title 3",
+      provider: "",
       colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-      extraColors: 4,
+      extraColors: 8,
       discount: 0,
       previousPrice: 0,
       price: 0,
@@ -51,8 +55,9 @@ export const SellPage = () => {
     {
       image: "",
       title: "Title 4",
+      provider: "",
       colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-      extraColors: 4,
+      extraColors: 9,
       discount: 0,
       previousPrice: 0,
       price: 0,
@@ -61,8 +66,9 @@ export const SellPage = () => {
     {
       image: "",
       title: "Title 5",
+      provider: "",
       colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-      extraColors: 4,
+      extraColors: 14,
       discount: 0,
       previousPrice: 0,
       price: 0,
@@ -71,8 +77,9 @@ export const SellPage = () => {
     {
       image: "",
       title: "Title 6",
+      provider: "",
       colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-      extraColors: 4,
+      extraColors: 2,
       discount: 0,
       previousPrice: 0,
       price: 0,
