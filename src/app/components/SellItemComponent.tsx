@@ -1,4 +1,4 @@
-export const SellItem = ({onClick, image, title, colors, extraColors, discount, previousPrice, price, checked}:{onClick: (event: React.MouseEvent) => void, image: string, title: string, colors: string[], extraColors: number, discount: number, previousPrice: number, price: number, checked: boolean}) => {
+export const SellItemComponent = ({onClick, image, title, colors, extraColors, discount, previousPrice, price, checked}:{onClick: (event: React.MouseEvent) => void, image: string, title: string, colors: string[], extraColors: number, discount: number, previousPrice: number, price: number, checked: boolean}) => {
     return(
         <div className="bg-neutral-300 p-2 text-neutral-900 rounded" onClick={onClick}>
             <div className="relative">
