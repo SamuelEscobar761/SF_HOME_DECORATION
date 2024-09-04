@@ -1,26 +1,28 @@
 import { useState } from "react";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import WheelbarrowIcon from "../../assets/Wheelbarrow-Icon.svg";
-export const ShowItemComponent = ({ item }: { item: EntireItem }) => {
+export const ShowItemComponent = ({ item, closeItem }: { item: EntireItem, closeItem: () => void }) => {
   const [units, setUnits] = useState<number>(0);
   const [colorSelected, setColorSelected] = useState<number>(0);
   return (
     <div id="item-container" className="bg-neutral-100 p-2">
-      <div id="close-full-item" className="">
-        <img src={CloseIcon} />
-      </div>
-      <div
-        id="images-container"
-        className="h-[380px] bg-neutral-100 border border-neutral-900 flex overflow-x-scroll snap-x snap-mandatory"
-      >
-        {item.imagesBycolors[colorSelected][1].map((image, index) => (
-          <img
-            key={index}
-            src={image}
-            alt={`Image ${index + 1}`}
-            className="w-full flex-shrink-0 snap-center object-contain"
-          />
-        ))}
+      <div id="close-item-images-container" className="relative">
+        <div id="close-full-item" className="absolute top-2 left-2 z-50" onClick={closeItem}>
+          <img src={CloseIcon} />
+        </div>
+        <div
+          id="images-container"
+          className="h-[380px] bg-neutral-100 border border-neutral-900 flex overflow-x-scroll snap-x snap-mandatory"
+        >
+          {item.imagesBycolors[colorSelected][1].map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`Image ${index + 1}`}
+              className="w-full flex-shrink-0 snap-center object-contain"
+            />
+          ))}
+        </div>
       </div>
       <div id="show-item-content" className="text-lg my-2">
         <div
@@ -71,9 +73,9 @@ export const ShowItemComponent = ({ item }: { item: EntireItem }) => {
           <input
             id="units-input"
             type="number"
-            placeholder={units.toString()} // Muestra el valor actual del estado
+            placeholder={units.toString()}
             className="w-10 h-6 border border-neutral-900 rounded text-right"
-            onChange={(event) => setUnits(Number(event.target.value))} // Actualiza el estado con el valor numérico
+            onChange={(event) => setUnits(Number(event.target.value))}
           />
         </div>
         <div id="total" className="flex justify-between font-bold mt-2">

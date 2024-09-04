@@ -148,6 +148,10 @@ export const SellPage = () => {
     }
   };
 
+  const closeItem = () => {
+    setFullItemView(false);
+  }
+
   return (
     <div>
       {menuOpened && (
@@ -169,7 +173,7 @@ export const SellPage = () => {
       )}
       {fullItemView && (
         <div className="fixed z-40 w-screen h-screen bg-white/[0.6] p-5 overflow-y-auto">
-          <ShowItemComponent item={selectedItem!} />
+          <ShowItemComponent item={selectedItem!} closeItem={closeItem}/>
         </div>
       )}
       <div id="sell-page-content" className="p-2">
