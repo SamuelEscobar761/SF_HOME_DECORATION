@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import WheelbarrowIcon from "../../assets/Wheelbarrow-Icon.svg";
-export const ShowItemComponent = ({ item, closeItem }: { item: EntireItem, closeItem: () => void }) => {
+export const ShowItemComponent = ({ item, closeItem, addToCart }: { item: EntireItem, closeItem: () => void, addToCart: (id: number, color: string, quantity: number) => void }) => {
   const [units, setUnits] = useState<number>(0);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
   const [colorSelected, setColorSelected] = useState<number>(0);
+
+  useEffect(() => {
+    setTotalPrice(item.price * units);
+  }, [units])
   return (
     <div id="item-container" className="bg-neutral-100 p-2">
       <div id="close-item-images-container" className="relative">
@@ -14,7 +19,7 @@ export const ShowItemComponent = ({ item, closeItem }: { item: EntireItem, close
           id="images-container"
           className="h-[380px] bg-neutral-100 border border-neutral-900 flex overflow-x-scroll snap-x snap-mandatory"
         >
-          {item.imagesBycolors[colorSelected][1].map((image, index) => (
+          {item.imagesByColors[colorSelected][1].map((image, index) => (
             <img
               key={index}
               src={image}
@@ -29,10 +34,10 @@ export const ShowItemComponent = ({ item, closeItem }: { item: EntireItem, close
           id="colors"
           className="flex space-x-4 justify-start overflow-x-auto"
         >
-          {item.imagesBycolors.map((colors, index) => (
+          {item.imagesByColors.map((imagesByColor, index) => (
             <div
               key={index}
-              style={{ backgroundColor: colors[0] }}
+              style={{ backgroundColor: imagesByColor[0] }}
               className={`rounded-full border h-11 w-11 flex-shrink-0 cursor-pointer ${
                 colorSelected === index
                   ? "border-neutral-900 border-2"
@@ -83,16 +88,17 @@ export const ShowItemComponent = ({ item, closeItem }: { item: EntireItem, close
             Total:
           </p>
           <p id="total-price-amount" className="text--neutral-900">
-            {item.price} Bs
+            {totalPrice} Bs
           </p>
         </div>
       </div>
       <div
-        id="add-chart-button"
+        id="add-cartaddToCart-button"
         className="bg-success flex justify-center rounded p-2"
+        onClick={() => {addToCart(item.id, item.imagesByColors[colorSelected][0], units)}}
       >
         <img src={WheelbarrowIcon} className="w-7 h-7" />
-        <p id="add-chart-text" className="ml-2 text-2xl">
+        <p id="add-cartaddToCart-text" className="ml-2 text-2xl">
           Agregar al Carrito
         </p>
       </div>

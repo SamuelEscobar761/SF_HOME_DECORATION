@@ -1,14 +1,16 @@
-import { LegacyRef } from "react";
+import { Dispatch, LegacyRef, SetStateAction } from "react";
 
 export const LateralMenuComponent = ({
-  setMinPrice,
-  setMaxPrice,
+  // setMinPrice,
+  // setMaxPrice,
   listOfRooms,
-  setListOfSelectedRooms,
+  // setListOfSelectedRooms,
   listOfMaterials,
-  setListOfSelectedMaterials,
-  setDiscount,
+  // setListOfSelectedMaterials,
+  // setDiscount,
   menuRef,
+  cart,
+  // setCart,
 }: {
   setMinPrice: any;
   setMaxPrice: any;
@@ -18,6 +20,8 @@ export const LateralMenuComponent = ({
   setListOfSelectedMaterials: any;
   setDiscount: any;
   menuRef: LegacyRef<HTMLDivElement>;
+  cart: Map<string, Item>;
+  setCart: Dispatch<SetStateAction<Map<string, Item>>>;
 }) => {
   return (
     <div
@@ -25,7 +29,7 @@ export const LateralMenuComponent = ({
       className="bg-primary h-screen w-fit p-2"
       ref={menuRef}
     >
-      <button>Carrito</button>
+      <button onClick={() => {console.log(cart)}}>Carrito</button>
       <div>
         <p>Rango de precio</p>
         <div>
