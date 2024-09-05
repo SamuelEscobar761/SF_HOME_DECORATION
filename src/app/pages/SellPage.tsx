@@ -138,10 +138,6 @@ export const SellPage = () => {
         imagesByColors: [
           [
             "#000000",
-            ["./delete/cuadrille-n.jpg", "./delete/cuadrille-n1.jpg"],
-          ],
-          [
-            "#000000",
             [
               "./delete-cuadrille-n.jpg",
               "./delete/cuadrille-n1.jpg",
