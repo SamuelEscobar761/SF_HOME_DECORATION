@@ -139,13 +139,13 @@ export const SellPage = () => {
           [
             "#000000",
             [
-              "./delete-cuadrille-n.jpg",
+              "./delete/cuadrille-n.jpg",
               "./delete/cuadrille-n1.jpg",
               "./delete/cuadrille.jpg",
             ],
           ],
           ["#FFFFFF", ["./delete/cuadrille-b.jpg"]],
-          ["#FF0000", ["./delete/cuadrille-r.jpg", "cuadrille-r1.jpg"]],
+          ["#FF0000", ["./delete/cuadrille-r.jpg", "./delete/cuadrille-r1.jpg"]],
           [
             "#0000FF",
             ["./delete/cuadrille-a.jpg", "./delete/cuadrille-a1.jpg"],
