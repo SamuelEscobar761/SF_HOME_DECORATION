@@ -5,10 +5,10 @@ export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
   const [items, setItems] = useState<any[]>([1]);
-  const [filteredItems, setFilteredItems] = useState<any[]>([1]);
+  const [filteredItems, setFilteredItems] = useState<any[]>([1, 1, 1, 1, 1]);
   return (
     <div>
-      <div>
+      <div className="flex">
         <div id="folders-button" onClick={() => {setFoldersView(!foldersView)}}>
           <p>{foldersView ? "Todos los artículos" : "Carpetas"}</p>
         </div>
@@ -57,9 +57,9 @@ export const InventoryPage = () => {
         </div>
       </div>
       
-      <div id="inventory-page-content">
-      {!foldersView ? filteredItems.map((item) => (
-        <InventoryPageItem />
+      <div id="inventory-page-content" className="mt-2">
+      {!foldersView ? filteredItems.map((item, index) => (
+        <InventoryPageItem key={index} />
         )) : (
             <div></div>
         )}
