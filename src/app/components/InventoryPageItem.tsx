@@ -3,14 +3,14 @@ import SeeIcon from "../../assets/See-Icon.svg";
 import SellIcon from "../../assets/Sell-Icon.svg";
 import RefreshIcon from "../../assets/Refresh-Icon.svg"
 
-export const InventoryPageItem = () => {
+export const InventoryPageItem = ({setItem, item}: {setItem: any, item: any}) => {
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
   return (
     <div
       id="item-component"
       className="relative bg-neutral-300 p-2 m-2 rounded text-neutral-900"
     >
-      <div id="options-button" className="absolute right-1 top-1">
+      <div id="options-button" className="absolute right-1 top-2">
         <button
           onClick={() => setOptionsIsOpen(!optionsIsOpen)}
           className="flex flex-col justify-center items-center w-6 h-6 bg-transparent rounded focus:outline-none"
@@ -21,7 +21,7 @@ export const InventoryPageItem = () => {
         </button>
       </div>
       {optionsIsOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+        <div className="absolute right-0 top-4 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
           <ul className="py-1">
             <li>
               <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
@@ -54,7 +54,7 @@ export const InventoryPageItem = () => {
           <img />
         </div>
         <div id="title-provider-container" className="ml-2">
-          <p className="text-xl mr-2 break-all">Title</p>
+          <p className="text-xl mr-2 break-all">Title{item}</p>
           <p className="text-base text-neutral-600">Provider</p>
         </div>
       </div>
@@ -86,7 +86,7 @@ export const InventoryPageItem = () => {
             <div className="bg-tertiary p-2 rounded mr-2">
               <img src={SeeIcon} className="w-5 h-5"/>
             </div>
-            <div className="bg-secondary p-1 rounded">
+            <div className="bg-secondary p-1 rounded" onClick={() => {setItem({})}}>
               <p className="text-neutral-100 text-xl">Re-ubicar</p>
             </div>
           </div>

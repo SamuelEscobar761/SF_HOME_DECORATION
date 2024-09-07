@@ -8,7 +8,7 @@ function App() {
       <DeviceProvider>
           <Router>
               <div className="flex flex-col h-screen">
-                  <div className="flex-grow overflow-y-auto mb-10 bg-primary">
+                  <div className="flex-grow overflow-y-auto mb-10 bg-primary text-neutral-900">
                       <AppRoutes />
                   </div>
                   <ResponsiveNavbar />

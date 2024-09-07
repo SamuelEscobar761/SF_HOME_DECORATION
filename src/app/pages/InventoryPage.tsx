@@ -1,15 +1,34 @@
 import { useState } from "react";
 import { InventoryPageItem } from "../components/InventoryPageItem";
+import { MoveItemComponent } from "../components/MoveItemComponent";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
-  const [items, setItems] = useState<any[]>([1]);
-  const [filteredItems, setFilteredItems] = useState<any[]>([1, 1, 1, 1, 1]);
+//   const [items, setItems] = useState<any[]>([1]);
+  const [filteredItems] = useState<any[]>([1, 1, 1, 1, 1]);
+  const [moveItemView, setMoveItemView] = useState<boolean>(false);
+
+  const setMoveItem = (item: any) => {
+    item[0];
+    setMoveItemView(true);
+  };
+
   return (
     <div>
+      {moveItemView && (
+        <div className="flex fixed z-40 w-screen h-screen justify-center bg-white/[0.40] py-6">
+          <MoveItemComponent closeFunc={() => {setMoveItemView(false)}} />
+        </div>
+      )}
       <div className="flex">
-        <div id="folders-button" onClick={() => {setFoldersView(!foldersView)}}>
+        <div
+          id="folders-button"
+          className="p-2 bg-tertiary-light rounded m-2 border border-neutral-900 w-48"
+          onClick={() => {
+            setFoldersView(!foldersView);
+          }}
+        >
           <p>{foldersView ? "Todos los artículos" : "Carpetas"}</p>
         </div>
         <div id="options-button" className="absolute right-0">
@@ -56,14 +75,15 @@ export const InventoryPage = () => {
           )}
         </div>
       </div>
-      
+
       <div id="inventory-page-content" className="mt-2">
-      {!foldersView ? filteredItems.map((item, index) => (
-        <InventoryPageItem key={index} />
-        )) : (
-            <div></div>
+        {!foldersView ? (
+          filteredItems.map((item, index) => (
+            <InventoryPageItem key={index} setItem={setMoveItem} item={item}/>
+          ))
+        ) : (
+          <div></div>
         )}
-          
       </div>
     </div>
   );
