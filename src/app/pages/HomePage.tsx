@@ -8,7 +8,7 @@ export const HomePage = () => {
     // const [merch, setMerch] = useState<MonthNumberTuple[]>([]);
     // const [sellIncomes, setSellIncomes] = useState<MonthNumberTuple[]>([]);
     return(
-        <div className="p-2 bg-primary">
+        <div id="home-page" className="p-2 bg-primary min-h-screen">
             <div className="mb-2">
                 <GraphicComponent title={"Utilidades Ganadas"} data={utilities} graphType="bar-chart"/>
             </div>

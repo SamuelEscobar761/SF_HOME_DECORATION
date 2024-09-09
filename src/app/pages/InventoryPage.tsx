@@ -22,7 +22,7 @@ export const InventoryPage = () => {
   }
 
   return (
-    <div>
+    <div id="inventory-page" className="min-h-screen">
       {moveItemView && (
         <div className="fixed flex z-40 w-screen h-screen justify-center bg-white/[0.40] py-6">
           <MoveItemComponent

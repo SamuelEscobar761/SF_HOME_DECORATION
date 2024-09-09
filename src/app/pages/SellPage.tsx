@@ -209,7 +209,7 @@ export const SellPage = () => {
   };
 
   return (
-    <div className="text-neutral-900">
+    <div id="sell-page" className="text-neutral-900 min-h-screen">
       {menuOpened && (
         <div
           id="menu-container"
