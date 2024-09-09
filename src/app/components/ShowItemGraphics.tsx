@@ -30,7 +30,7 @@ export const ShowItemGraphics = ({
       </div>
       <div id="show-item-title-container" className="bg-neutral-300 p-2 rounded mb-2">
       <div id="show-item-graphics-title-text-container" className="bg-neutral-100 p-2 rounded">
-      <p className="text-2xl text-center">{title}</p>
+      <p className="text-2xl text-center break-all">{title}</p>
       </div>
       
       </div>
