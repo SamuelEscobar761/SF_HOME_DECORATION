@@ -42,7 +42,7 @@ export const InventoryPage = () => {
           />
         </div>
       )}
-      <div className="flex">
+      <div className="flex justify-between items-center">
         <div
           id="folders-button"
           className="p-2 bg-tertiary-light rounded m-2 border border-neutral-900 w-48"
@@ -52,7 +52,7 @@ export const InventoryPage = () => {
         >
           <p>{foldersView ? "Todos los artículos" : "Carpetas"}</p>
         </div>
-        <div id="options-button" className="absolute right-0">
+        <div id="options-button">
           <button
             onClick={() => setOptionsIsOpen(!optionsIsOpen)}
             className="flex flex-col justify-center items-center w-8 h-8 bg-transparent rounded focus:outline-none"
@@ -62,7 +62,7 @@ export const InventoryPage = () => {
             <span className="block w-1 h-1 bg-black rounded-full"></span>
           </button>
           {optionsIsOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10 overflow-y-auto">
               <ul className="py-1">
                 <li>
                   <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">

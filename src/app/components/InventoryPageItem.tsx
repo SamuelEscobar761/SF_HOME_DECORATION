@@ -29,7 +29,7 @@ export const InventoryPageItem = ({
         </button>
       </div>
       {optionsIsOpen && (
-        <div className="absolute right-0 top-4 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+        <div className="absolute right-0 top-4 mt-2 w-48 h-36 bg-white border border-gray-300 rounded-md shadow-lg z-10 overflow-y-auto">
           <ul className="py-1">
             <li>
               <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
