@@ -2,6 +2,7 @@ import { useState } from "react";
 import { InventoryPageItem } from "../components/InventoryPageItem";
 import { MoveItemComponent } from "../components/MoveItemComponent";
 import { ShowItemGraphics } from "../components/ShowItemGraphics";
+import { OptionsButtonComponent } from "../components/OptionsButtonComponent";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
@@ -19,7 +20,7 @@ export const InventoryPage = () => {
   const setItemToShow = (item: any) => {
     item[0];
     setItemGraphicsView(true);
-  }
+  };
 
   return (
     <div id="inventory-page" className="min-h-screen">
@@ -33,7 +34,10 @@ export const InventoryPage = () => {
         </div>
       )}
       {itemGraphicsView && (
-        <div id="inventory-page-show-item-graphics-component" className="fixed z-40 bg-neutral-100/[0.70] overflow-y-auto w-screen h-screen">
+        <div
+          id="inventory-page-show-item-graphics-component"
+          className="fixed z-40 bg-neutral-100/[0.70] overflow-y-auto w-screen h-screen"
+        >
           <ShowItemGraphics
             title="Title"
             closeFun={() => {
@@ -62,36 +66,11 @@ export const InventoryPage = () => {
             <span className="block w-1 h-1 bg-black rounded-full"></span>
           </button>
           {optionsIsOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10 overflow-y-auto">
-              <ul className="py-1">
-                <li>
-                  <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                    Buscar
-                  </button>
-                </li>
-                {foldersView && (
-                  <li>
-                    <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                      Nueva Carpeta
-                    </button>
-                  </li>
-                )}
-                <li>
-                  <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                    Nuevo artículo
-                  </button>
-                </li>
-                <li>
-                  <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                    En tienda
-                  </button>
-                </li>
-                <li>
-                  <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                    En almacen
-                  </button>
-                </li>
-              </ul>
+            <div>
+              <OptionsButtonComponent
+                page="InventoryPage"
+                settings={{ foldersView }}
+              />
             </div>
           )}
         </div>
@@ -99,7 +78,12 @@ export const InventoryPage = () => {
       <div id="inventory-page-content" className="mt-2">
         {!foldersView ? (
           filteredItems.map((item, index) => (
-            <InventoryPageItem key={index} setItemToMove={setMoveItem} item={item} setItemToShow={setItemToShow}/>
+            <InventoryPageItem
+              key={index}
+              setItemToMove={setMoveItem}
+              item={item}
+              setItemToShow={setItemToShow}
+            />
           ))
         ) : (
           <div></div>
