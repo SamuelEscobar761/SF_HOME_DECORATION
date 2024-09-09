@@ -1,9 +1,17 @@
 import { useState } from "react";
 import SeeIcon from "../../assets/See-Icon.svg";
 import SellIcon from "../../assets/Sell-Icon.svg";
-import RefreshIcon from "../../assets/Refresh-Icon.svg"
+import RefreshIcon from "../../assets/Refresh-Icon.svg";
 
-export const InventoryPageItem = ({setItem, item}: {setItem: any, item: any}) => {
+export const InventoryPageItem = ({
+  setItemToMove,
+  setItemToShow,
+  item,
+}: {
+  setItemToMove: any;
+  setItemToShow: any;
+  item: any;
+}) => {
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
   return (
     <div
@@ -74,19 +82,30 @@ export const InventoryPageItem = ({setItem, item}: {setItem: any, item: any}) =>
         <div id="inventory-item-footer" className="flex justify-between mt-1">
           <div>
             <div className="flex">
-              <img src={RefreshIcon} className="w-5 h-5"/>
+              <img src={RefreshIcon} className="w-5 h-5" />
               <p>15 días</p>
             </div>
             <div className="mt-1 flex">
-              <img src={SellIcon} className="sell-green-icon w-5 h-5"/>
+              <img src={SellIcon} className="sell-green-icon w-5 h-5" />
               <p>210.00 Bs</p>
             </div>
           </div>
           <div className="flex items-end">
-            <div className="bg-tertiary p-2 rounded mr-2">
-              <img src={SeeIcon} className="w-5 h-5"/>
+            <div
+              id="inventory-page-item-see-button"
+              className="bg-tertiary p-2 rounded mr-2"
+              onClick={() => {
+                setItemToShow({});
+              }}
+            >
+              <img src={SeeIcon} className="w-5 h-5" />
             </div>
-            <div className="bg-secondary p-1 rounded" onClick={() => {setItem({})}}>
+            <div
+              className="bg-secondary p-1 rounded"
+              onClick={() => {
+                setItemToMove({});
+              }}
+            >
               <p className="text-neutral-100 text-xl">Re-ubicar</p>
             </div>
           </div>
