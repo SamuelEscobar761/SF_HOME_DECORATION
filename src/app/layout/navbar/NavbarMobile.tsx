@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // Importa useLocation
 import HomeIcon from "../../../assets/Home-Icon.svg";
 import SellIcon from "../../../assets/Sell-Icon.svg";
 import InventoryIcon from "../../../assets/Inventory-Icon.svg";
@@ -38,6 +38,7 @@ const isAuthorized = (label: NavItem["label"]): boolean => {
 };
 
 export const NavbarMobile: React.FC = () => {
+  const location = useLocation(); // Obtén la ubicación actual
   const [active, setActive] = useState<string | null>("home");
   const [navbarWidth, setNavbarWidth] = useState(0);
   const navbarRef = useRef<HTMLDivElement>(null);
@@ -55,6 +56,15 @@ export const NavbarMobile: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Actualiza el estado 'active' en función de la ruta actual
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const foundItem = navItems.find((item) => item.path === currentPath);
+    if (foundItem) {
+      setActive(foundItem.label); // Establece el ítem activo en base a la ruta
+    }
+  }, [location]); // Este useEffect se ejecuta cuando la ruta cambia
+
   // Cálculo del índice medio para centrar la barra
   const middleIndex = Math.floor((navItems.length - 1) / 2);
 
@@ -62,18 +72,13 @@ export const NavbarMobile: React.FC = () => {
   const itemWidth = navbarWidth / navItems.length;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-      <div
-        ref={navbarRef}
-        className="relative flex justify-around"
-      >
+    <nav className="bg-primary border-t border-tertiary-dark">
+      <div ref={navbarRef} className="relative flex justify-around">
         <div
           className="absolute w-6 h-1 bg-secondary-light transition-all duration-300 rounded"
           style={{
             transform: `translateX(calc(${
-              (navItems.findIndex((item) => item.label === active) -
-                middleIndex) *
-              itemWidth
+              (navItems.findIndex((item) => item.label === active) - middleIndex) * itemWidth
             }px))`,
           }}
         ></div>
@@ -96,7 +101,7 @@ export const NavbarMobile: React.FC = () => {
               </Link>
             )
         )}
-        </div>
+      </div>
     </nav>
   );
 };

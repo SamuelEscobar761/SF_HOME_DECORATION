@@ -2,7 +2,7 @@ import { SellItemComponent } from "../components/SellItemComponent";
 import HamburguerButton from "../../assets/Hamburguer-Button-Icon.svg";
 import { useEffect, useRef, useState } from "react";
 import { LateralMenuComponent } from "../components/LateralMenuComponent";
-import { ShowItemComponent } from "./ShowItemComponent";
+import { ShowItemComponent } from "../components/ShowItemComponent";
 
 export const SellPage = () => {
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
