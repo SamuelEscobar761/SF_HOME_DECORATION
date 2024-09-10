@@ -3,6 +3,7 @@ import { InventoryPageItem } from "../components/InventoryPageItem";
 import { MoveItemComponent } from "../components/MoveItemComponent";
 import { ShowItemGraphics } from "../components/ShowItemGraphics";
 import { OptionsButtonComponent } from "../components/OptionsButtonComponent";
+import { ShowNewItemComponent } from "../components/ShowNewItemComponent";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
@@ -11,6 +12,7 @@ export const InventoryPage = () => {
   const [filteredItems] = useState<any[]>([1, 1, 1, 1, 1]);
   const [moveItemView, setMoveItemView] = useState<boolean>(false);
   const [itemGraphicsView, setItemGraphicsView] = useState<boolean>(false);
+  const [newItemView, setNewItemView] = useState<boolean>(false);
 
   const setMoveItem = (item: any) => {
     item[0];
@@ -21,6 +23,10 @@ export const InventoryPage = () => {
     item[0];
     setItemGraphicsView(true);
   };
+
+  const createNewItem = () => {
+    setNewItemView(true);
+  }
 
   return (
     <div id="inventory-page" className="min-h-screen">
@@ -46,9 +52,28 @@ export const InventoryPage = () => {
           />
         </div>
       )}
-      <div className="flex justify-between items-center">
+      {newItemView && (
+        <div className="fixed z-40 w-full h-full p-2 overflow-y-auto">
+          <ShowNewItemComponent closeNewItem={()=>{setNewItemView(false)}}/>
+        </div>
+      )}
+      {optionsIsOpen && (
         <div
-          id="folders-button"
+          id="inventory-page-options-container"
+          className="fixed w-screen h-screen z-40"
+          onClick={() => {
+            setOptionsIsOpen(false);
+          }}
+        >
+          <OptionsButtonComponent
+            page="InventoryPage"
+            settings={{ foldersView }}
+            newItem={createNewItem}
+          />
+        </div>
+      )}
+      <div id="top-buttons" className="flex justify-between items-center">
+        <div id="items-folders-button"
           className="p-2 bg-tertiary-light rounded m-2 border border-neutral-900 w-48"
           onClick={() => {
             setFoldersView(!foldersView);
@@ -65,14 +90,6 @@ export const InventoryPage = () => {
             <span className="block w-1 h-1 bg-black rounded-full mb-1"></span>
             <span className="block w-1 h-1 bg-black rounded-full"></span>
           </button>
-          {optionsIsOpen && (
-            <div>
-              <OptionsButtonComponent
-                page="InventoryPage"
-                settings={{ foldersView }}
-              />
-            </div>
-          )}
         </div>
       </div>
       <div id="inventory-page-content" className="mt-2">
