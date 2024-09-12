@@ -2,53 +2,68 @@ import { useState } from "react";
 import SaveIcon from "../../assets/Save-Icon.svg";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import Sketch from "@uiw/react-color-sketch";
+import { GetColorsFromImage } from "../services/GetColorsFromImage";
 
 export const ShowNewItemComponent = ({
   closeNewItem,
 }: {
   closeNewItem: () => void;
 }) => {
-  const [colors, setColors] = useState<string[]>(["#0064FF"]);
   const [colorEditView, setColorEditView] = useState<boolean>(false);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null); // Índice del color que estamos editando
-  const [tempColor, setTempColor] = useState<string>(""); // Color temporal mientras se edita o agrega un nuevo color
+  const [editingImage, setEditingImage] = useState<string | null>(null);
+  const [tempColor, setTempColor] = useState<string>("");
+  const [colorMapping, setColorMapping] = useState<{ [key: string]: string }>(
+    {}
+  );
+  const [loadingColors, setLoadingColors] = useState<boolean>(false);
+  const [colorsLoadedSuccessfully, setColorsLoadedSuccessfully] =
+    useState<boolean>(false);
+  useState<boolean>(false);
 
-  const handleNewColor = () => {
-    setTempColor("#FFFFFF");
+  const [images, setImages] = useState<File[]>([]); // Nuevo estado para las imágenes
+
+  const handleColorTouch = (name: string) => {
+    setEditingImage(name);
+    setTempColor(colorMapping[name]);
     setColorEditView(true);
-    setEditingIndex(null); // Asegurar que no se está editando un color existente
-  };
-
-  const handleColorTouch = (index: number) => {
-    setEditingIndex(index); // Establecer el índice del color a editar
-    setTempColor(colors[index]); // Establecer color temporal
-    setColorEditView(true); // Mostrar el editor
   };
 
   const handleColorChange = (color: any) => {
-    setTempColor(color.hex); // Actualizar el color temporalmente sin confirmarlo
+    setTempColor(color.hex);
   };
 
   const saveColor = () => {
-    if (editingIndex !== null) {
-      // Editar color existente
-      const updatedColors = [...colors];
-      updatedColors[editingIndex] = tempColor;
-      setColors(updatedColors);
-    } else {
-      // Agregar nuevo color
-      setColors([...colors, tempColor]);
-    }
-    setColorEditView(false); // Cerrar editor
+    colorMapping[editingImage!] = tempColor;
+    setColorEditView(false);
   };
 
   const cancelEdit = () => {
-    setTempColor(""); // Resetear el color temporal
-    setColorEditView(false); // Cerrar el editor sin cambios
+    setTempColor("");
+    setColorEditView(false);
   };
 
   const saveNewItem = () => {
     closeNewItem();
+  };
+
+  // Manejar la carga de imágenes
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setLoadingColors(true);
+    const files = event.target.files;
+    if (files) {
+      setImages([...images, ...Array.from(files)]); // Almacena las imágenes seleccionadas
+      try {
+        // Subir las imágenes al backend y obtener el mapeo de colores
+        const result = await GetColorsFromImage(Array.from(files));
+        setColorsLoadedSuccessfully(true);
+        setColorMapping(result);
+      } catch (error) {
+        console.error("Error al obtener colores:", error);
+      }
+    }
+    setLoadingColors(false);
   };
 
   return (
@@ -90,31 +105,54 @@ export const ShowNewItemComponent = ({
       )}
       <div
         id="images-container"
-        className="bg-neutral-400 h-80 rounded mb-2"
-      ></div>
+        className="bg-neutral-400 h-fit rounded mb-2 p-2 flex overflow-x-scroll snap-x snap-mandatory"
+      >
+        {images.length > 0 &&
+          images.map((image, index) => (
+            <div className="w-full flex-shrink-0 snap-center mr-2 flex flex-col justify-between">
+              <img
+                key={index}
+                src={URL.createObjectURL(image)} // Previsualización de la imagen
+                alt={`uploaded-${index}`}
+                className="object-conatin w-full h-80"
+              />
+              <div
+                id="color-container"
+                className="flex h-12 overflow-x-auto rounded bg-neutral-100 mt-2 justify-center items-center"
+                style={{
+                  backgroundColor: loadingColors
+                    ? "#FFFFFF"
+                    : colorMapping[image.name] || "#FFFFFF",
+                }}
+                onClick={() =>
+                  !loadingColors && handleColorTouch(image.name)
+                }
+              >
+                {loadingColors && (
+                  <div className="loader"></div>
+                )}
+              </div>
+            </div>
+          ))}
+        <div
+          className="min-h-80 h-auto w-full flex justify-center items-center rounded bg-neutral-100 flex-shrink-0 snap-center object-contain"
+          onClick={() => document.getElementById("file-upload")?.click()} // Triggers the file input when clicked
+        >
+          <span className="text-7xl text-neutral-500">+</span>
+        </div>
+        <input
+          type="file"
+          id="file-upload"
+          multiple
+          style={{ display: "none" }} // Oculta el input para que solo aparezca el contenedor de imágenes
+          accept="image/*"
+          onChange={handleImageUpload}
+        />
+      </div>
       <div
         id="new-item-component-content"
         className="bg-neutral-400 p-2 rounded text-lg"
       >
-        <div
-          id="colors-container"
-          className="flex overflow-x-auto mb-2 rounded bg-neutral-100 p-2"
-        >
-          <div
-            className="h-14 w-14 flex justify-center items-center rounded-full bg-neutral-100 border border-neutral-900"
-            onClick={handleNewColor}
-          >
-            <span className="text-2xl">+</span>
-          </div>
-          {colors.map((color, index) => (
-            <div
-              key={index}
-              className="h-14 w-14 rounded-full border border-neutral-900 ml-3"
-              style={{ backgroundColor: color }}
-              onClick={() => handleColorTouch(index)} // Editar color al tocar
-            ></div>
-          ))}
-        </div>
         <div id="new-item-title" className="mb-2">
           <input
             type="text"
