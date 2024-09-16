@@ -23,6 +23,9 @@ export const ShowNewItemComponent = ({
   const [images, setImages] = useState<File[]>([]); // Nuevo estado para las imágenes
 
   const handleColorTouch = (name: string) => {
+    if(!colorsLoadedSuccessfully){
+      alert("Parece que hubo un error, los colores no cargaron correctamente, por favor modificalos de forma manual y verifica tu conexión a internet. Si el error persiste contacta con soporte.")
+    }
     setEditingImage(name);
     setTempColor(colorMapping[name]);
     setColorEditView(true);
@@ -151,30 +154,30 @@ export const ShowNewItemComponent = ({
       </div>
       <div
         id="new-item-component-content"
-        className="bg-neutral-400 p-2 rounded text-lg"
+        className="bg-neutral-400 p-2 rounded text-lg space-y-2"
       >
-        <div id="new-item-title" className="mb-2">
+        <div id="new-item-title">
           <input
             type="text"
             placeholder="Nombre"
             className="w-full p-2 rounded"
           />
         </div>
-        <div id="new-item-provider" className="mb-2">
+        <div id="new-item-provider">
           <input
             type="text"
             placeholder="Proveedor"
             className="w-full p-2 rounded"
           />
         </div>
-        <div id="new-item-room" className="mb-2">
+        <div id="new-item-room">
           <input
             type="text"
             placeholder="Habitación"
             className="w-full p-2 rounded"
           />
         </div>
-        <div id="new-item-material" className="mb-2">
+        <div id="new-item-material">
           <input
             type="text"
             placeholder="Material"
