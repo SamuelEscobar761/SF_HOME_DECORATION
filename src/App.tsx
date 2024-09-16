@@ -11,7 +11,7 @@ function App() {
           {window.innerWidth >= 768 &&(
             <ResponsiveNavbar/>
           )}
-          <div className="overflow-y-auto bg-primary text-neutral-900 ">
+          <div className="overflow-y-auto bg-primary text-neutral-900">
             <AppRoutes />
           </div>
           {window.innerWidth < 768 &&(
