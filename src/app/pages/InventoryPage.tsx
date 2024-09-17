@@ -1,18 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InventoryPageItem } from "../components/InventoryPageItem";
 import { MoveItemComponent } from "../components/MoveItemComponent";
 import { ShowItemGraphics } from "../components/ShowItemGraphics";
 import { OptionsButtonComponent } from "../components/OptionsButtonComponent";
 import { ShowNewItemComponent } from "../components/ShowNewItemComponent";
+import { NewFolderComponent } from "../components/NewFolderComponent";
+import { FolderComponent } from "../components/FolderComponent";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
   //   const [items, setItems] = useState<any[]>([1]);
   const [filteredItems] = useState<any[]>([1, 1, 1, 1, 1]);
+  const [folders, setFolders] = useState<any[]>([]);
   const [moveItemView, setMoveItemView] = useState<boolean>(false);
   const [itemGraphicsView, setItemGraphicsView] = useState<boolean>(false);
   const [newItemView, setNewItemView] = useState<boolean>(false);
+  const [newFolderView, setNewFolderView] = useState<boolean>(false);
 
   const setMoveItem = (item: any) => {
     item[0];
@@ -26,10 +30,36 @@ export const InventoryPage = () => {
 
   const createNewItem = () => {
     setNewItemView(true);
-  }
+  };
+
+  const saveNewFolder = (name: string) => {
+    const id = 15;
+    setFolders([...folders, { id: id, name: name }]);
+    setNewFolderView(false);
+  };
+
+  const cancelNewFolder = () => {
+    setNewFolderView(false);
+  };
+
+  const deleteFolder = (id: number) => {
+    setFolders(folders.filter((folder) => folder.id != id));
+  };
+
+  const selectFolder = (id: number) => {
+    console.log("select folder with id: " + id);
+  };
+
+  useEffect(() => {
+    setFolders([
+      { id: 1, name: "Primera Carpeta" },
+      { id: 2, name: "Segunda Carpeta" },
+      { id: 3, name: "Tercera Carpeta" },
+    ]);
+  }, []);
 
   return (
-    <div id="inventory-page" className="min-h-screen">
+    <div id="inventory-page" className="p-2">
       {moveItemView && (
         <div className="fixed flex z-40 w-screen h-screen justify-center bg-white/[0.40] py-6">
           <MoveItemComponent
@@ -54,7 +84,25 @@ export const InventoryPage = () => {
       )}
       {newItemView && (
         <div className="fixed z-40 w-full h-full p-2 overflow-y-auto">
-          <ShowNewItemComponent closeNewItem={()=>{setNewItemView(false)}}/>
+          <ShowNewItemComponent
+            closeNewItem={() => {
+              setNewItemView(false);
+            }}
+          />
+        </div>
+      )}
+      {newFolderView && (
+        <div
+          id="new-folder-container"
+          className="fixed size-full bg-neutral-100/[0.60] p-8 flex items-center justify-center"
+          onClick={() => {
+            setNewFolderView(false);
+          }}
+        >
+          <NewFolderComponent
+            saveNewFolder={saveNewFolder}
+            cancelNewFolder={cancelNewFolder}
+          />
         </div>
       )}
       {optionsIsOpen && (
@@ -69,42 +117,52 @@ export const InventoryPage = () => {
             page="InventoryPage"
             settings={{ foldersView }}
             newItem={createNewItem}
+            newFolder={() => {
+              setNewFolderView(true);
+            }}
           />
         </div>
       )}
       <div id="top-buttons" className="flex justify-between items-center">
-        <div id="items-folders-button"
-          className="p-2 bg-tertiary-light rounded m-2 border border-neutral-900 w-48"
+        <button
+          id="items-folder-button"
+          className="p-2 bg-tertiary-light rounded border border-neutral-900 w-48 text-left text-xl"
           onClick={() => {
             setFoldersView(!foldersView);
           }}
         >
-          <p>{foldersView ? "Todos los artículos" : "Carpetas"}</p>
-        </div>
+          {foldersView ? "Todos los artículos" : "Carpetas"}
+        </button>
         <div id="options-button">
           <button
             onClick={() => setOptionsIsOpen(!optionsIsOpen)}
-            className="flex flex-col justify-center items-center w-8 h-8 bg-transparent rounded focus:outline-none"
+            className="flex flex-col justify-center items-center w-8 h-8 bg-transparent rounded focus:outline-none space-y-1"
           >
-            <span className="block w-1 h-1 bg-black rounded-full mb-1"></span>
-            <span className="block w-1 h-1 bg-black rounded-full mb-1"></span>
+            <span className="block w-1 h-1 bg-black rounded-full"></span>
+            <span className="block w-1 h-1 bg-black rounded-full"></span>
             <span className="block w-1 h-1 bg-black rounded-full"></span>
           </button>
         </div>
       </div>
-      <div id="inventory-page-content" className="mt-2">
-        {!foldersView ? (
-          filteredItems.map((item, index) => (
-            <InventoryPageItem
-              key={index}
-              setItemToMove={setMoveItem}
-              item={item}
-              setItemToShow={setItemToShow}
-            />
-          ))
-        ) : (
-          <div></div>
-        )}
+      <div id="inventory-page-content" className="space-y-5 mt-8">
+        {!foldersView
+          ? filteredItems.map((item, index) => (
+              <InventoryPageItem
+                key={index}
+                setItemToMove={setMoveItem}
+                item={item}
+                setItemToShow={setItemToShow}
+              />
+            ))
+          : folders.map((folder, index) => (
+              <FolderComponent
+                key={index}
+                name={folder.name}
+                id={folder.id}
+                deleteFolder={deleteFolder}
+                onClick={selectFolder}
+              />
+            ))}
       </div>
     </div>
   );

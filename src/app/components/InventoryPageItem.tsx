@@ -16,7 +16,7 @@ export const InventoryPageItem = ({
   return (
     <div
       id="item-component"
-      className="relative bg-neutral-300 p-2 m-2 rounded text-neutral-900"
+      className="relative bg-neutral-300 p-2 rounded text-neutral-900"
     >
       <div id="options-button" className="absolute right-1 top-2">
         <button
