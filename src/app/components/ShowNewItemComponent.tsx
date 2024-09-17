@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SaveIcon from "../../assets/Save-Icon.svg";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import Sketch from "@uiw/react-color-sketch";
@@ -23,8 +23,10 @@ export const ShowNewItemComponent = ({
   const [images, setImages] = useState<File[]>([]); // Nuevo estado para las imágenes
 
   const handleColorTouch = (name: string) => {
-    if(!colorsLoadedSuccessfully){
-      alert("Parece que hubo un error, los colores no cargaron correctamente, por favor modificalos de forma manual y verifica tu conexión a internet. Si el error persiste contacta con soporte.")
+    if (!colorsLoadedSuccessfully) {
+      alert(
+        "Parece que hubo un error, los colores no cargaron correctamente, por favor modificalos de forma manual y verifica tu conexión a internet. Si el error persiste contacta con soporte."
+      );
     }
     setEditingImage(name);
     setTempColor(colorMapping[name]);
@@ -53,10 +55,12 @@ export const ShowNewItemComponent = ({
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    //Start to load colors
     setLoadingColors(true);
     const files = event.target.files;
     if (files) {
-      setImages([...images, ...Array.from(files)]); // Almacena las imágenes seleccionadas
+      setImages([...images, ...Array.from(files)]);
+      
       try {
         // Subir las imágenes al backend y obtener el mapeo de colores
         const result = await GetColorsFromImage(Array.from(files));
@@ -68,6 +72,14 @@ export const ShowNewItemComponent = ({
     }
     setLoadingColors(false);
   };
+
+  useEffect(() => {
+    //Scroll to the first image
+    const scrollableDiv = document.querySelector(".overflow-x-scroll");
+    if (scrollableDiv) {
+      scrollableDiv.scrollTo({ left: 0, behavior: "instant" });
+    }
+  }, [images])
 
   return (
     <div id="show-new-item-component" className="bg-neutral-300 p-2 rounded">
@@ -127,13 +139,9 @@ export const ShowNewItemComponent = ({
                     ? "#FFFFFF"
                     : colorMapping[image.name] || "#FFFFFF",
                 }}
-                onClick={() =>
-                  !loadingColors && handleColorTouch(image.name)
-                }
+                onClick={() => !loadingColors && handleColorTouch(image.name)}
               >
-                {loadingColors && (
-                  <div className="loader"></div>
-                )}
+                {loadingColors && <div className="loader"></div>}
               </div>
             </div>
           ))}

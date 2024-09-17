@@ -71,6 +71,7 @@ export const NavbarMobile: React.FC = () => {
   // Ancho de cada ítem basado en el ancho total del navbar
   const itemWidth = navbarWidth / navItems.length;
 
+
   return (
     <nav className="bg-primary border-t border-tertiary-dark">
       <div ref={navbarRef} className="relative flex justify-around">
@@ -89,7 +90,9 @@ export const NavbarMobile: React.FC = () => {
                 key={index}
                 to={item.path}
                 className="p-4"
-                onClick={() => setActive(item.label)}
+                onClick={() => {
+                  setActive(item.label);
+                }}
               >
                 <img
                   src={item.icon}
