@@ -27,6 +27,7 @@ export const ShowNewItemComponent = ({
       alert(
         "Parece que hubo un error, los colores no cargaron correctamente, por favor modificalos de forma manual y verifica tu conexión a internet. Si el error persiste contacta con soporte."
       );
+      setColorsLoadedSuccessfully(true);
     }
     setEditingImage(name);
     setTempColor(colorMapping[name]);
