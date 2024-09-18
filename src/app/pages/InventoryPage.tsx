@@ -17,9 +17,10 @@ export const InventoryPage = () => {
   const [itemGraphicsView, setItemGraphicsView] = useState<boolean>(false);
   const [newItemView, setNewItemView] = useState<boolean>(false);
   const [newFolderView, setNewFolderView] = useState<boolean>(false);
+  const [moveItem, setMoveItem] = useState<any>({});
 
-  const setMoveItem = (item: any) => {
-    item[0];
+  const handleMoveItem = (item: any) => {
+    setMoveItem({id: item.id, locations: item.locations, image: item.image, name: item.name});
     setMoveItemView(true);
   };
 
@@ -52,7 +53,7 @@ export const InventoryPage = () => {
 
   const saveNewItem = (item: any) => {
     setItems([...items, item]);
-  }
+  };
 
   useEffect(() => {
     setFolders([
@@ -113,35 +114,42 @@ export const InventoryPage = () => {
   return (
     <div id="inventory-page" className="relative size-full p-2">
       {moveItemView && (
-        <div className="fixed flex z-40 w-screen h-screen justify-center bg-white/[0.40] py-6">
-          <MoveItemComponent
-            closeFunc={() => {
-              setMoveItemView(false);
-            }}
-          />
+        <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
+          <div className="fixed inset-2 size-auto overflow-y-auto">
+            <MoveItemComponent
+              closeMoveItem={() => {
+                setMoveItemView(false);
+              }}
+              item={moveItem}
+            />
+          </div>
         </div>
       )}
       {itemGraphicsView && (
-        <div
-          id="inventory-page-show-item-graphics-component"
-          className="fixed inset-2 z-40 bg-neutral-100/[0.70] overflow-y-auto w-screen h-screen"
-        >
-          <ShowItemGraphics
-            title="Title"
-            closeFun={() => {
-              setItemGraphicsView(false);
-            }}
-          />
+        <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
+          <div
+            id="inventory-page-show-item-graphics-component"
+            className="fixed inset-2 size-auto overflow-y-auto"
+          >
+            <ShowItemGraphics
+              title="Title"
+              closeFun={() => {
+                setItemGraphicsView(false);
+              }}
+            />
+          </div>
         </div>
       )}
       {newItemView && (
-        <div className="fixed inset-2 z-40 size-auto overflow-y-auto">
-          <ShowNewItemComponent
-            closeNewItem={() => {
-              setNewItemView(false);
-            }}
-            saveNewItem={saveNewItem}
-          />
+        <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
+          <div className="fixed inset-2 size-auto overflow-y-auto">
+            <ShowNewItemComponent
+              closeNewItem={() => {
+                setNewItemView(false);
+              }}
+              saveNewItem={saveNewItem}
+            />
+          </div>
         </div>
       )}
       {newFolderView && (
@@ -203,13 +211,16 @@ export const InventoryPage = () => {
             filteredItems.map((item, index) => (
               <InventoryPageItem
                 key={index}
-                setItemToMove={setMoveItem}
+                setItemToMove={()=>{handleMoveItem(item)}}
                 item={item}
                 setItemToShow={setItemToShow}
               />
             ))
           ) : (
-            <p>Parece que todavía no hay artículos para mostrar, intenta crear nuevos.</p>
+            <p>
+              Parece que todavía no hay artículos para mostrar, intenta crear
+              nuevos.
+            </p>
           )
         ) : folders.length > 0 ? (
           folders.map((folder, index) => (
@@ -222,7 +233,10 @@ export const InventoryPage = () => {
             />
           ))
         ) : (
-          <p>Parece que todavía no hay artículos para mostrar, intenta crear nuevos.</p>
+          <p>
+            Parece que todavía no hay artículos para mostrar, intenta crear
+            nuevos.
+          </p>
         )}
       </div>
     </div>
