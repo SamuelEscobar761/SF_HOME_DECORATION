@@ -50,6 +50,10 @@ export const InventoryPage = () => {
     console.log("select folder with id: " + id);
   };
 
+  const saveNewItem = (item: any) => {
+    setItems([...items, item]);
+  }
+
   useEffect(() => {
     setFolders([
       { id: 1, name: "Primera Carpeta" },
@@ -136,6 +140,7 @@ export const InventoryPage = () => {
             closeNewItem={() => {
               setNewItemView(false);
             }}
+            saveNewItem={saveNewItem}
           />
         </div>
       )}

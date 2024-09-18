@@ -6,8 +6,10 @@ import { GetColorsFromImage } from "../services/GetColorsFromImage";
 
 export const ShowNewItemComponent = ({
   closeNewItem,
+  saveNewItem,
 }: {
   closeNewItem: () => void;
+  saveNewItem: (item: any) => void;
 }) => {
   const [colorEditView, setColorEditView] = useState<boolean>(false);
   const [editingImage, setEditingImage] = useState<string | null>(null);
@@ -16,18 +18,21 @@ export const ShowNewItemComponent = ({
     {}
   );
   const [loadingColors, setLoadingColors] = useState<boolean>(false);
-  const [colorsLoadedSuccessfully, setColorsLoadedSuccessfully] =
-    useState<boolean>(false);
-  useState<boolean>(false);
-
-  const [images, setImages] = useState<File[]>([]); // Nuevo estado para las imágenes
+  const [colorsSuccess, setColorsSuccesss] = useState<boolean>(false);
+  const [images, setImages] = useState<File[]>([]);
+  const [name, setName] = useState<string>("");
+  const [provider, setProvider] = useState<string>("");
+  const [room, setRoom] = useState<string>("");
+  const [material, setMaterial] = useState<string>("");
+  const [price, setPrice] = useState<string>("");
+  const [units, setUnits] = useState<string>("");
 
   const handleColorTouch = (name: string) => {
-    if (!colorsLoadedSuccessfully) {
+    if (!colorsSuccess) {
       alert(
         "Parece que hubo un error, los colores no cargaron correctamente, por favor modificalos de forma manual y verifica tu conexión a internet. Si el error persiste contacta con soporte."
       );
-      setColorsLoadedSuccessfully(true);
+      setColorsSuccesss(true);
     }
     setEditingImage(name);
     setTempColor(colorMapping[name]);
@@ -48,7 +53,17 @@ export const ShowNewItemComponent = ({
     setColorEditView(false);
   };
 
-  const saveNewItem = () => {
+  const save = () => {
+    saveNewItem({
+      id: 22,
+      name: name,
+      provider: provider,
+      price: price,
+      image: URL.createObjectURL(images[0]),
+      rotation: 0,
+      utilitiesAvg: 0,
+      locations: [{ id: 1, name: "almacen", units: units }],
+    });
     closeNewItem();
   };
 
@@ -61,11 +76,11 @@ export const ShowNewItemComponent = ({
     const files = event.target.files;
     if (files) {
       setImages([...images, ...Array.from(files)]);
-      
+
       try {
         // Subir las imágenes al backend y obtener el mapeo de colores
         const result = await GetColorsFromImage(Array.from(files));
-        setColorsLoadedSuccessfully(true);
+        setColorsSuccesss(true);
         setColorMapping(result);
       } catch (error) {
         console.error("Error al obtener colores:", error);
@@ -80,7 +95,7 @@ export const ShowNewItemComponent = ({
     if (scrollableDiv) {
       scrollableDiv.scrollTo({ left: 0, behavior: "instant" });
     }
-  }, [images])
+  }, [images]);
 
   return (
     <div id="show-new-item-component" className="bg-neutral-300 p-2 rounded">
@@ -170,6 +185,10 @@ export const ShowNewItemComponent = ({
             type="text"
             placeholder="Nombre"
             className="w-full p-2 rounded"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+            }}
           />
         </div>
         <div id="new-item-provider">
@@ -177,6 +196,10 @@ export const ShowNewItemComponent = ({
             type="text"
             placeholder="Proveedor"
             className="w-full p-2 rounded"
+            value={provider}
+            onChange={(e) => {
+              setProvider(e.target.value);
+            }}
           />
         </div>
         <div id="new-item-room">
@@ -184,6 +207,10 @@ export const ShowNewItemComponent = ({
             type="text"
             placeholder="Habitación"
             className="w-full p-2 rounded"
+            value={room}
+            onChange={(e) => {
+              setRoom(e.target.value);
+            }}
           />
         </div>
         <div id="new-item-material">
@@ -191,31 +218,41 @@ export const ShowNewItemComponent = ({
             type="text"
             placeholder="Material"
             className="w-full p-2 rounded"
+            value={material}
+            onChange={(e) => {
+              setMaterial(e.target.value);
+            }}
           />
         </div>
-        <div id="new-item-price" className="mb-2 flex">
+        <div id="new-item-price-units" className="mb-2 flex space-x-2">
+          <div id="new-item-price-container" className="flex space-x-1">
+            <input
+              id="new-item-price"
+              type="number"
+              placeholder="Precio"
+              className="w-20 p-2 rounded"
+              value={price}
+              onChange={(e) => {
+                setPrice(e.target.value);
+              }}
+            />
+            <p className="p-2 bg-neutral-100 rounded">Bs</p>
+          </div>
           <input
+            id="new-item-units"
             type="number"
-            placeholder="Precio"
-            className="w-20 p-2 rounded"
+            placeholder="Unidades"
+            className="w-full p-2 rounded"
+            value={units}
+            onChange={(e) => {
+              setUnits(e.target.value);
+            }}
           />
-          <p className="p-2 bg-neutral-100 rounded ml-1">Bs</p>
-        </div>
-        <div id="new-item-storage" className="mb-2 rounded">
-          <select
-            name=""
-            id="new-item-storage-selector"
-            className="p-2 rounded w-full"
-          >
-            <option value="">Seleccionar</option>
-            <option value="Almacen">Almacen</option>
-            <option value="Tienda">Tienda</option>
-          </select>
         </div>
         <div
           id="new-item-save-button"
           className="w-full flex justify-center bg-success p-2 rounded"
-          onClick={saveNewItem}
+          onClick={save}
         >
           <img src={SaveIcon} />
           <p className="ml-1 text-2xl">Guardar</p>

@@ -14,7 +14,7 @@ export const InventoryPageItem = ({
   item: any;
 }) => {
   const totalStockUnits = item.locations.reduce(
-    (sum: number, location: any) => sum + location.units,
+    (sum: number, location: any) => sum + Number(location.units),
     0
   );
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
