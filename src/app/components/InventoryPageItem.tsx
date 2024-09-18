@@ -29,7 +29,7 @@ export const InventoryPageItem = ({
         </button>
       </div>
       {optionsIsOpen && (
-        <div className="absolute right-0 top-4 mt-2 w-48 h-36 bg-white border border-gray-300 rounded-md shadow-lg z-10 overflow-y-auto">
+        <div className="absolute right-0 top-4 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10 overflow-y-auto">
           <ul className="py-1">
             <li>
               <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
@@ -41,16 +41,6 @@ export const InventoryPageItem = ({
                 Eliminar
               </button>
             </li>
-            <li>
-              <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                En {item.locations[0].name}: {item.locations[0].units}
-              </button>
-            </li>
-            <li>
-              <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                En {item.locations[1].name}: {item.locations[1].units}
-              </button>
-            </li>
           </ul>
         </div>
       )}
@@ -59,25 +49,30 @@ export const InventoryPageItem = ({
           id="inventory-item-image-container"
           className="w-[120px] h-[120px] shrink-0 bg-neutral-100 rounded"
         >
-          <img />
+          <img src={item.image} />
         </div>
         <div id="title-provider-container" className="ml-2">
-          <p className="text-xl mr-2 break-all">Title{item}</p>
-          <p className="text-base text-neutral-600">Provider</p>
+          <p className="text-xl mr-2 break-all">{item.name}</p>
+          <p className="text-base text-neutral-600">{item.provider}</p>
         </div>
       </div>
       <div id="inventory-item-content" className="mt-2 text-base">
         <div id="stock-units" className="flex justify-between">
-          <p>Unidades en stock:</p>
-          <p>15</p>
+          <p>Unidades en stock: {item.stockUnits}</p>
         </div>
         <div id="stock-units-value" className="flex justify-between mt-1">
-          <p>Valor total en stock:</p>
-          <p>2476.00 Bs</p>
+          <p>Valor total en stock: {item.price.toFixed(2)} Bs</p>
         </div>
         <div id="locations" className="flex justify-between mt-1">
-          <p>Ubicaciones:</p>
-          <p>2</p>
+          <p>
+            Stock:{" "}
+            {item.locations.map((location: any, index: number) => (
+              <span key={index}>
+                <strong>{location.name}</strong>:{" "}
+                <strong>{location.units}</strong> unidades;{" "}
+              </span>
+            ))}
+          </p>
         </div>
         <div id="inventory-item-footer" className="flex justify-between mt-1">
           <div>
@@ -87,7 +82,7 @@ export const InventoryPageItem = ({
             </div>
             <div className="mt-1 flex">
               <img src={SellIcon} className="sell-green-icon w-5 h-5" />
-              <p>210.00 Bs</p>
+              <p>{item.utilitiesAvg.toFixed(2)} Bs</p>
             </div>
           </div>
           <div className="flex items-end">
