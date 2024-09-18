@@ -110,7 +110,7 @@ export const InventoryPage = () => {
   }, [items]);
 
   return (
-    <div id="inventory-page" className="p-2">
+    <div id="inventory-page" className="relative size-full p-2">
       {moveItemView && (
         <div className="fixed flex z-40 w-screen h-screen justify-center bg-white/[0.40] py-6">
           <MoveItemComponent
@@ -123,7 +123,7 @@ export const InventoryPage = () => {
       {itemGraphicsView && (
         <div
           id="inventory-page-show-item-graphics-component"
-          className="fixed z-40 bg-neutral-100/[0.70] overflow-y-auto w-screen h-screen"
+          className="fixed inset-2 z-40 bg-neutral-100/[0.70] overflow-y-auto w-screen h-screen"
         >
           <ShowItemGraphics
             title="Title"
@@ -134,7 +134,7 @@ export const InventoryPage = () => {
         </div>
       )}
       {newItemView && (
-        <div className="fixed z-40 w-full h-full p-2 overflow-y-auto">
+        <div className="fixed inset-2 z-40 size-auto overflow-y-auto">
           <ShowNewItemComponent
             closeNewItem={() => {
               setNewItemView(false);
@@ -145,7 +145,7 @@ export const InventoryPage = () => {
       {newFolderView && (
         <div
           id="new-folder-container"
-          className="fixed size-full bg-neutral-100/[0.60] p-8 flex items-center justify-center"
+          className="fixed inset-2 size-auto bg-neutral-100/[0.60] p-8 flex items-center justify-center"
           onClick={() => {
             setNewFolderView(false);
           }}
@@ -159,7 +159,7 @@ export const InventoryPage = () => {
       {optionsIsOpen && (
         <div
           id="inventory-page-options-container"
-          className="fixed w-screen h-screen z-40"
+          className="fixed inset-2 size-auto z-40"
           onClick={() => {
             setOptionsIsOpen(false);
           }}
