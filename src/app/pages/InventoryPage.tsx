@@ -10,8 +10,8 @@ import { FolderComponent } from "../components/FolderComponent";
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
-  const [items, setItems] = useState<any[]>([1]);
-  const [filteredItems, setFilteredItems] = useState<any[]>([items]);
+  const [items, setItems] = useState<any[]>([]);
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [folders, setFolders] = useState<any[]>([]);
   const [moveItemView, setMoveItemView] = useState<boolean>(false);
   const [itemGraphicsView, setItemGraphicsView] = useState<boolean>(false);
@@ -107,7 +107,7 @@ export const InventoryPage = () => {
 
   useEffect(() => {
     setFilteredItems(items);
-  })
+  }, [items]);
 
   return (
     <div id="inventory-page" className="p-2">
@@ -196,8 +196,9 @@ export const InventoryPage = () => {
         </div>
       </div>
       <div id="inventory-page-content" className="space-y-5 mt-8">
-        {!foldersView
-          ? filteredItems.map((item, index) => (
+        {!foldersView ? (
+          filteredItems.length > 0 ? (
+            filteredItems.map((item, index) => (
               <InventoryPageItem
                 key={index}
                 setItemToMove={setMoveItem}
@@ -205,15 +206,22 @@ export const InventoryPage = () => {
                 setItemToShow={setItemToShow}
               />
             ))
-          : folders.map((folder, index) => (
-              <FolderComponent
-                key={index}
-                name={folder.name}
-                id={folder.id}
-                deleteFolder={deleteFolder}
-                onClick={selectFolder}
-              />
-            ))}
+          ) : (
+            <p>Parece que todavía no hay artículos para mostrar, intenta crear nuevos.</p>
+          )
+        ) : folders.length > 0 ? (
+          folders.map((folder, index) => (
+            <FolderComponent
+              key={index}
+              name={folder.name}
+              id={folder.id}
+              deleteFolder={deleteFolder}
+              onClick={selectFolder}
+            />
+          ))
+        ) : (
+          <p>Parece que todavía no hay artículos para mostrar, intenta crear nuevos.</p>
+        )}
       </div>
     </div>
   );
