@@ -10,8 +10,8 @@ import { FolderComponent } from "../components/FolderComponent";
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
-  //   const [items, setItems] = useState<any[]>([1]);
-  const [filteredItems] = useState<any[]>([1, 1, 1, 1, 1]);
+  const [items, setItems] = useState<any[]>([1]);
+  const [filteredItems, setFilteredItems] = useState<any[]>([items]);
   const [folders, setFolders] = useState<any[]>([]);
   const [moveItemView, setMoveItemView] = useState<boolean>(false);
   const [itemGraphicsView, setItemGraphicsView] = useState<boolean>(false);
@@ -57,6 +57,57 @@ export const InventoryPage = () => {
       { id: 3, name: "Tercera Carpeta" },
     ]);
   }, []);
+
+  useEffect(() => {
+    setItems([
+      {
+        id: 1,
+        name: "Sofa",
+        provider: "Provider",
+        stockUnits: 15,
+        price: 50,
+        image: "https://t.ly/7nTCp",
+        rotation: 15,
+        utilitiesAvg: 210,
+        locations: [
+          { id: 1, name: "almacen", units: 25 },
+          { id: 2, name: "tienda", units: 5 },
+        ],
+      },
+      {
+        id: 2,
+        name: "Sofa de 1 plaza",
+        provider: "Provider",
+        stockUnits: 12,
+        price: 65,
+        image: "https://t.ly/vsT0F",
+        rotation: 8,
+        utilitiesAvg: 110,
+        locations: [
+          { id: 1, name: "almacen", units: 20 },
+          { id: 2, name: "tienda", units: 8 },
+        ],
+      },
+      {
+        id: 3,
+        name: "Silla de madera",
+        provider: "Provider",
+        stockUnits: 6,
+        price: 35,
+        image: "https://t.ly/4Q6Tb",
+        rotation: 25,
+        utilitiesAvg: 340,
+        locations: [
+          { id: 1, name: "almacen", units: 3 },
+          { id: 2, name: "tienda", units: 2 },
+        ],
+      },
+    ]);
+  }, []);
+
+  useEffect(() => {
+    setFilteredItems(items);
+  })
 
   return (
     <div id="inventory-page" className="p-2">

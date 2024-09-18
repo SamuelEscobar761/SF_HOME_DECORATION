@@ -43,12 +43,12 @@ export const InventoryPageItem = ({
             </li>
             <li>
               <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                En tienda: 5
+                En {item.locations[0].name}: {item.locations[0].units}
               </button>
             </li>
             <li>
               <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
-                En almacen: 10
+                En {item.locations[1].name}: {item.locations[1].units}
               </button>
             </li>
           </ul>
