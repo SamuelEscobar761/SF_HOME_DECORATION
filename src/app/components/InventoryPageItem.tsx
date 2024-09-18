@@ -2,6 +2,7 @@ import { useState } from "react";
 import SeeIcon from "../../assets/See-Icon.svg";
 import SellIcon from "../../assets/Sell-Icon.svg";
 import RefreshIcon from "../../assets/Refresh-Icon.svg";
+import React from "react";
 
 export const InventoryPageItem = ({
   setItemToMove,
@@ -12,6 +13,10 @@ export const InventoryPageItem = ({
   setItemToShow: any;
   item: any;
 }) => {
+  const totalStockUnits = item.locations.reduce(
+    (sum: number, location: any) => sum + location.units,
+    0
+  );
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
   return (
     <div
@@ -57,23 +62,23 @@ export const InventoryPageItem = ({
         </div>
       </div>
       <div id="inventory-item-content" className="mt-2 text-base">
-        <div id="stock-units" className="flex justify-between">
-          <p>Unidades en stock: {item.stockUnits}</p>
-        </div>
-        <div id="stock-units-value" className="flex justify-between mt-1">
-          <p>Valor total en stock: {item.price.toFixed(2)} Bs</p>
-        </div>
-        <div id="locations" className="flex justify-between mt-1">
-          <p>
-            Stock:{" "}
-            {item.locations.map((location: any, index: number) => (
-              <span key={index}>
-                <strong>{location.name}</strong>:{" "}
-                <strong>{location.units}</strong> unidades;{" "}
-              </span>
-            ))}
+        <div id="stock" className="grid grid-cols-5 gap-4 mt-4">
+          {item.locations.map((location: any, index: number) => (
+            <React.Fragment key={index}>
+              <p className="font-bold">{location.name}</p>
+              <p className="text-right">{location.units}</p>
+              <p className="col-span-3 ml-5">
+                {(location.units * item.price).toFixed(2)} Bs
+              </p>
+            </React.Fragment>
+          ))}
+          <p className="font-bold">Total</p>
+          <p className="text-right">{totalStockUnits}</p>
+          <p className="col-span-3 ml-5">
+            {(totalStockUnits * item.price).toFixed(2)} Bs
           </p>
         </div>
+
         <div id="inventory-item-footer" className="flex justify-between mt-1">
           <div>
             <div className="flex">
