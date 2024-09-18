@@ -83,7 +83,7 @@ export const InventoryPageItem = ({
           <div>
             <div className="flex">
               <img src={RefreshIcon} className="w-5 h-5" />
-              <p>15 días</p>
+              <p>{item.rotation}</p>
             </div>
             <div className="mt-1 flex">
               <img src={SellIcon} className="sell-green-icon w-5 h-5" />
