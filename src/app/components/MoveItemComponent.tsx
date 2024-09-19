@@ -16,7 +16,9 @@ export const MoveItemComponent = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Maneja la selección de la localización origen
-  const handleFromLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleFromLocationChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const location = item.locations.find(
       (loc: any) => loc.name === e.target.value
     );
