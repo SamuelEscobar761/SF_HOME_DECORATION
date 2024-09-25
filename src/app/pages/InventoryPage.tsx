@@ -20,7 +20,12 @@ export const InventoryPage = () => {
   const [moveItem, setMoveItem] = useState<any>({});
 
   const handleMoveItem = (item: any) => {
-    setMoveItem({id: item.id, locations: item.locations, image: item.image, name: item.name});
+    setMoveItem({
+      id: item.id,
+      locations: item.locations,
+      image: item.image,
+      name: item.name,
+    });
     setMoveItemView(true);
   };
 
@@ -54,6 +59,14 @@ export const InventoryPage = () => {
   const saveNewItem = (item: any) => {
     setItems([...items, item]);
   };
+
+  const editItem = (item: any) => {
+    console.log("editing item");
+  }
+
+  const deleteItem = (item: any) => {
+    console.log("delete item");
+  }
 
   useEffect(() => {
     setFolders([
@@ -211,9 +224,13 @@ export const InventoryPage = () => {
             filteredItems.map((item, index) => (
               <InventoryPageItem
                 key={index}
-                setItemToMove={()=>{handleMoveItem(item)}}
+                setItemToMove={() => {
+                  handleMoveItem(item);
+                }}
                 item={item}
                 setItemToShow={setItemToShow}
+                setItemToEdit={()=>{editItem(item)}}
+                setItemToDelete={()=>{deleteItem(item)}}
               />
             ))
           ) : (

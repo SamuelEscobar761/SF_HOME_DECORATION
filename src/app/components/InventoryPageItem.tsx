@@ -5,10 +5,14 @@ import RefreshIcon from "../../assets/Refresh-Icon.svg";
 import React from "react";
 
 export const InventoryPageItem = ({
+  setItemToEdit,
+  setItemToDelete,
   setItemToMove,
   setItemToShow,
   item,
 }: {
+  setItemToEdit: any;
+  setItemToDelete: any;
   setItemToMove: any;
   setItemToShow: any;
   item: any;
@@ -34,15 +38,18 @@ export const InventoryPageItem = ({
         </button>
       </div>
       {optionsIsOpen && (
-        <div className="absolute right-0 top-4 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10 overflow-y-auto">
+        <div className="fixed inset-0 bg-neutral-100/[0.60] z-10" onClick={() => setOptionsIsOpen(false)}></div>
+      )}
+      {optionsIsOpen && (
+        <div className="absolute right-0 top-4 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-20 overflow-y-auto">
           <ul className="py-1">
             <li>
-              <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+              <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={()=>{setItemToEdit(); setOptionsIsOpen(false);}}>
                 Editar
               </button>
             </li>
             <li>
-              <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+              <button className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={()=>{setItemToDelete(); setOptionsIsOpen(false);}}>
                 Eliminar
               </button>
             </li>
