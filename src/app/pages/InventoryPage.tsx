@@ -6,6 +6,7 @@ import { OptionsButtonComponent } from "../components/OptionsButtonComponent";
 import { ShowNewItemComponent } from "../components/ShowNewItemComponent";
 import { NewFolderComponent } from "../components/NewFolderComponent";
 import { FolderComponent } from "../components/FolderComponent";
+import { NewMultiItemComponent } from "../components/NewMultiItemComponent";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
@@ -18,9 +19,15 @@ export const InventoryPage = () => {
   const [newItemView, setNewItemView] = useState<boolean>(false);
   const [newFolderView, setNewFolderView] = useState<boolean>(false);
   const [moveItem, setMoveItem] = useState<any>({});
+  const [multiItemView, setMultiItemView] = useState<boolean>(false);
 
   const handleMoveItem = (item: any) => {
-    setMoveItem({id: item.id, locations: item.locations, image: item.image, name: item.name});
+    setMoveItem({
+      id: item.id,
+      locations: item.locations,
+      image: item.image,
+      name: item.name,
+    });
     setMoveItemView(true);
   };
 
@@ -53,6 +60,10 @@ export const InventoryPage = () => {
 
   const saveNewItem = (item: any) => {
     setItems([...items, item]);
+  };
+
+  const newMultiItem = () => {
+    setMultiItemView(true);
   };
 
   useEffect(() => {
@@ -152,6 +163,17 @@ export const InventoryPage = () => {
           </div>
         </div>
       )}
+      {multiItemView && (
+        <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
+          <div className="fixed inset-2 size-auto overflow-y-auto">
+            <NewMultiItemComponent
+              closeNewMultiItem={() => {
+                setMultiItemView(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
       {newFolderView && (
         <div
           id="new-folder-container"
@@ -176,7 +198,7 @@ export const InventoryPage = () => {
         >
           <OptionsButtonComponent
             page="InventoryPage"
-            settings={{ foldersView }}
+            settings={{ foldersView, newMultiItem }}
             newItem={createNewItem}
             newFolder={() => {
               setNewFolderView(true);
@@ -211,7 +233,9 @@ export const InventoryPage = () => {
             filteredItems.map((item, index) => (
               <InventoryPageItem
                 key={index}
-                setItemToMove={()=>{handleMoveItem(item)}}
+                setItemToMove={() => {
+                  handleMoveItem(item);
+                }}
                 item={item}
                 setItemToShow={setItemToShow}
               />

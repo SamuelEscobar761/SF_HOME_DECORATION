@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SaveIcon from "../../assets/Save-Icon.svg";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import { ColorImageComponent } from "./ColorImageComponent";
@@ -10,7 +10,9 @@ export const ShowNewItemComponent = ({
   closeNewItem: () => void;
   saveNewItem: (item: any) => void;
 }) => {
-  const [colorImages, setColorImages] = useState<{image: string, color: string}[]>([]);
+  const [colorImages, setColorImages] = useState<
+    { image: string; color: string }[]
+  >([]);
   const [name, setName] = useState<string>("");
   const [provider, setProvider] = useState<string>("");
   const [room, setRoom] = useState<string>("");
@@ -32,8 +34,6 @@ export const ShowNewItemComponent = ({
     closeNewItem();
   };
 
-  
-
   return (
     <div id="show-new-item-component" className="bg-neutral-300 p-2 rounded">
       <div
@@ -43,10 +43,13 @@ export const ShowNewItemComponent = ({
       >
         <img src={CloseIcon} className="w-5 h-5" />
       </div>
-      <ColorImageComponent colorImage={colorImages} setColorImages={setColorImages} />
+      <ColorImageComponent
+        colorImages={colorImages}
+        setColorImages={setColorImages}
+      />
       <div
         id="new-item-component-content"
-        className="bg-neutral-400 p-2 rounded text-lg space-y-2"
+        className="bg-neutral-400 p-2 rounded text-lg space-y-2 mt-2"
       >
         <div id="new-item-title">
           <input
