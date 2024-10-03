@@ -264,9 +264,6 @@ export const InventoryPage = () => {
                 setItemToMove={() => {
                   handleMoveItem(item);
                 }}
-                setItemToMove={() => {
-                  handleMoveItem(item);
-                }}
                 item={item}
                 setItemToShow={setItemToShow}
                 setItemToEdit={()=>{editItem(item)}}
