@@ -37,6 +37,10 @@ export const BasicItemListComponent = ({
       </div>
 
       <div className="h-48 p-2 space-y-2 bg-neutral-100 overflow-y-auto">
+        <div className="w-fit flex space-x-1 items-center p-2 border border-neutral-900 rounded">
+        <p className="text-xl">+</p>
+        <p>Nuevo item</p>
+        </div>
         {filteredItems.map((item, index) => (
           <div
             key={index}

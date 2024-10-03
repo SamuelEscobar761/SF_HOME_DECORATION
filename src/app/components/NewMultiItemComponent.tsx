@@ -20,6 +20,7 @@ export const NewMultiItemComponent = ({
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [cost, setCost] = useState<number>(0);
+  const [units, setUnits] = useState<string>("")
   const [seeBasicItems, setSeeBasicItems] = useState<boolean>(false);
 
   const addItem = (item: BasicItem) => {
@@ -82,7 +83,7 @@ export const NewMultiItemComponent = ({
         className="p-2 mt-2 bg-neutral-400 rounded space-y-2"
       >
         {items.map((item, index) => (
-          <ImageNameComponent name={item.name} image={item.image} key={index} />
+          <ImageNameComponent id={item.id} name={item.name} image={item.image} key={index} />
         ))}
         {seeBasicItems ? (
           <div id="basic-item-list-container" className="w-full">
@@ -140,18 +141,29 @@ export const NewMultiItemComponent = ({
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
           <div id="new-multi-item-cost-container" className="flex space-x-1">
-            <p
+            <input
               id="new-multi-item-cost"
+              type="number"
+              placeholder="Costo"
               className="w-full p-2 rounded bg-neutral-100"
-            >
-              <span className="text-xs mr-1">min:</span>
-              {cost.toFixed(2)}
-            </p>
+            />
 
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
         </div>
-
+        <div className="w-full">
+          <input
+            type="number"
+            name=""
+            id=""
+            placeholder="Unidades"
+            className="w-24 p-2 rounded"
+            value={units}
+            onChange={(e) => {
+              setUnits(e.target.value);
+            }}
+          />
+        </div>
         <div
           id="new-multi-item-save-button"
           className="w-full flex justify-center bg-success p-2 rounded"
