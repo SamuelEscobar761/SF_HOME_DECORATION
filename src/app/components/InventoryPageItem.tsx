@@ -75,14 +75,14 @@ export const InventoryPageItem = ({
               <p className="font-bold">{location.name}</p>
               <p className="text-right">{location.units}</p>
               <p className="col-span-3 ml-5">
-                {(location.units * item.price).toFixed(2)} Bs
+                {(location.units * item.cost).toFixed(2)} Bs
               </p>
             </React.Fragment>
           ))}
           <p className="font-bold">Total</p>
           <p className="text-right">{totalStockUnits}</p>
           <p className="col-span-3 ml-5">
-            {(totalStockUnits * item.price).toFixed(2)} Bs
+            {(totalStockUnits * item.cost).toFixed(2)} Bs
           </p>
         </div>
 

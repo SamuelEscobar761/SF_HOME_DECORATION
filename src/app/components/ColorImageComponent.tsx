@@ -3,10 +3,10 @@ import { GetColorsFromImage } from "../services/GetColorsFromImage";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 export const ColorImageComponent = ({
-  colorImage: colorImages,
+  colorImages,
   setColorImages,
 }: {
-  colorImage: { image: string; color: string }[];
+  colorImages: { image: string; color: string }[];
   setColorImages: Dispatch<SetStateAction<{ image: string; color: string }[]>>;
 }) => {
   const [colorEditView, setColorEditView] = useState<boolean>(false);
@@ -95,7 +95,7 @@ export const ColorImageComponent = ({
   return (
     <div
       id="images-container"
-      className="bg-neutral-400 h-fit rounded mb-2 p-2 flex overflow-x-scroll snap-x snap-mandatory"
+      className="bg-neutral-400 h-fit rounded p-2 flex overflow-x-scroll snap-x snap-mandatory"
     >
       {colorEditView && (
         <div id="color-editor-container" className="absolute right-4">

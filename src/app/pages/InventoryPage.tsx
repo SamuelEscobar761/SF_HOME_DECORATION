@@ -6,6 +6,8 @@ import { OptionsButtonComponent } from "../components/OptionsButtonComponent";
 import { ShowNewItemComponent } from "../components/ShowNewItemComponent";
 import { NewFolderComponent } from "../components/NewFolderComponent";
 import { FolderComponent } from "../components/FolderComponent";
+import { NewMultiItemComponent } from "../components/NewMultiItemComponent";
+import { getImageColors } from "../services/GetDBInformation";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
@@ -18,13 +20,19 @@ export const InventoryPage = () => {
   const [newItemView, setNewItemView] = useState<boolean>(false);
   const [newFolderView, setNewFolderView] = useState<boolean>(false);
   const [moveItem, setMoveItem] = useState<any>({});
+  const [multiItemView, setMultiItemView] = useState<boolean>(false);
 
   const handleMoveItem = (item: any) => {
     setMoveItem({
+      
       id: item.id,
+     
       locations: item.locations,
+     
       image: item.image,
+     
       name: item.name,
+    
     });
     setMoveItemView(true);
   };
@@ -57,7 +65,12 @@ export const InventoryPage = () => {
   };
 
   const saveNewItem = (item: any) => {
+    console.log(item);
     setItems([...items, item]);
+  };
+
+  const newMultiItem = () => {
+    setMultiItemView(true);
   };
 
   const editItem = (item: any) => {
@@ -83,6 +96,7 @@ export const InventoryPage = () => {
         name: "Sofa",
         provider: "Provider",
         price: 50,
+        cost: 30,
         image: "https://t.ly/7nTCp",
         rotation: 15,
         utilitiesAvg: 210,
@@ -96,6 +110,7 @@ export const InventoryPage = () => {
         name: "Sofa de 1 plaza",
         provider: "Provider",
         price: 65,
+        cost: 30,
         image: "https://t.ly/vsT0F",
         rotation: 8,
         utilitiesAvg: 110,
@@ -109,6 +124,7 @@ export const InventoryPage = () => {
         name: "Silla de madera",
         provider: "Provider",
         price: 35,
+        cost: 30,
         image: "https://t.ly/4Q6Tb",
         rotation: 25,
         utilitiesAvg: 340,
@@ -165,6 +181,27 @@ export const InventoryPage = () => {
           </div>
         </div>
       )}
+      {multiItemView && (
+        <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
+          <div className="fixed inset-2 size-auto overflow-y-auto">
+            <NewMultiItemComponent
+              saveComposedItem={(item: any) => saveNewItem(item)}
+              basicItems={items.map(({ id, name, provider, image, cost, locations }) => ({
+                id,
+                name,
+                provider,
+                image,
+                cost,
+                units: locations.reduce((total: number, location: { id: number, name: string, units: number }) => total + location.units, 0),
+                images_colors: getImageColors(id),
+              }))}
+              closeNewMultiItem={() => {
+                setMultiItemView(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
       {newFolderView && (
         <div
           id="new-folder-container"
@@ -189,7 +226,7 @@ export const InventoryPage = () => {
         >
           <OptionsButtonComponent
             page="InventoryPage"
-            settings={{ foldersView }}
+            settings={{ foldersView, newMultiItem }}
             newItem={createNewItem}
             newFolder={() => {
               setNewFolderView(true);
@@ -224,6 +261,9 @@ export const InventoryPage = () => {
             filteredItems.map((item, index) => (
               <InventoryPageItem
                 key={index}
+                setItemToMove={() => {
+                  handleMoveItem(item);
+                }}
                 setItemToMove={() => {
                   handleMoveItem(item);
                 }}
