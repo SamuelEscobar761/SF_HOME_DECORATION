@@ -2,6 +2,7 @@ import { useState } from "react";
 import SaveIcon from "../../assets/Save-Icon.svg";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import { ColorImageComponent } from "./ColorImageComponent";
+import { saveImageColors } from "../services/GetDBInformation";
 
 export const ShowNewItemComponent = ({
   closeNewItem,
@@ -10,14 +11,13 @@ export const ShowNewItemComponent = ({
   closeNewItem: () => void;
   saveNewItem: (item: any) => void;
 }) => {
-  const [colorImages, setColorImages] = useState<
-    { image: string; color: string }[]
-  >([]);
+  const [colorImages, setColorImages] = useState<ImageColor[]>([]);
   const [name, setName] = useState<string>("");
   const [provider, setProvider] = useState<string>("");
   const [room, setRoom] = useState<string>("");
   const [material, setMaterial] = useState<string>("");
   const [price, setPrice] = useState<string>("");
+  const [cost, setCost] = useState<string>("");
   const [units, setUnits] = useState<string>("");
 
   const save = () => {
@@ -25,12 +25,14 @@ export const ShowNewItemComponent = ({
       id: 22,
       name: name,
       provider: provider,
-      price: price,
+      price: parseFloat(price) || 0,
+      cost: parseFloat(cost) || 0,
       image: colorImages[0].image,
       rotation: 0,
       utilitiesAvg: 0,
       locations: [{ id: 1, name: "almacen", units: units }],
     });
+    saveImageColors(22, colorImages);
     closeNewItem();
   };
 
@@ -120,6 +122,23 @@ export const ShowNewItemComponent = ({
             }}
           />
         </div>
+        <div id="new-item-cost-container" className="flex space-x-1">
+          <input
+            id="new-item-cost"
+            type="number"
+            placeholder="Costo"
+            className="w-20 p-2 rounded"
+            value={cost}
+            onChange={(e) => {
+              setCost(e.target.value);
+            }}
+          />
+          <p className="p-2 bg-neutral-100 rounded">Bs</p>
+        </div>
+        <p id="new-multi-item-price-cost-description" className="text-xs">
+          *El precio es el monto por el cual se vende el item, el costo es lo
+          que costó comprar el item
+        </p>
         <div
           id="new-item-save-button"
           className="w-full flex justify-center bg-success p-2 rounded"

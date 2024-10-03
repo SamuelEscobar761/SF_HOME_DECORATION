@@ -1,33 +1,68 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import SaveIcon from "../../assets/Save-Icon.svg";
 import { ColorImageComponent } from "./ColorImageComponent";
 import { ImageNameComponent } from "./ImageNameComponent";
-
-interface Item {
-  name: string;
-  image: string;
-}
+import { BasicItemListComponent } from "./BasicItemListComponent";
+import { getImageColors } from "../services/GetDBInformation";
 
 export const NewMultiItemComponent = ({
+  basicItems,
   closeNewMultiItem,
+  saveComposedItem,
 }: {
+  basicItems: BasicItem[];
   closeNewMultiItem: any;
+  saveComposedItem: (item: any) => void;
 }) => {
-  const [colorImages, setColorImages] = useState<
-    { image: string; color: string }[]
-  >([]);
-  const [items, setItems] = useState<Item[]>([]);
+  const [colorImages, setColorImages] = useState<ImageColor[]>([]);
+  const [items, setItems] = useState<BasicItem[]>([]);
+  const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<string>("");
-  const [cost, setCost] = useState<string>("200.00");
+  const [cost, setCost] = useState<number>(0);
+  const [seeBasicItems, setSeeBasicItems] = useState<boolean>(false);
 
-  const save = () => {
-    console.log("Save composed item.");
+  const addItem = (item: BasicItem) => {
+    setColorImages([...colorImages, ...getImageColors(item.id)]);
+    setItems([...items, item]);
+    setCost((prevCost) => parseFloat((prevCost + item.cost).toFixed(2)));
   };
 
-  useEffect(() => {
-    setItems([]);
-  }, []);
+  function getProvidersDisplay(basicItems: BasicItem[]): string {
+    // Extraer todos los nombres de proveedores
+    const providers = basicItems.map((item) => item.provider);
+
+    // Crear un Set para obtener solo proveedores únicos
+    const uniqueProviders = new Set(providers);
+
+    // Convertir el Set de nuevo a un array y unirlo con " & " si hay más de un proveedor
+    return Array.from(uniqueProviders).join(" & ");
+  }
+
+  const save = () => {
+    closeNewMultiItem();
+    saveComposedItem({
+      id: 32,
+      name: name,
+      provider: getProvidersDisplay(items),
+      price: parseFloat(price) || 0,
+      cost: cost,
+      image: colorImages[0].image,
+      rotation: 0,
+      utilitiesAvg: 0,
+      locations: [
+        {
+          id: 1,
+          name: "almacen",
+          units: items.reduce(
+            (minUnits, item) => (item.units < minUnits ? item.units : minUnits),
+            basicItems[0].units
+          ),
+        },
+      ],
+    });
+    console.log("Save composed item.");
+  };
 
   return (
     <div id="new-multi-item-component" className="bg-neutral-300 p-2 rounded">
@@ -49,28 +84,51 @@ export const NewMultiItemComponent = ({
         {items.map((item, index) => (
           <ImageNameComponent name={item.name} image={item.image} key={index} />
         ))}
-        <button
-          id="new-multi-item-add-item-button"
-          className="w-full text-3xl bg-neutral-500 rounded text-neutral-100 p-1"
-        >
-          +
-        </button>
+        {seeBasicItems ? (
+          <div id="basic-item-list-container" className="w-full">
+            <BasicItemListComponent
+              addItem={addItem}
+              itemsList={basicItems}
+              closeBasicItemList={() => setSeeBasicItems(false)}
+            />
+          </div>
+        ) : (
+          <button
+            id="new-multi-item-add-item-button"
+            className="w-full text-3xl bg-neutral-500 rounded text-neutral-100 p-1"
+            onClick={() => {
+              setSeeBasicItems(true);
+            }}
+          >
+            +
+          </button>
+        )}
       </div>
       <div
         id="new-multi-item-information-container"
         className="p-2 mt-2 bg-neutral-400 rounded space-y-2"
       >
-        <p id="price-cost-description" className="text-xs">
+        <input
+          id="new-multi-item-name"
+          type="text"
+          placeholder="Nombre"
+          className="w-full p-2 rounded"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+        />
+        <p id="new-multi-item-price-cost-description" className="text-xs">
           *El precio es el monto por el cual se vende el item, el costo es lo
           que costó comprar el item
         </p>
         <div
-          id="new-item-price-cost-container"
+          id="new-multi-item-price-cost-container"
           className="flex space-x-5 justify-between"
         >
-          <div id="new-item-price-container" className="flex space-x-1">
+          <div id="new-mutli-item-price-container" className="flex space-x-1">
             <input
-              id="new-item-price"
+              id="new-mutli-item-price"
               type="number"
               placeholder="Precio"
               className="w-full p-2 rounded"
@@ -81,16 +139,21 @@ export const NewMultiItemComponent = ({
             />
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
-          <div id="new-item-cost-container" className="flex space-x-1">
-            <p id="new-item-cost" className="w-full p-2 rounded bg-neutral-100">
-              {cost}
+          <div id="new-multi-item-cost-container" className="flex space-x-1">
+            <p
+              id="new-multi-item-cost"
+              className="w-full p-2 rounded bg-neutral-100"
+            >
+              <span className="text-xs mr-1">min:</span>
+              {cost.toFixed(2)}
             </p>
+
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
         </div>
 
         <div
-          id="new-item-save-button"
+          id="new-multi-item-save-button"
           className="w-full flex justify-center bg-success p-2 rounded"
           onClick={save}
         >
