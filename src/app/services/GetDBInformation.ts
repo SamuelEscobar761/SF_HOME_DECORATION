@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface ImageColorByID {
   [id: number]: ImageColor[];
 }
@@ -20,10 +18,6 @@ const imageColors: ImageColorByID = {
     { color: "#11F34A", image: "https://t.ly/4Q6Tb" },
     { color: "#33FE22", image: "https://t.ly/4Q6Tb" },
   ]
-};
-
-export const getImageColors = (id: number) => {
-  return imageColors[id];
 };
 
 export const saveImageColors = (id: number, colorImages: ImageColor[]) => {

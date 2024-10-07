@@ -3,17 +3,18 @@ import { InventoryPageItem } from "../components/InventoryPageItem";
 import { MoveItemComponent } from "../components/MoveItemComponent";
 import { ShowItemGraphics } from "../components/ShowItemGraphics";
 import { OptionsButtonComponent } from "../components/OptionsButtonComponent";
-import { ShowNewItemComponent } from "../components/ShowNewItemComponent";
+import { NewSimpleItemComponent } from "../components/NewSimpleItemComponent";
 import { NewFolderComponent } from "../components/NewFolderComponent";
 import { FolderComponent } from "../components/FolderComponent";
 import { NewMultiItemComponent } from "../components/NewMultiItemComponent";
-import { getImageColors } from "../services/GetDBInformation";
+import { Manager } from "../classes/Manager";
+import { Item } from "../classes/Item";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
-  const [items, setItems] = useState<any[]>([]);
-  const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [folders, setFolders] = useState<any[]>([]);
   const [moveItemView, setMoveItemView] = useState<boolean>(false);
   const [itemGraphicsView, setItemGraphicsView] = useState<boolean>(false);
@@ -64,9 +65,9 @@ export const InventoryPage = () => {
     console.log("select folder with id: " + id);
   };
 
-  const saveNewItem = (item: any) => {
-    console.log(item);
-    setItems([...items, item]);
+  const saveNewItem = async (item: Item) => {
+    const response = await Manager.getInstance().saveNewItem(item);
+    console.log(response);
   };
 
   const newMultiItem = () => {
@@ -90,50 +91,13 @@ export const InventoryPage = () => {
   }, []);
 
   useEffect(() => {
-    setItems([
-      {
-        id: 1,
-        name: "Sofa",
-        provider: "Provider",
-        price: 50,
-        cost: 30,
-        image: "https://t.ly/7nTCp",
-        rotation: 15,
-        utilitiesAvg: 210,
-        locations: [
-          { id: 1, name: "almacen", units: 25 },
-          { id: 2, name: "tienda", units: 5 },
-        ],
-      },
-      {
-        id: 2,
-        name: "Sofa de 1 plaza",
-        provider: "Provider",
-        price: 65,
-        cost: 30,
-        image: "https://t.ly/vsT0F",
-        rotation: 8,
-        utilitiesAvg: 110,
-        locations: [
-          { id: 1, name: "almacen", units: 20 },
-          { id: 2, name: "tienda", units: 8 },
-        ],
-      },
-      {
-        id: 3,
-        name: "Silla de madera",
-        provider: "Provider",
-        price: 35,
-        cost: 30,
-        image: "https://t.ly/4Q6Tb",
-        rotation: 25,
-        utilitiesAvg: 340,
-        locations: [
-          { id: 1, name: "almacen", units: 3 },
-          { id: 2, name: "tienda", units: 2 },
-        ],
-      },
-    ]);
+    const loadItems = async () => {
+      const manager = Manager.getInstance();
+      await manager.loadMoreItems(); // Espera a que los items se carguen
+      setItems(manager.getItems()); // Establece los items una vez cargados
+    };
+  
+    loadItems();
   }, []);
 
   useEffect(() => {
@@ -169,35 +133,21 @@ export const InventoryPage = () => {
           </div>
         </div>
       )}
+      {multiItemView && (
+        <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
+          <div className="fixed inset-2 size-auto overflow-y-auto">
+            <NewMultiItemComponent closeNewMultiItem={() => { setMultiItemView(false); } } />
+          </div>
+        </div>
+      )}
       {newItemView && (
         <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
           <div className="fixed inset-2 size-auto overflow-y-auto">
-            <ShowNewItemComponent
+            <NewSimpleItemComponent
               closeNewItem={() => {
                 setNewItemView(false);
               }}
               saveNewItem={saveNewItem}
-            />
-          </div>
-        </div>
-      )}
-      {multiItemView && (
-        <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
-          <div className="fixed inset-2 size-auto overflow-y-auto">
-            <NewMultiItemComponent
-              saveComposedItem={(item: any) => saveNewItem(item)}
-              basicItems={items.map(({ id, name, provider, image, cost, locations }) => ({
-                id,
-                name,
-                provider,
-                image,
-                cost,
-                units: locations.reduce((total: number, location: { id: number, name: string, units: number }) => total + location.units, 0),
-                images_colors: getImageColors(id),
-              }))}
-              closeNewMultiItem={() => {
-                setMultiItemView(false);
-              }}
             />
           </div>
         </div>

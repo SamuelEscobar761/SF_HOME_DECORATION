@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SaveIcon from "../../assets/Save-Icon.svg";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import { ColorImageComponent } from "./ColorImageComponent";
-import { saveImageColors } from "../services/GetDBInformation";
+import { Manager } from "../classes/Manager";
+import { SimpleItem } from "../classes/SimpleItem";
 
-export const ShowNewItemComponent = ({
+export const NewSimpleItemComponent = ({
   closeNewItem,
   saveNewItem,
+  fullItem,
 }: {
   closeNewItem: () => void;
-  saveNewItem: (item: any) => void;
+  saveNewItem: (item: SimpleItem) => void;
+  fullItem?: boolean;
 }) => {
   const [colorImages, setColorImages] = useState<ImageColor[]>([]);
   const [name, setName] = useState<string>("");
@@ -19,22 +22,37 @@ export const ShowNewItemComponent = ({
   const [price, setPrice] = useState<string>("");
   const [cost, setCost] = useState<string>("");
   const [units, setUnits] = useState<string>("");
+  const [canSave, setCanSave] = useState(false);
 
-  const save = () => {
-    saveNewItem({
-      id: 22,
-      name: name,
-      provider: provider,
-      price: parseFloat(price) || 0,
-      cost: parseFloat(cost) || 0,
-      image: colorImages[0].image,
-      rotation: 0,
-      utilitiesAvg: 0,
-      locations: [{ id: 1, name: "almacen", units: units }],
-    });
-    saveImageColors(22, colorImages);
+  const save = async () => {
+    const item = new SimpleItem(
+      null,
+      0,
+      name,
+      parseFloat(price) || 0,
+      parseFloat(cost) || 0,
+      new Map<string, number>([["almacen", parseFloat(units) || 0]]),
+      colorImages,
+      room,
+      material,
+      await Manager.getInstance().ensureProviderExists(provider)
+    );
+    saveNewItem(item);
     closeNewItem();
   };
+
+  useEffect(() => {
+    const validateForm = () => {
+      const validPrice = !fullItem || parseFloat(price) > 0;
+      const validCost = !fullItem || parseFloat(cost) > 0;
+      const validUnits = !fullItem || parseInt(units) > 0;
+      setCanSave(
+        name != "" && provider != "" && validPrice && validCost && validUnits
+      );
+    };
+
+    validateForm();
+  }, [name, provider, price, cost, units]);
 
   return (
     <div id="show-new-item-component" className="bg-neutral-300 p-2 rounded">
@@ -111,38 +129,43 @@ export const ShowNewItemComponent = ({
             />
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
-          <input
-            id="new-item-units"
-            type="number"
-            placeholder="Unidades"
-            className="w-full p-2 rounded"
-            value={units}
-            onChange={(e) => {
-              setUnits(e.target.value);
-            }}
-          />
+          {fullItem != false && (
+            <input
+              id="new-item-units"
+              type="number"
+              placeholder="Unidades"
+              className="w-full p-2 rounded"
+              value={units}
+              onChange={(e) => {
+                setUnits(e.target.value);
+              }}
+            />
+          )}
         </div>
-        <div id="new-item-cost-container" className="flex space-x-1">
-          <input
-            id="new-item-cost"
-            type="number"
-            placeholder="Costo"
-            className="w-20 p-2 rounded"
-            value={cost}
-            onChange={(e) => {
-              setCost(e.target.value);
-            }}
-          />
-          <p className="p-2 bg-neutral-100 rounded">Bs</p>
-        </div>
-        <p id="new-multi-item-price-cost-description" className="text-xs">
+        {fullItem != false && (
+          <div id="new-item-cost-container" className="flex space-x-1">
+            <input
+              id="new-item-cost"
+              type="number"
+              placeholder="Costo"
+              className="w-20 p-2 rounded"
+              value={cost}
+              onChange={(e) => {
+                setCost(e.target.value);
+              }}
+            />
+            <p className="p-2 bg-neutral-100 rounded">Bs</p>
+          </div>
+        )}
+
+        <p id="new-item-price-cost-description" className="text-xs">
           *El precio es el monto por el cual se vende el item, el costo es lo
           que costó comprar el item
         </p>
         <div
           id="new-item-save-button"
           className="w-full flex justify-center bg-success p-2 rounded"
-          onClick={save}
+          onClick={canSave ? save : undefined}
         >
           <img src={SaveIcon} />
           <p className="ml-1 text-2xl">Guardar</p>

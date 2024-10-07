@@ -1,20 +1,23 @@
 import { BasicItemComponent } from "./BasicItemComponent";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import { useState } from "react";
+import { SimpleItem } from "../classes/SimpleItem";
 
 export const BasicItemListComponent = ({
   itemsList,
   closeBasicItemList,
   addItem,
+  createNewItem,
 }: {
-  itemsList: BasicItem[];
+  itemsList: SimpleItem[];
   closeBasicItemList: () => void;
-  addItem: (item: BasicItem) => void;
+  addItem: (item: SimpleItem) => void;
+  createNewItem: () => void;
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredItems = itemsList.filter((item) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    item.getName().toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -37,20 +40,24 @@ export const BasicItemListComponent = ({
       </div>
 
       <div className="h-48 p-2 space-y-2 bg-neutral-100 overflow-y-auto">
-        <div className="w-fit flex space-x-1 items-center p-2 border border-neutral-900 rounded">
-        <p className="text-xl">+</p>
-        <p>Nuevo item</p>
-        </div>
+        <button className="w-fit flex space-x-1 items-center p-2 border border-neutral-900 rounded" onClick={createNewItem}>
+          <p className="text-xl">+</p>
+          <p>Nuevo item</p>
+        </button>
         {filteredItems.map((item, index) => (
           <div
             key={index}
             onClick={() => {
-              addItem(item);
+              const newItem = new SimpleItem(null, 0, item.getName(), item.getPrice(), 0, item.getLocations(), item.getImages(), item.getRoom(), item.getMaterial(), item.getProvider());
+              addItem(newItem);
               closeBasicItemList();
             }}
             className="cursor-pointer"
           >
-            <BasicItemComponent name={item.name} image={item.image} />
+            <BasicItemComponent
+              name={item.getName()}
+              image={item.getImages()[0].image}
+            />
           </div>
         ))}
       </div>
