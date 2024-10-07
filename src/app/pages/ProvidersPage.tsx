@@ -52,10 +52,10 @@ export const ProvidersPage = () => {
             }}
           >
             <OptionsButtonComponent
-              newItem={() => {}}
+              newItem={() => { } }
               page="InventoryPage"
               settings={{}}
-            />
+              newFolder={undefined}            />
           </div>
         )}
       </div>

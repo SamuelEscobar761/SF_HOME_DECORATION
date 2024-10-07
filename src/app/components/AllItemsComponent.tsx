@@ -1,9 +1,9 @@
-import { BasicItemComponent } from "./BasicItemComponent";
+import { ImageNameComponent } from "./ImageNameComponent";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import { useState } from "react";
 import { SimpleItem } from "../classes/SimpleItem";
 
-export const BasicItemListComponent = ({
+export const AllItemsComponent = ({
   itemsList,
   closeBasicItemList,
   addItem,
@@ -21,7 +21,7 @@ export const BasicItemListComponent = ({
   );
 
   return (
-    <div id="basic-item-list" className="w-full bg-neutral-100">
+    <div id="basic-item-list" className="w-full bg-neutral-100 rounded">
       <div className="flex justify-between items-center p-1">
         <div
           id="close-full-item"
@@ -40,7 +40,10 @@ export const BasicItemListComponent = ({
       </div>
 
       <div className="h-48 p-2 space-y-2 bg-neutral-100 overflow-y-auto">
-        <button className="w-fit flex space-x-1 items-center p-2 border border-neutral-900 rounded" onClick={createNewItem}>
+        <button
+          className="w-fit flex space-x-1 items-center p-2 border border-neutral-900 rounded"
+          onClick={createNewItem}
+        >
           <p className="text-xl">+</p>
           <p>Nuevo item</p>
         </button>
@@ -48,13 +51,24 @@ export const BasicItemListComponent = ({
           <div
             key={index}
             onClick={() => {
-              const newItem = new SimpleItem(null, 0, item.getName(), item.getPrice(), 0, item.getLocations(), item.getImages(), item.getRoom(), item.getMaterial(), item.getProvider());
+              const newItem = new SimpleItem(
+                null,
+                0,
+                item.getName(),
+                item.getPrice(),
+                0,
+                item.getLocations(),
+                item.getImages(),
+                item.getRoom(),
+                item.getMaterial(),
+                item.getProvider()
+              );
               addItem(newItem);
               closeBasicItemList();
             }}
             className="cursor-pointer"
           >
-            <BasicItemComponent
+            <ImageNameComponent
               name={item.getName()}
               image={item.getImages()[0].image}
             />

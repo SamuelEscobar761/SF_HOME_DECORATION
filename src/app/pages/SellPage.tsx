@@ -8,7 +8,8 @@ export const SellPage = () => {
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
   const [fullItemView, setFullItemView] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<EntireItem>();
-  const [cart, setCart] = useState<Map<string, Item>>(new Map());
+  const [selectedSellItem, setSelectedSellItem] = useState<SellItem>();
+  const [cart, setCart] = useState<Map<string, SellItem>>(new Map());
   const [searchTerm, setSearchTerm] = useState("");
   const [rooms, setRooms] = useState<string[]>(["Comedor", "Living", "Baño"]);
   const [items, setItems] = useState<SellItem[]>([]);
@@ -56,6 +57,8 @@ export const SellPage = () => {
           previousPrice: 50,
           price: 35.0,
           checked: false,
+          units: 0,
+          color: "",
         },
         {
           id: 2,
@@ -68,6 +71,8 @@ export const SellPage = () => {
           previousPrice: 0,
           price: 0.0,
           checked: false,
+          units: 0,
+          color: "",
         },
         {
           id: 3,
@@ -80,6 +85,8 @@ export const SellPage = () => {
           previousPrice: 0,
           price: 0.0,
           checked: false,
+          units: 0,
+          color: "",
         },
         {
           id: 4,
@@ -92,6 +99,8 @@ export const SellPage = () => {
           previousPrice: 0,
           price: 0.0,
           checked: false,
+          units: 0,
+          color: "",
         },
         {
           id: 5,
@@ -104,6 +113,8 @@ export const SellPage = () => {
           previousPrice: 0,
           price: 0.0,
           checked: false,
+          units: 0,
+          color: "",
         },
         {
           id: 6,
@@ -116,6 +127,8 @@ export const SellPage = () => {
           previousPrice: 0,
           price: 0.0,
           checked: false,
+          units: 0,
+          color: "",
         },
       ];
       // Actualizamos el estado con los items recuperados del backend
@@ -132,6 +145,7 @@ export const SellPage = () => {
       setMenuOpened(false);
       event.stopPropagation(); // Detiene la propagación del evento de clic
     } else {
+      setSelectedSellItem(item);
       setSelectedItem({
         id: item.id,
         discount: item.discount,
@@ -167,9 +181,9 @@ export const SellPage = () => {
 
   const generateKey = (id: number, color: string) => `${id}-${color}`;
 
-  const addToCart = (id: number, color: string, units: number) => {
+  const addToCart = (item: SellItem, units: number) => {
     setCart((prevCart) => {
-      const key = generateKey(id, color);
+      const key = generateKey(item.id, item.color);
       const newCart = new Map(prevCart);
 
       // Si el ítem ya existe, suma las unidades, si no, crea un nuevo ítem
@@ -180,15 +194,15 @@ export const SellPage = () => {
           units: existingItem.units + units,
         });
       } else {
-        newCart.set(key, { id, color, units });
+        newCart.set(key, item);
       }
 
       return newCart;
     });
     setFullItemView(false);
     setFilteredItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, checked: true } : item
+      prevItems.map((prevItem) =>
+        prevItem.id === item.id ? { ...prevItem, checked: true } : prevItem
       )
     );
   };
@@ -232,6 +246,7 @@ export const SellPage = () => {
       {fullItemView && (
         <div className="fixed z-40 w-screen h-screen bg-white/[0.6] p-5 overflow-y-auto">
           <ShowItemComponent
+            sellItem={selectedSellItem!}
             item={selectedItem!}
             closeItem={closeItem}
             addToCart={addToCart}

@@ -1,18 +1,32 @@
 import { useEffect, useState } from "react";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import WheelbarrowIcon from "../../assets/Wheelbarrow-Icon.svg";
-export const ShowItemComponent = ({ item, closeItem, addToCart }: { item: EntireItem, closeItem: () => void, addToCart: (id: number, color: string, quantity: number) => void }) => {
+export const ShowItemComponent = ({
+  sellItem,
+  item,
+  closeItem,
+  addToCart,
+}: {
+  sellItem: SellItem;
+  item: EntireItem;
+  closeItem: () => void;
+  addToCart: (item: SellItem, units: number) => void;
+}) => {
   const [units, setUnits] = useState<number>(0);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [colorSelected, setColorSelected] = useState<number>(0);
 
   useEffect(() => {
     setTotalPrice(item.price * units);
-  }, [units])
+  }, [units]);
   return (
     <div id="item-container" className="bg-neutral-100 p-2">
       <div id="close-item-images-container" className="relative">
-        <div id="close-full-item" className="absolute top-2 left-2 z-50" onClick={closeItem}>
+        <div
+          id="close-full-item"
+          className="absolute top-2 left-2 z-50"
+          onClick={closeItem}
+        >
           <img src={CloseIcon} />
         </div>
         <div
@@ -95,7 +109,9 @@ export const ShowItemComponent = ({ item, closeItem, addToCart }: { item: Entire
       <div
         id="add-cartaddToCart-button"
         className="bg-success flex justify-center rounded p-2"
-        onClick={() => {addToCart(item.id, item.imagesByColors[colorSelected][0], units)}}
+        onClick={() => {
+          addToCart(sellItem, units);
+        }}
       >
         <img src={WheelbarrowIcon} className="w-7 h-7" />
         <p id="add-cartaddToCart-text" className="ml-2 text-2xl">

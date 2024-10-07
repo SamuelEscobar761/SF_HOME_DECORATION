@@ -22,7 +22,7 @@ function App() {
   return (
     <DeviceProvider>
       <Router>
-        <ScrollToTop /> {/* Este es el componente que maneja el scroll */}
+        <ScrollToTop />
         <div className="flex flex-col h-screen bg-primary">
           {window.innerWidth >= 768 && <ResponsiveNavbar />}
           <div

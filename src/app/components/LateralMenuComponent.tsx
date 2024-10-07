@@ -20,8 +20,8 @@ export const LateralMenuComponent = ({
   setListOfSelectedMaterials: any;
   setDiscount: any;
   menuRef: LegacyRef<HTMLDivElement>;
-  cart: Map<string, Item>;
-  setCart: Dispatch<SetStateAction<Map<string, Item>>>;
+  cart: Map<string, SellItem>;
+  setCart: Dispatch<SetStateAction<Map<string, SellItem>>>;
 }) => {
   return (
     <div

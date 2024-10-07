@@ -9,4 +9,6 @@ interface SellItem {
     previousPrice: number;
     price: number;
     checked: boolean;
+    units: number;
+    color: string
   }

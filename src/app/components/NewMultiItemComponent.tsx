@@ -2,8 +2,8 @@ import { useState } from "react";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import SaveIcon from "../../assets/Save-Icon.svg";
 import { ColorImageComponent } from "./ColorImageComponent";
-import { ImageNameComponent } from "./ImageNameComponent";
-import { BasicItemListComponent } from "./BasicItemListComponent";
+import { SelectedItemComponent } from "./SelectedItemComponent";
+import { AllItemsComponent } from "./AllItemsComponent";
 import { SimpleItem } from "../classes/SimpleItem";
 import { Manager } from "../classes/Manager";
 import { MultiItem } from "../classes/MultiItem";
@@ -88,7 +88,7 @@ export const NewMultiItemComponent = ({
       >
         {selectedItems.length > 0 ? (
           selectedItems.map((item, index) => (
-            <ImageNameComponent
+            <SelectedItemComponent
               item={item}
               entireCost={parseFloat(cost) || 0}
               numberOfItems={selectedItems.length}
@@ -106,8 +106,8 @@ export const NewMultiItemComponent = ({
           </button>
         )}
         {allItemsView ? (
-          <div id="new-multi-item-all-items" className="w-full">
-            <BasicItemListComponent
+          <div id="new-multi-item-all-items" className="w-full rounded">
+            <AllItemsComponent
               addItem={addItem}
               itemsList={allItems}
               closeBasicItemList={() => setAllItemsView(false)}
