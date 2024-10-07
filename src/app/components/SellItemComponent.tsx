@@ -32,7 +32,7 @@ export const SellItemComponent = ({
             id="checkbox"
             className="w-5 h-5 absolute top-0 right-0 bg-success rounded p-1"
           >
-            <img src={CheckmarkIcon} className="check-white" />
+            <img src={CheckmarkIcon} className="icon-white" />
           </div>
         )}
         <div className="h-52 bg-neutral-100 rounded flex justify-center">

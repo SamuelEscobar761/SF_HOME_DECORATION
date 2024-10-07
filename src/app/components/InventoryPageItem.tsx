@@ -1,6 +1,7 @@
 import { useState } from "react";
 import SeeIcon from "../../assets/See-Icon.svg";
 import SellIcon from "../../assets/Sell-Icon.svg";
+import InventoryIcon from "../../assets/Inventory-Icon.svg"
 import RefreshIcon from "../../assets/Refresh-Icon.svg";
 import React from "react";
 import { Item } from "../classes/Item";
@@ -10,12 +11,14 @@ export const InventoryPageItem = ({
   setItemToDelete,
   setItemToMove,
   setItemToShow,
+  setReplenishmentView,
   item,
 }: {
   setItemToEdit: any;
   setItemToDelete: any;
   setItemToMove: any;
   setItemToShow: any;
+  setReplenishmentView: any;
   item: Item;
 }) => {
   const totalStockUnits = Array.from(item.getLocations().values()).reduce(
@@ -23,6 +26,7 @@ export const InventoryPageItem = ({
     0
   );
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
+
   return (
     <div
       id="item-component"
@@ -116,6 +120,15 @@ export const InventoryPageItem = ({
             </div>
           </div>
           <div className="flex items-end">
+          <div
+              id="inventory-page-item-see-button"
+              className="bg-tertiary p-2 rounded mr-2"
+              onClick={() => {
+                setReplenishmentView(true);
+              }}
+            >
+              <img src={InventoryIcon} className="w-5 h-5" />
+            </div>
             <div
               id="inventory-page-item-see-button"
               className="bg-tertiary p-2 rounded mr-2"

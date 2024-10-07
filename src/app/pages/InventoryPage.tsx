@@ -22,6 +22,7 @@ export const InventoryPage = () => {
   const [newFolderView, setNewFolderView] = useState<boolean>(false);
   const [moveItem, setMoveItem] = useState<any>({});
   const [multiItemView, setMultiItemView] = useState<boolean>(false);
+  const [replenishmentView, setReplenishmentView] = useState<boolean>(false);
 
   const handleMoveItem = (item: any) => {
     setMoveItem({
@@ -152,6 +153,11 @@ export const InventoryPage = () => {
           </div>
         </div>
       )}
+      {replenishmentView && (
+        <div>
+          
+        </div>
+      )}
       {newFolderView && (
         <div
           id="new-folder-container"
@@ -218,6 +224,7 @@ export const InventoryPage = () => {
                 setItemToShow={setItemToShow}
                 setItemToEdit={()=>{editItem(item)}}
                 setItemToDelete={()=>{deleteItem(item)}}
+                setReplenishmentView={()=>{setReplenishmentView(true)}}
               />
             ))
           ) : (
