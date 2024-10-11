@@ -10,14 +10,12 @@ export class MultiItem extends Item {
     id: number,
     name: string,
     price: number,
-    cost: number,
-    locations: Map<string, number>,
     images: ImageColor[],
     room: string,
     material: string,
     provider: Provider
   ) {
-    super(id, name, price, cost, locations, images, room, material, provider);
+    super(id, name, price, images, room, material, provider);
     this.simpleItems = simpleItems;
   }
 
@@ -27,5 +25,12 @@ export class MultiItem extends Item {
 
   public setSimpleItems(simpleItems: SimpleItem[]): void {
     this.simpleItems = simpleItems;
+  }
+
+  public move(fromLocation: string, toLocation: string, units: number): void {
+    super.move(fromLocation, toLocation, units);
+    for(const simpleItem of this.simpleItems){
+      simpleItem.move(fromLocation, toLocation, units);
+    }
   }
 }

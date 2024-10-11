@@ -10,14 +10,12 @@ export class SimpleItem extends Item {
     id: number,
     name: string,
     price: number,
-    cost: number,
-    locations: Map<string, number>,
     images: ImageColor[],
     room: string,
     material: string,
     provider: Provider
   ) {
-    super(id, name, price, cost, locations, images, room, material, provider);
+    super(id, name, price, images, room, material, provider);
     this.multiItem = multiItem;
   }
 
@@ -27,9 +25,5 @@ export class SimpleItem extends Item {
 
   public setMultiItem(multiItem: MultiItem): void {
     this.multiItem = multiItem;
-  }
-
-  public replenish(locations: InventoryLocation[]){
-
   }
 }

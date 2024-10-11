@@ -8,6 +8,7 @@ import { SimpleItem } from "../classes/SimpleItem";
 import { Manager } from "../classes/Manager";
 import { MultiItem } from "../classes/MultiItem";
 import { NewSimpleItemComponent } from "./NewSimpleItemComponent";
+import { Replenishment } from "../classes/Replenishment";
 
 export const NewMultiItemComponent = ({
   closeNewMultiItem,
@@ -34,24 +35,49 @@ export const NewMultiItemComponent = ({
     setSelectedItems([...selectedItems, item]);
   };
 
-  const saveSimpleItem = (item: SimpleItem) =>{
+  const saveSimpleItem = (item: SimpleItem) => {
+    const replenishment = new Replenishment(
+      0,
+      item,
+      new Date(),
+      new Date(),
+      parseFloat(cost)/selectedItems.length,
+      0,
+      0,
+      new Map<string, number>([["almacen", parseFloat(units) || 0]]),
+    );
+    item.setReplenishments([replenishment]);
     setSelectedItems([...selectedItems, item]);
     setAllItemsView(false);
   }
 
   const save = async () => {
+    for(const selectedItem of selectedItems){
+      selectedItem.getReplenishments()[0].setLocations(new Map<string, number>([["almacen", parseFloat(units) || 0]]));
+    }
     const newMultiItem = new MultiItem(
       selectedItems,
       0,
       name,
       parseFloat(price),
-      parseFloat(cost),
-      new Map<string, number>([["almacen", parseFloat(units) || 0]]),
       colorImages,
       room,
       material,
       await Manager.getInstance().ensureProviderExists(provider)
     );
+
+    const replenishment = new Replenishment(
+      0,
+      newMultiItem,
+      new Date(),
+      new Date(),
+      parseFloat(cost),
+      0,
+      0,
+      new Map<string, number>([["almacen", parseFloat(units) || 0]]),
+    );
+
+    newMultiItem.replenish(replenishment);
     Manager.getInstance().saveNewMultiItem(newMultiItem);
     closeNewMultiItem();
   };

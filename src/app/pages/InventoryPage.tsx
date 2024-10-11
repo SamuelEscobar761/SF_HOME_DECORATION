@@ -9,6 +9,7 @@ import { FolderComponent } from "../components/FolderComponent";
 import { NewMultiItemComponent } from "../components/NewMultiItemComponent";
 import { Manager } from "../classes/Manager";
 import { Item } from "../classes/Item";
+import { ReplenishmentComponent } from "../components/ReplenishmentComponent";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
@@ -23,24 +24,15 @@ export const InventoryPage = () => {
   const [moveItem, setMoveItem] = useState<any>({});
   const [multiItemView, setMultiItemView] = useState<boolean>(false);
   const [replenishmentView, setReplenishmentView] = useState<boolean>(false);
+  const [replenishmentItem, setReplenishmentItem] = useState<Item>();
 
-  const handleMoveItem = (item: any) => {
-    setMoveItem({
-      
-      id: item.id,
-     
-      locations: item.locations,
-     
-      image: item.image,
-     
-      name: item.name,
-    
-    });
+  const handleMoveItem = (item: Item) => {
+    setMoveItem(item);
     setMoveItemView(true);
   };
 
-  const setItemToShow = (item: any) => {
-    item[0];
+  const setItemToShow = (item: Item) => {
+    item;
     setItemGraphicsView(true);
   };
 
@@ -154,8 +146,10 @@ export const InventoryPage = () => {
         </div>
       )}
       {replenishmentView && (
-        <div>
-          
+        <div id="inventory-page-replenishment-container" className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
+          <div className="fixed inset-2 size-auto overflow-y-auto">
+            <ReplenishmentComponent item={replenishmentItem!} closeReplenishmentView={()=>{setReplenishmentView(false)}}/>
+          </div>
         </div>
       )}
       {newFolderView && (
@@ -224,7 +218,7 @@ export const InventoryPage = () => {
                 setItemToShow={setItemToShow}
                 setItemToEdit={()=>{editItem(item)}}
                 setItemToDelete={()=>{deleteItem(item)}}
-                setReplenishmentView={()=>{setReplenishmentView(true)}}
+                setReplenishmentView={()=>{setReplenishmentView(true); setReplenishmentItem(item)}}
               />
             ))
           ) : (

@@ -2,6 +2,7 @@ import { ImageNameComponent } from "./ImageNameComponent";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import { useState } from "react";
 import { SimpleItem } from "../classes/SimpleItem";
+import { Replenishment } from "../classes/Replenishment";
 
 export const AllItemsComponent = ({
   itemsList,
@@ -56,12 +57,22 @@ export const AllItemsComponent = ({
                 0,
                 item.getName(),
                 item.getPrice(),
-                0,
-                item.getLocations(),
                 item.getImages(),
                 item.getRoom(),
                 item.getMaterial(),
                 item.getProvider()
+              );
+              newItem.replenish(
+                new Replenishment(
+                  0,
+                  newItem,
+                  new Date(),
+                  new Date(),
+                  0,
+                  0,
+                  0,
+                  new Map<string, number>()
+                )
               );
               addItem(newItem);
               closeBasicItemList();

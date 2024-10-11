@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import CloseIcon from "../../assets/Close-Icon.svg";
+import { Item } from "../classes/Item";
 
 export const MoveItemComponent = ({
   closeMoveItem,
   item,
 }: {
   closeMoveItem: any;
-  item: any;
+  item: Item;
 }) => {
   const [selectedFromLocation, setSelectedFromLocation] = useState("");
   const [maxUnits, setMaxUnits] = useState(0);
@@ -19,12 +20,10 @@ export const MoveItemComponent = ({
   const handleFromLocationChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    const location = item.locations.find(
-      (loc: any) => loc.name === e.target.value
-    );
+    const location = item.getLocations().get(e.target.value);
     if (location) {
-      setSelectedFromLocation(location.name);
-      setMaxUnits(location.units);
+      setSelectedFromLocation(e.target.value);
+      setMaxUnits(location);
       setUnitsToMove(""); // Reinicia el input cuando se selecciona una nueva localización
     } else {
       setSelectedFromLocation("");
@@ -49,21 +48,7 @@ export const MoveItemComponent = ({
 
   // Maneja la confirmación de mover a nueva localización
   const handleConfirmNewLocation = () => {
-    // Restar unidades de la localización previa
-    const fromLocation = item.locations.find(
-      (loc: any) => loc.name === selectedFromLocation
-    );
-    if (fromLocation) {
-      fromLocation.units -= Number(unitsToMove);
-    }
-
-    // Agregar la nueva localización
-    item.locations.push({
-      id: item.locations.length + 1,
-      name: newLocation,
-      units: unitsToMove,
-    });
-
+    item.move(selectedFromLocation, newLocation, unitsToMove || 0);
     closeMoveItem();
   };
 
@@ -72,18 +57,7 @@ export const MoveItemComponent = ({
     if (selectedToLocation === "Otro") {
       setShowConfirmation(true);
     } else {
-      // Actualizar las unidades en las localizaciones existentes
-      const fromLocation = item.locations.find(
-        (loc: any) => loc.name === selectedFromLocation
-      );
-      const toLocation = item.locations.find(
-        (loc: any) => loc.name === selectedToLocation
-      );
-
-      if (fromLocation && toLocation) {
-        fromLocation.units -= Number(unitsToMove);
-        toLocation.units += unitsToMove;
-      }
+      item.move(selectedFromLocation, selectedToLocation, unitsToMove || 0);
       closeMoveItem();
     }
   };
@@ -101,10 +75,10 @@ export const MoveItemComponent = ({
         id="move-item-component-image-container"
         className="bg-neutral-100 h-[360px] w-full"
       >
-        <img src={item.image} alt="" />
+        <img src={item.getImages()[0].image} alt="" />
       </div>
       <div id="move-item-component-content" className="bg-neutral-100 p-2 mt-2">
-        <p className="text-2xl">{item.name}</p>
+        <p className="text-2xl">{item.getName()}</p>
         <div className="my-2 flex justify-between">
           <p>Unidades a mover</p>
           <div className="flex items-end space-x-1">
@@ -127,9 +101,9 @@ export const MoveItemComponent = ({
           onChange={handleFromLocationChange}
         >
           <option value="">Seleccionar:</option>
-          {item.locations.map((location: any, index: number) => (
-            <option value={location.name} key={index}>
-              {location.name}
+          {Array.from(item.getLocations()).map(([key], index) => (
+            <option value={key} key={index}>
+              {key}
             </option>
           ))}
         </select>
@@ -142,9 +116,9 @@ export const MoveItemComponent = ({
           onChange={handleToLocationChange}
         >
           <option value="">Seleccionar</option>
-          {item.locations.map((location: any, index: number) => (
-            <option value={location.name} key={index}>
-              {location.name}
+          {Array.from(item.getLocations()).map(([key], index) => (
+            <option value={key} key={index}>
+              {key}
             </option>
           ))}
           <option value="Otro">Otro</option>

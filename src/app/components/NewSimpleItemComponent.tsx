@@ -4,6 +4,7 @@ import CloseIcon from "../../assets/Close-Icon.svg";
 import { ColorImageComponent } from "./ColorImageComponent";
 import { Manager } from "../classes/Manager";
 import { SimpleItem } from "../classes/SimpleItem";
+import { Replenishment } from "../classes/Replenishment";
 
 export const NewSimpleItemComponent = ({
   closeNewItem,
@@ -11,7 +12,7 @@ export const NewSimpleItemComponent = ({
   fullItem,
 }: {
   closeNewItem: () => void;
-  saveNewItem: (item: SimpleItem) => void;
+  saveNewItem: (item: SimpleItem) => Promise<void> | void;
   fullItem?: boolean;
 }) => {
   const [colorImages, setColorImages] = useState<ImageColor[]>([]);
@@ -30,13 +31,24 @@ export const NewSimpleItemComponent = ({
       0,
       name,
       parseFloat(price) || 0,
-      parseFloat(cost) || 0,
-      new Map<string, number>([["almacen", parseFloat(units) || 0]]),
       colorImages,
       room,
       material,
-      await Manager.getInstance().ensureProviderExists(provider)
+      await Manager.getInstance().ensureProviderExists(provider),
     );
+    const replenishment = new Replenishment(
+      0,
+      item,
+      new Date(),
+      new Date(),
+      parseFloat(cost),
+      0,
+      0,
+
+      
+      new Map<string, number>([["almacen", parseFloat(units) || 0]]),
+    );
+    item.replenish(replenishment);
     saveNewItem(item);
     closeNewItem();
   };

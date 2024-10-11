@@ -3,6 +3,7 @@ import { APIClient } from "./APIClient";
 import { Item } from "./Item";
 import { SimpleItem } from "./SimpleItem";
 import { MultiItem } from "./MultiItem";
+import { Replenishment } from "./Replenishment";
 
 export class Manager {
   private static instance: Manager;
@@ -48,7 +49,8 @@ export class Manager {
 
   public async saveNewMultiItem(item: MultiItem): Promise<boolean> {
     item.getSimpleItems().map((simpleItem) => {
-      simpleItem.setName(simpleItem.getName() + " parte de: " + item.getName());
+      simpleItem.setName(simpleItem.getName() + " (parte de: " + item.getName() + ")");
+      simpleItem.setMultiItem(item);
       this.saveNewItem(simpleItem);
     })
     return this.saveNewItem(item)
@@ -70,5 +72,15 @@ export class Manager {
     return this.items.filter(
       (item) => item instanceof SimpleItem
     ) as SimpleItem[];
+  }
+
+  public replenish(replenishment: Replenishment, item: Item): boolean{
+    const id = this.apiClient.replenish(replenishment, item);
+    if(id == null){
+      return false;
+    }else {
+      replenishment.setId(id);
+      return true;
+    }
   }
 }

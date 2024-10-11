@@ -1,5 +1,6 @@
 import { Item } from "./Item";
 import { Provider } from "./Provider";
+import { Replenishment } from "./Replenishment";
 import { SimpleItem } from "./SimpleItem";
 
 export class APIClient {
@@ -58,7 +59,6 @@ export class APIClient {
       id: 1,
       name: "Sofa",
       price: 50,
-      cost: 30,
       locations: new Map<string, number>([
         ["almacen", 3],
         ["tienda", 2],
@@ -78,7 +78,6 @@ export class APIClient {
       id: 2,
       name: "Sofa de 1 plaza",
       price: 65,
-      cost: 25,
       locations: new Map<string, number>([
         ["almacen", 25],
         ["tienda", 5],
@@ -98,7 +97,6 @@ export class APIClient {
       id: 3,
       name: "Silla de madera",
       price: 50,
-      cost: 30,
       locations: new Map<string, number>([
         ["almacen", 20],
         ["tienda", 8],
@@ -119,8 +117,6 @@ export class APIClient {
         item1.id,
         item1.name,
         item1.price,
-        item1.cost,
-        item1.locations,
         item1.images,
         item1.room,
         item1.material,
@@ -133,8 +129,6 @@ export class APIClient {
         item2.id,
         item2.name,
         item2.price,
-        item2.cost,
-        item2.locations,
         item2.images,
         item2.room,
         item2.material,
@@ -147,14 +141,84 @@ export class APIClient {
         item3.id,
         item3.name,
         item3.price,
-        item3.cost,
-        item3.locations,
         item3.images,
         item3.room,
         item3.material,
         item3.provider
       )
     );
+
+    items[0].setReplenishments([
+      new Replenishment(
+        0,
+        items[0],
+        new Date(),
+        new Date(),
+        50,
+        0,
+        0,
+        new Map<string, number>([
+          ["almacen", 3],
+          ["tienda", 2],
+        ])
+      ),
+      new Replenishment(
+        1,
+        items[0],
+        new Date(),
+        new Date(),
+        40,
+        0,
+        0,
+        new Map<string, number>([
+          ["almacen", 4],
+          ["tienda", 3],
+        ])
+      ),
+      new Replenishment(
+        2,
+        items[0],
+        new Date(),
+        new Date(),
+        30,
+        0,
+        0,
+        new Map<string, number>([["almacen", 1]])
+      ),
+    ]);
+
+    items[1].setReplenishments([
+      new Replenishment(
+        0,
+        items[1],
+        new Date(),
+        new Date(),
+        55,
+        0,
+        0,
+        new Map<string, number>([
+          ["almacen", 3],
+          ["tienda", 2],
+        ])
+      ),
+    ]);
+
+    items[2].setReplenishments([
+      new Replenishment(
+        0,
+        items[2],
+        new Date(),
+        new Date(),
+        65,
+        0,
+        0,
+        new Map<string, number>([
+          ["almacen", 3],
+          ["tienda", 2],
+        ])
+      ),
+    ]);
+
     return items;
   }
 
@@ -176,5 +240,9 @@ export class APIClient {
     // La función Math.random() genera un número aleatorio entre 0 (inclusive) y 1 (exclusivo),
     // aquí se escala al rango deseado y se redondea hacia abajo para asegurar un entero.
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  public replenish(replenishment: Replenishment, item: Item): number | null {
+    return item.getReplenishments().length;
   }
 }

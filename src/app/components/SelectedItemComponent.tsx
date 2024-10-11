@@ -12,6 +12,13 @@ export const SelectedItemComponent = ({
 }) => {
   const [percentage, setPercentage] = useState<number>(0);
   const [cost, setCost] = useState<number>(0);
+  const [price, setPrice] = useState<number>(item.getPrice());
+
+  const handlePriceChange = (newPrice: string) => {
+    const parsedPrice = parseFloat(newPrice);
+    setPrice(parsedPrice);
+    item.setPrice(parsedPrice);
+  };
 
   useEffect(() => {
     const newCost = (entireCost * percentage) / 100;
@@ -22,7 +29,7 @@ export const SelectedItemComponent = ({
     const newPercentage =
       entireCost != 0 ? Math.round((cost * 100) / entireCost) : 100/numberOfItems;
     setPercentage(newPercentage);
-    item.setCost(cost);
+    item.getReplenishments()[0] && item.getReplenishments()[0].setUnitCost(cost);
   }, [cost]);
 
   useEffect(() => {
@@ -82,9 +89,9 @@ export const SelectedItemComponent = ({
             type="number"
             name="price"
             className="w-14 h-fit border border-neutral-900 p-1 rounded text-right"
-            value={item.getPrice()}
+            value={price}
             onChange={(e) => {
-              item.setPrice(parseFloat(e.target.value));
+              handlePriceChange(e.target.value);
             }}
           />
           <p>Bs</p>

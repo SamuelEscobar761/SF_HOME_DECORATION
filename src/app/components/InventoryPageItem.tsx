@@ -1,10 +1,12 @@
 import { useState } from "react";
 import SeeIcon from "../../assets/See-Icon.svg";
 import SellIcon from "../../assets/Sell-Icon.svg";
-import InventoryIcon from "../../assets/Inventory-Icon.svg"
+import InventoryIcon from "../../assets/Inventory-Icon.svg";
 import RefreshIcon from "../../assets/Refresh-Icon.svg";
 import React from "react";
 import { Item } from "../classes/Item";
+import { SimpleItem } from "../classes/SimpleItem";
+import { MultiItem } from "../classes/MultiItem";
 
 export const InventoryPageItem = ({
   setItemToEdit,
@@ -97,15 +99,13 @@ export const InventoryPageItem = ({
               <p className="font-bold">{key}</p>
               <p className="text-right">{value}</p>
               <p className="col-span-3 ml-5">
-                {(value * item.getCost()).toFixed(2)} Bs
+                {item.getCost(key).toFixed(2)} Bs
               </p>
             </React.Fragment>
           ))}
           <p className="font-bold">Total</p>
           <p className="text-right">{totalStockUnits}</p>
-          <p className="col-span-3 ml-5">
-            {(totalStockUnits * item.getCost()).toFixed(2)} Bs
-          </p>
+          <p className="col-span-3 ml-5">{item.getTotalCost().toFixed(2)} Bs</p>
         </div>
 
         <div id="inventory-item-footer" className="flex justify-between mt-1">
@@ -120,7 +120,7 @@ export const InventoryPageItem = ({
             </div>
           </div>
           <div className="flex items-end">
-          <div
+            <div
               id="inventory-page-item-see-button"
               className="bg-tertiary p-2 rounded mr-2"
               onClick={() => {
@@ -138,14 +138,16 @@ export const InventoryPageItem = ({
             >
               <img src={SeeIcon} className="w-5 h-5" />
             </div>
-            <div
-              className="bg-secondary p-1 rounded"
-              onClick={() => {
-                setItemToMove({});
-              }}
-            >
-              <p className="text-neutral-100 text-xl">Re-ubicar</p>
-            </div>
+            {(item instanceof MultiItem || item instanceof SimpleItem && item.getMultiItem() == null) && (
+              <button
+                className="bg-secondary p-1 rounded"
+                onClick={() => {
+                  setItemToMove();
+                }}
+              >
+                <p className="text-neutral-100 text-xl">Re-ubicar</p>
+              </button>
+            )}
           </div>
         </div>
       </div>
