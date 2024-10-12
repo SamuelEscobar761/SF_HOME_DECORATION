@@ -185,7 +185,7 @@ export const ReplenishmentComponent = ({
         <div className="flex justify-between">
           <div>
             <p>fecha de encargo:</p>
-            <p>{new Date().toDateString()}</p>
+            <p className="py-2">{new Date().toDateString()}</p>
           </div>
           <div>
             <p>fecha de arribo:</p>
@@ -194,9 +194,9 @@ export const ReplenishmentComponent = ({
               name=""
               id=""
               className="p-2"
-              value={arriveDate.toDateString()}
+              value={arriveDate.toISOString().substring(0, 10)} // Correctly format the date here
               onChange={(e) => {
-                setArriveDate(new Date(e.target.value));
+                setArriveDate(new Date(e.target.value + "T00:00")); // Ensures the date is set with time at 00:00
               }}
             />
           </div>

@@ -1,5 +1,6 @@
 import { Item } from "./Item";
 import { Provider } from "./Provider";
+import { Replenishment } from "./Replenishment";
 import { SimpleItem } from "./SimpleItem";
 
 export class MultiItem extends Item {
@@ -32,5 +33,13 @@ export class MultiItem extends Item {
     for(const simpleItem of this.simpleItems){
       simpleItem.move(fromLocation, toLocation, units);
     }
+  }
+
+  public replenish(replenishment: Replenishment): boolean {
+    let response = super.replenish(replenishment);
+    for(const simpleItem of this.getSimpleItems()){
+      response = simpleItem.replenish(replenishment.cloneWithNewItem(simpleItem));
+    }
+    return response;
   }
 }

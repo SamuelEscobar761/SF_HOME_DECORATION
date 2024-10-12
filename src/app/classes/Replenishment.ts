@@ -4,7 +4,7 @@ export class Replenishment {
   private id: number;
   private item: Item;
   private orderDate: Date;
-  private arriveDate: Date;
+  private arrivalDate: Date;
   private unitCost: number;
   private unitDiscount: number;
   private totalDiscount: number;
@@ -14,7 +14,7 @@ export class Replenishment {
     id: number,
     item: Item,
     orderDate: Date,
-    arriveDate: Date,
+    arrivalDate: Date,
     unitCost: number,
     unitDiscount: number,
     totalDiscount: number,
@@ -23,7 +23,7 @@ export class Replenishment {
     this.id = id;
     this.item = item;
     this.orderDate = orderDate;
-    this.arriveDate = arriveDate;
+    this.arrivalDate = arrivalDate;
     this.unitCost = unitCost;
     this.unitDiscount = unitDiscount;
     this.totalDiscount = totalDiscount;
@@ -55,11 +55,11 @@ export class Replenishment {
   }
 
   public getArriveDate(): Date {
-    return this.arriveDate;
+    return this.arrivalDate;
   }
 
-  public setArriveDate(arriveDate: Date): void {
-    this.arriveDate = arriveDate;
+  public setArriveDate(arrivalDate: Date): void {
+    this.arrivalDate = arrivalDate;
   }
 
   public getUnitCost(): number {
@@ -106,4 +106,18 @@ export class Replenishment {
     })
     return totalUnits;
   }
+
+  // Método para clonar la instancia actual de Replenishment
+  cloneWithNewItem(item: Item): Replenishment {
+    return new Replenishment(
+        this.id, // O generar un nuevo ID si es necesario
+        item,
+        new Date(this.orderDate),
+        new Date(this.arrivalDate),
+        this.unitCost,
+        this.unitDiscount,
+        this.totalDiscount,
+        new Map(this.locations)
+    );
+}
 }

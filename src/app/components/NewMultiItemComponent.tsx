@@ -77,7 +77,7 @@ export const NewMultiItemComponent = ({
       new Map<string, number>([["almacen", parseFloat(units) || 0]]),
     );
 
-    newMultiItem.replenish(replenishment);
+    newMultiItem.setReplenishments([replenishment]);
     Manager.getInstance().saveNewMultiItem(newMultiItem);
     closeNewMultiItem();
   };

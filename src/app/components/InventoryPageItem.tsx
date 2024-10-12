@@ -86,7 +86,7 @@ export const InventoryPageItem = ({
           <img src={item.getImages()[0] ? item.getImages()[0].image : ""} />
         </div>
         <div id="title-provider-container" className="ml-2">
-          <p className="text-xl mr-2 break-all">{item.getName()}</p>
+          <p className="text-xl mr-2 break">{item.getName()}</p>
           <p className="text-base text-neutral-600">
             {item.getProvider().getName()}
           </p>

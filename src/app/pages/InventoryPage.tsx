@@ -187,7 +187,7 @@ export const InventoryPage = () => {
       <div id="top-buttons" className="flex justify-between items-center">
         <button
           id="items-folder-button"
-          className="p-2 bg-tertiary-light rounded border border-neutral-900 w-48 text-left text-xl"
+          className={`p-2 ${foldersView ? 'bg-tertiary-light' : 'bg-primary-light'} rounded border border-neutral-900 w-48 text-left text-xl`}
           onClick={() => {
             setFoldersView(!foldersView);
           }}
