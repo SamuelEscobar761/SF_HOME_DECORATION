@@ -121,4 +121,9 @@ export class Manager {
       console.log(error);
     }
   }
+
+  public async addItemToFolder(item: Item, folder: Folder){
+    folder.items.push(item);
+    this.apiClient.addItemToFolder(item, folder);
+  }
 }

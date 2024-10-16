@@ -263,4 +263,8 @@ export class APIClient {
   async deleteFolder(id: number){
     //TODO
   }
+
+  async addItemToFolder(item: Item, folder: Folder){
+    //TODO
+  }
 }

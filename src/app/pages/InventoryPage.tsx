@@ -118,7 +118,7 @@ export const InventoryPage = () => {
   };
 
   const addItemToFolder = (item: Item) => {
-
+    Manager.getInstance().addItemToFolder(item, selectedFolder!);
   };
 
   useEffect(() => {
@@ -129,11 +129,22 @@ export const InventoryPage = () => {
           item.getProvider().getName().toLowerCase().includes(searchTerm)
       );
       setFilteredItems(filtered);
-    } else if (folders.length > 0 && foldersView) {
+    } else if (folders.length > 0 && foldersView && !itemsOfFolderView) {
       const filtered = folders.filter((folder) =>
         folder.name.toLowerCase().includes(searchTerm)
       );
       setFilteredFolders(filtered);
+    } else if (
+      selectedFolder &&
+      selectedFolder.items.length > 0 &&
+      itemsOfFolderView
+    ) {
+      const filtered = selectedFolder.items.filter(
+        (item) =>
+          item.getName().toLowerCase().includes(searchTerm) ||
+          item.getProvider().getName().toLowerCase().includes(searchTerm)
+      );
+      setFilteredItems(filtered)
     }
   }, [searchTerm]);
 
@@ -168,7 +179,16 @@ export const InventoryPage = () => {
       {selectItemsView && (
         <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
           <div className="fixed inset-2 size-auto overflow-y-auto">
-            <AllItemsComponent addItem={addItemToFolder} closeBasicItemList={()=>{setSelectItemsView(false)}} createNewItem={()=>{setNewItemView(true)}} itemsList={items}/>
+            <AllItemsComponent
+              addItem={addItemToFolder}
+              closeBasicItemList={() => {
+                setSelectItemsView(false);
+              }}
+              createNewItem={() => {
+                setNewItemView(true);
+              }}
+              itemsList={items}
+            />
           </div>
         </div>
       )}

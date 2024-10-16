@@ -9,6 +9,7 @@ import { Manager } from "../classes/Manager";
 import { MultiItem } from "../classes/MultiItem";
 import { NewSimpleItemComponent } from "./NewSimpleItemComponent";
 import { Replenishment } from "../classes/Replenishment";
+import { Item } from "../classes/Item";
 
 export const NewMultiItemComponent = ({
   closeNewMultiItem,
@@ -30,9 +31,31 @@ export const NewMultiItemComponent = ({
   const [allItemsView, setAllItemsView] = useState<boolean>(false);
   const [newItemView, setNewItemView] = useState<boolean>(false);
 
-  const addItem = (item: SimpleItem) => {
-    setColorImages([...colorImages, ...item.getImages()]);
-    setSelectedItems([...selectedItems, item]);
+  const addItem = (item: Item) => {
+    const newItem = new SimpleItem(
+      null,
+      0,
+      item.getName(),
+      item.getPrice(),
+      item.getImages(),
+      item.getRoom(),
+      item.getMaterial(),
+      item.getProvider()
+    );
+    newItem.replenish(
+      new Replenishment(
+        0,
+        newItem,
+        new Date(),
+        new Date(),
+        0,
+        0,
+        0,
+        new Map<string, number>()
+      )
+    );
+    setColorImages([...colorImages, ...newItem.getImages()]);
+    setSelectedItems([...selectedItems, newItem]);
   };
 
   const saveSimpleItem = (item: SimpleItem) => {

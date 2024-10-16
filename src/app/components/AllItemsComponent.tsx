@@ -2,7 +2,6 @@ import { ImageNameComponent } from "./ImageNameComponent";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import { useState } from "react";
 import { SimpleItem } from "../classes/SimpleItem";
-import { Replenishment } from "../classes/Replenishment";
 import { Item } from "../classes/Item";
 
 export const AllItemsComponent = ({
@@ -13,7 +12,7 @@ export const AllItemsComponent = ({
 }: {
   itemsList: SimpleItem[] | Item[];
   closeBasicItemList: () => void;
-  addItem: (item: SimpleItem) => void | ((item: Item) => void);
+  addItem: (item: Item) => void;
   createNewItem: () => void;
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,29 +52,8 @@ export const AllItemsComponent = ({
           <div
             key={index}
             onClick={() => {
-              const newItem = new SimpleItem(
-                null,
-                0,
-                item.getName(),
-                item.getPrice(),
-                item.getImages(),
-                item.getRoom(),
-                item.getMaterial(),
-                item.getProvider()
-              );
-              newItem.replenish(
-                new Replenishment(
-                  0,
-                  newItem,
-                  new Date(),
-                  new Date(),
-                  0,
-                  0,
-                  0,
-                  new Map<string, number>()
-                )
-              );
-              addItem(newItem);
+              
+              addItem(item);
               closeBasicItemList();
             }}
             className="cursor-pointer"
