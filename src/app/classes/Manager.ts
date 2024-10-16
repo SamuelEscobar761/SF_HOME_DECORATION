@@ -104,9 +104,10 @@ export class Manager {
     }
   }
 
-  public async saveNewFolder(folder: Folder) {
+  public async saveNewFolder(folder: Folder, setFolders: React.Dispatch<React.SetStateAction<Folder[]>>) {
     try {
       this.folders.push(await this.apiClient.saveNewFolder(folder));
+      setFolders(this.folders);
     } catch (error) {
       console.log(error);
     }

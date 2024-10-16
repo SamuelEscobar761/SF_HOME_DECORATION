@@ -132,7 +132,7 @@ export const NewMultiItemComponent = ({
           </button>
         )}
         {allItemsView ? (
-          <div id="new-multi-item-all-items" className="w-full rounded">
+          <div id="new-multi-item-all-items" className="w-full h-48 overflow-y-auto rounded">
             <AllItemsComponent
               addItem={addItem}
               itemsList={allItems}

@@ -12,6 +12,7 @@ import { Manager } from "../classes/Manager";
 import { Item } from "../classes/Item";
 import { ReplenishmentComponent } from "../components/ReplenishmentComponent";
 import { Folder } from "../interfaces/Folder";
+import { AllItemsComponent } from "../components/AllItemsComponent";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
@@ -30,6 +31,8 @@ export const InventoryPage = () => {
   const [replenishmentItem, setReplenishmentItem] = useState<Item>();
   const [searchView, setSearchView] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedFolder, setSelectedFolder] = useState<Folder>();
+  const [selectItemsView, setSelectItemsView] = useState<boolean>(false);
   const allItemsSettings = [
     { text: "Buscar", action: () => searchButton() },
     { text: "Nuevo artículo", action: () => createNewItem() },
@@ -49,7 +52,7 @@ export const InventoryPage = () => {
     {
       text: "Agregar Item",
       action: () => {
-        console.log("Nuevo artículo compuesto");
+        setSelectItemsView(true);
       },
     },
   ];
@@ -76,7 +79,7 @@ export const InventoryPage = () => {
 
   const saveNewFolder = (name: string) => {
     const newfolder = { id: 0, name: name, items: [] };
-    Manager.getInstance().saveNewFolder(newfolder);
+    Manager.getInstance().saveNewFolder(newfolder, setFolders);
     setNewFolderView(false);
   };
 
@@ -89,6 +92,7 @@ export const InventoryPage = () => {
   };
 
   const selectFolder = (folder: Folder) => {
+    setSelectedFolder(folder);
     setSettings(folderItemsSettings);
     setFilteredItems(folder.items);
     setItemsOfFolderView(true);
@@ -96,7 +100,9 @@ export const InventoryPage = () => {
 
   const saveNewItem = async (item: Item) => {
     const response = await Manager.getInstance().saveNewItem(item);
-    console.log(response);
+    if (!response) {
+      alert("No se pudo guardar el item, revisa tu conexión a internet");
+    }
   };
 
   const newMultiItem = () => {
@@ -109,6 +115,10 @@ export const InventoryPage = () => {
 
   const deleteItem = (item: any) => {
     console.log("delete item");
+  };
+
+  const addItemToFolder = (item: Item) => {
+
   };
 
   useEffect(() => {
@@ -155,6 +165,13 @@ export const InventoryPage = () => {
 
   return (
     <div id="inventory-page" className="relative size-full p-2">
+      {selectItemsView && (
+        <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
+          <div className="fixed inset-2 size-auto overflow-y-auto">
+            <AllItemsComponent addItem={addItemToFolder} closeBasicItemList={()=>{setSelectItemsView(false)}} createNewItem={()=>{setNewItemView(true)}} itemsList={items}/>
+          </div>
+        </div>
+      )}
       {moveItemView && (
         <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
           <div className="fixed inset-2 size-auto overflow-y-auto">

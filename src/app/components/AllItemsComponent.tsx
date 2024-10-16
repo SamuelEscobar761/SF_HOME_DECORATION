@@ -3,6 +3,7 @@ import CloseIcon from "../../assets/Close-Icon.svg";
 import { useState } from "react";
 import { SimpleItem } from "../classes/SimpleItem";
 import { Replenishment } from "../classes/Replenishment";
+import { Item } from "../classes/Item";
 
 export const AllItemsComponent = ({
   itemsList,
@@ -10,9 +11,9 @@ export const AllItemsComponent = ({
   addItem,
   createNewItem,
 }: {
-  itemsList: SimpleItem[];
+  itemsList: SimpleItem[] | Item[];
   closeBasicItemList: () => void;
-  addItem: (item: SimpleItem) => void;
+  addItem: (item: SimpleItem) => void | ((item: Item) => void);
   createNewItem: () => void;
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,7 +41,7 @@ export const AllItemsComponent = ({
         />
       </div>
 
-      <div className="h-48 p-2 space-y-2 bg-neutral-100 overflow-y-auto">
+      <div className="p-2 space-y-2 bg-neutral-100">
         <button
           className="w-fit flex space-x-1 items-center p-2 border border-neutral-900 rounded"
           onClick={createNewItem}
