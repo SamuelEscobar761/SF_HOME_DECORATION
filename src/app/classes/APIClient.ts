@@ -1,4 +1,6 @@
+import { Folder } from "../interfaces/Folder";
 import { Item } from "./Item";
+import { Manager } from "./Manager";
 import { Provider } from "./Provider";
 import { Replenishment } from "./Replenishment";
 import { SimpleItem } from "./SimpleItem";
@@ -244,5 +246,21 @@ export class APIClient {
 
   public replenish(replenishment: Replenishment, item: Item): number | null {
     return item.getReplenishments().length;
+  }
+
+  async loadFolders(): Promise<Folder[]> {
+    return [
+      { id: 1, name: "Primera Carpeta", items: [] },
+      { id: 2, name: "Segunda Carpeta", items: [] },
+      { id: 3, name: "Tercera Carpeta", items: [] },
+    ];
+  }
+
+  async saveNewFolder(folder: Folder): Promise<Folder>{
+    return {id: Manager.getInstance().getFolders().length, name: folder.name, items: folder.items};
+  }
+
+  async deleteFolder(id: number){
+    //TODO
   }
 }

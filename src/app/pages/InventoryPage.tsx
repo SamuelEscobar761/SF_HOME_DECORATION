@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import CloseIcon from "../../assets/Close-Icon.svg";
 import { InventoryPageItem } from "../components/InventoryPageItem";
 import { MoveItemComponent } from "../components/MoveItemComponent";
 import { ShowItemGraphics } from "../components/ShowItemGraphics";
@@ -10,13 +11,15 @@ import { NewMultiItemComponent } from "../components/NewMultiItemComponent";
 import { Manager } from "../classes/Manager";
 import { Item } from "../classes/Item";
 import { ReplenishmentComponent } from "../components/ReplenishmentComponent";
+import { Folder } from "../interfaces/Folder";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
-  const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
+  const [itemsOfFolderView, setItemsOfFolderView] = useState<boolean>(false);
   const [items, setItems] = useState<Item[]>([]);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
-  const [folders, setFolders] = useState<any[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [filteredFolders, setFilteredFolders] = useState<Folder[]>([]);
   const [moveItemView, setMoveItemView] = useState<boolean>(false);
   const [itemGraphicsView, setItemGraphicsView] = useState<boolean>(false);
   const [newItemView, setNewItemView] = useState<boolean>(false);
@@ -25,6 +28,33 @@ export const InventoryPage = () => {
   const [multiItemView, setMultiItemView] = useState<boolean>(false);
   const [replenishmentView, setReplenishmentView] = useState<boolean>(false);
   const [replenishmentItem, setReplenishmentItem] = useState<Item>();
+  const [searchView, setSearchView] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const allItemsSettings = [
+    { text: "Buscar", action: () => searchButton() },
+    { text: "Nuevo artículo", action: () => createNewItem() },
+    { text: "Nuevo artículo compuesto", action: () => newMultiItem() },
+  ];
+  const foldersSettings = [
+    { text: "Buscar", action: () => searchButton() },
+    {
+      text: "Nueva Carpeta",
+      action: () => {
+        setNewFolderView(true);
+      },
+    },
+  ];
+  const folderItemsSettings = [
+    { text: "Buscar", action: () => searchButton() },
+    {
+      text: "Agregar Item",
+      action: () => {
+        console.log("Nuevo artículo compuesto");
+      },
+    },
+  ];
+  const [settings, setSettings] =
+    useState<{ text: string; action: () => void }[]>(allItemsSettings);
 
   const handleMoveItem = (item: Item) => {
     setMoveItem(item);
@@ -40,9 +70,13 @@ export const InventoryPage = () => {
     setNewItemView(true);
   };
 
+  const searchButton = () => {
+    setSearchView(true);
+  };
+
   const saveNewFolder = (name: string) => {
-    const id = 15;
-    setFolders([...folders, { id: id, name: name }]);
+    const newfolder = { id: 0, name: name, items: [] };
+    Manager.getInstance().saveNewFolder(newfolder);
     setNewFolderView(false);
   };
 
@@ -51,11 +85,13 @@ export const InventoryPage = () => {
   };
 
   const deleteFolder = (id: number) => {
-    setFolders(folders.filter((folder) => folder.id != id));
+    Manager.getInstance().deleteFolder(id);
   };
 
-  const selectFolder = (id: number) => {
-    console.log("select folder with id: " + id);
+  const selectFolder = (folder: Folder) => {
+    setSettings(folderItemsSettings);
+    setFilteredItems(folder.items);
+    setItemsOfFolderView(true);
   };
 
   const saveNewItem = async (item: Item) => {
@@ -69,18 +105,34 @@ export const InventoryPage = () => {
 
   const editItem = (item: any) => {
     console.log("editing item");
-  }
+  };
 
   const deleteItem = (item: any) => {
     console.log("delete item");
-  }
+  };
 
   useEffect(() => {
-    setFolders([
-      { id: 1, name: "Primera Carpeta" },
-      { id: 2, name: "Segunda Carpeta" },
-      { id: 3, name: "Tercera Carpeta" },
-    ]);
+    if (items.length > 0 && !foldersView) {
+      const filtered = items.filter(
+        (item) =>
+          item.getName().toLowerCase().includes(searchTerm) ||
+          item.getProvider().getName().toLowerCase().includes(searchTerm)
+      );
+      setFilteredItems(filtered);
+    } else if (folders.length > 0 && foldersView) {
+      const filtered = folders.filter((folder) =>
+        folder.name.toLowerCase().includes(searchTerm)
+      );
+      setFilteredFolders(filtered);
+    }
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const loadFolders = async () => {
+      await Manager.getInstance().loadFolders();
+      setFolders(Manager.getInstance().getFolders());
+    };
+    loadFolders();
   }, []);
 
   useEffect(() => {
@@ -89,13 +141,17 @@ export const InventoryPage = () => {
       await manager.loadMoreItems(); // Espera a que los items se carguen
       setItems(manager.getItems()); // Establece los items una vez cargados
     };
-  
+
     loadItems();
   }, []);
 
   useEffect(() => {
     setFilteredItems(items);
   }, [items]);
+
+  useEffect(() => {
+    setFilteredFolders(folders);
+  }, [folders]);
 
   return (
     <div id="inventory-page" className="relative size-full p-2">
@@ -129,7 +185,11 @@ export const InventoryPage = () => {
       {multiItemView && (
         <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
           <div className="fixed inset-2 size-auto overflow-y-auto">
-            <NewMultiItemComponent closeNewMultiItem={() => { setMultiItemView(false); } } />
+            <NewMultiItemComponent
+              closeNewMultiItem={() => {
+                setMultiItemView(false);
+              }}
+            />
           </div>
         </div>
       )}
@@ -146,9 +206,17 @@ export const InventoryPage = () => {
         </div>
       )}
       {replenishmentView && (
-        <div id="inventory-page-replenishment-container" className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
+        <div
+          id="inventory-page-replenishment-container"
+          className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]"
+        >
           <div className="fixed inset-2 size-auto overflow-y-auto">
-            <ReplenishmentComponent item={replenishmentItem!} closeReplenishmentView={()=>{setReplenishmentView(false)}}/>
+            <ReplenishmentComponent
+              item={replenishmentItem!}
+              closeReplenishmentView={() => {
+                setReplenishmentView(false);
+              }}
+            />
           </div>
         </div>
       )}
@@ -166,47 +234,65 @@ export const InventoryPage = () => {
           />
         </div>
       )}
-      {optionsIsOpen && (
-        <div
-          id="inventory-page-options-container"
-          className="fixed inset-2 size-auto z-40"
-          onClick={() => {
-            setOptionsIsOpen(false);
-          }}
-        >
-          <OptionsButtonComponent
-            page="InventoryPage"
-            settings={{ foldersView, newMultiItem }}
-            newItem={createNewItem}
-            newFolder={() => {
-              setNewFolderView(true);
-            }}
-          />
-        </div>
-      )}
-      <div id="top-buttons" className="flex justify-between items-center">
-        <button
-          id="items-folder-button"
-          className={`p-2 ${foldersView ? 'bg-tertiary-light' : 'bg-primary-light'} rounded border border-neutral-900 w-48 text-left text-xl`}
-          onClick={() => {
-            setFoldersView(!foldersView);
-          }}
-        >
-          {foldersView ? "Todos los artículos" : "Carpetas"}
-        </button>
-        <div id="options-button">
+
+      {searchView ? (
+        <div id="top-buttons" className="flex justify-between items-center">
+          <div id="search-bar">
+            <input
+              type="text"
+              placeholder="Buscar"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
+              className="rounded-full py-1 px-2 text-base border border-neutral-900"
+            />
+          </div>
           <button
-            onClick={() => setOptionsIsOpen(!optionsIsOpen)}
-            className="flex flex-col justify-center items-center w-8 h-8 bg-transparent rounded focus:outline-none space-y-1"
+            id="inventory-page-close-search-bar"
+            className="p-2 size-10"
+            onClick={() => {
+              setSearchView(false);
+              setSearchTerm("");
+            }}
           >
-            <span className="block w-1 h-1 bg-black rounded-full"></span>
-            <span className="block w-1 h-1 bg-black rounded-full"></span>
-            <span className="block w-1 h-1 bg-black rounded-full"></span>
+            <img src={CloseIcon} />
           </button>
         </div>
-      </div>
+      ) : (
+        <div id="top-buttons" className="flex justify-between items-center">
+          <button
+            id="items-folder-button"
+            className={`p-2 ${
+              foldersView ? "bg-tertiary-light" : "bg-primary-light"
+            } rounded border border-neutral-900 w-48 text-left text-xl`}
+            onClick={() => {
+              if (!foldersView) {
+                setSettings(foldersSettings);
+                setFoldersView(true);
+              } else if (!itemsOfFolderView) {
+                setSettings(allItemsSettings);
+                setFilteredItems(items);
+                setFoldersView(!foldersView);
+              }
+              if (itemsOfFolderView) {
+                setSettings(foldersSettings);
+                setFilteredItems(items);
+                setItemsOfFolderView(false);
+              }
+            }}
+          >
+            {!foldersView || itemsOfFolderView
+              ? "Carpetas"
+              : "Todos los artículos"}
+          </button>
+          <div id="inventory-page-options-container" className="">
+            <OptionsButtonComponent settings={settings} />
+          </div>
+        </div>
+      )}
       <div id="inventory-page-content" className="space-y-5 mt-8">
-        {!foldersView ? (
+        {!foldersView || itemsOfFolderView ? (
           filteredItems.length > 0 ? (
             filteredItems.map((item, index) => (
               <InventoryPageItem
@@ -216,9 +302,16 @@ export const InventoryPage = () => {
                 }}
                 item={item}
                 setItemToShow={setItemToShow}
-                setItemToEdit={()=>{editItem(item)}}
-                setItemToDelete={()=>{deleteItem(item)}}
-                setReplenishmentView={()=>{setReplenishmentView(true); setReplenishmentItem(item)}}
+                setItemToEdit={() => {
+                  editItem(item);
+                }}
+                setItemToDelete={() => {
+                  deleteItem(item);
+                }}
+                setReplenishmentView={() => {
+                  setReplenishmentView(true);
+                  setReplenishmentItem(item);
+                }}
               />
             ))
           ) : (
@@ -227,19 +320,21 @@ export const InventoryPage = () => {
               nuevos.
             </p>
           )
-        ) : folders.length > 0 ? (
-          folders.map((folder, index) => (
+        ) : filteredFolders.length > 0 ? (
+          filteredFolders.map((folder, index) => (
             <FolderComponent
               key={index}
               name={folder.name}
               id={folder.id}
               deleteFolder={deleteFolder}
-              onClick={selectFolder}
+              onClick={() => {
+                selectFolder(folder);
+              }}
             />
           ))
         ) : (
           <p>
-            Parece que todavía no hay artículos para mostrar, intenta crear
+            Parece que todavía no hay carpetas para mostrar, intenta crear
             nuevos.
           </p>
         )}

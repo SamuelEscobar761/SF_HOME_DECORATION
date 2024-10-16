@@ -4,10 +4,12 @@ import { Item } from "./Item";
 import { SimpleItem } from "./SimpleItem";
 import { MultiItem } from "./MultiItem";
 import { Replenishment } from "./Replenishment";
+import { Folder } from "../interfaces/Folder";
 
 export class Manager {
   private static instance: Manager;
   private items: Item[] = [];
+  private folders: Folder[] = [];
   private providers: Provider[] = [];
   private apiClient = APIClient.getInstance("https://api.misitio.com");
 
@@ -32,6 +34,14 @@ export class Manager {
     this.items = items;
   }
 
+  public getFolders(): Folder[] {
+    return this.folders;
+  }
+
+  public setFolders(folders: Folder[]): void {
+    this.folders = folders;
+  }
+
   public async loadMoreItems() {
     this.items = await this.apiClient.loadItems(this.items.length);
   }
@@ -49,11 +59,13 @@ export class Manager {
 
   public async saveNewMultiItem(item: MultiItem): Promise<boolean> {
     item.getSimpleItems().map((simpleItem) => {
-      simpleItem.setName(simpleItem.getName() + " (parte de: " + item.getName() + ")");
+      simpleItem.setName(
+        simpleItem.getName() + " (parte de: " + item.getName() + ")"
+      );
       simpleItem.setMultiItem(item);
       this.saveNewItem(simpleItem);
-    })
-    return this.saveNewItem(item)
+    });
+    return this.saveNewItem(item);
   }
 
   public async ensureProviderExists(name: string): Promise<Provider> {
@@ -74,13 +86,38 @@ export class Manager {
     ) as SimpleItem[];
   }
 
-  public replenish(replenishment: Replenishment, item: Item): boolean{
+  public replenish(replenishment: Replenishment, item: Item): boolean {
     const id = this.apiClient.replenish(replenishment, item);
-    if(id == null){
+    if (id == null) {
       return false;
-    }else {
+    } else {
       replenishment.setId(id);
       return true;
+    }
+  }
+
+  public async loadFolders() {
+    try {
+      this.setFolders(await this.apiClient.loadFolders());
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  public async saveNewFolder(folder: Folder) {
+    try {
+      this.folders.push(await this.apiClient.saveNewFolder(folder));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  public async deleteFolder(id: number) {
+    try{
+      this.folders.filter((folder) => {folder.id != id});
+      await this.apiClient.deleteFolder(id);
+    } catch (error) {
+      console.log(error);
     }
   }
 }
