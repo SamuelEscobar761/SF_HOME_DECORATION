@@ -46,7 +46,7 @@ export const NewSimpleItemComponent = ({
       0,
 
       
-      new Map<string, number>([["almacen", parseFloat(units) || 0]]),
+      new Map<string, number>([["almacen", parseFloat(units) || 0], ["Tienda", 0]]),
     );
     item.replenish(replenishment);
     saveNewItem(item);

@@ -67,7 +67,7 @@ export const NewMultiItemComponent = ({
       parseFloat(cost)/selectedItems.length,
       0,
       0,
-      new Map<string, number>([["almacen", parseFloat(units) || 0]]),
+      new Map<string, number>([["almacen", parseFloat(units) || 0], ["Tienda", 0]]),
     );
     item.setReplenishments([replenishment]);
     setSelectedItems([...selectedItems, item]);
@@ -76,7 +76,7 @@ export const NewMultiItemComponent = ({
 
   const save = async () => {
     for(const selectedItem of selectedItems){
-      selectedItem.getReplenishments()[0].setLocations(new Map<string, number>([["almacen", parseFloat(units) || 0]]));
+      selectedItem.getReplenishments()[0].setLocations(new Map<string, number>([["almacen", parseFloat(units) || 0], ["Tienda", 0]]));
     }
     const newMultiItem = new MultiItem(
       selectedItems,
@@ -97,7 +97,7 @@ export const NewMultiItemComponent = ({
       parseFloat(cost),
       0,
       0,
-      new Map<string, number>([["almacen", parseFloat(units) || 0]]),
+      new Map<string, number>([["almacen", parseFloat(units) || 0], ["Tienda", 0]]),
     );
 
     newMultiItem.setReplenishments([replenishment]);

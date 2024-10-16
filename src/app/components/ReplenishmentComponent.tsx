@@ -58,6 +58,9 @@ export const ReplenishmentComponent = ({
         <p className="text-center">
           <strong>{item.getProvider().getName()}</strong>
         </p>
+        <p className="text-center">
+          {item.getTotalUnits()} unidades almacenadas
+        </p>
       </div>
       <div className="p-2 bg-neutral-400 rounded space-y-2">
         <div className="flex justify-between items-center">
