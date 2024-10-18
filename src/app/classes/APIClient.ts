@@ -262,6 +262,10 @@ export class APIClient {
     return true;
   }
 
+  async deleteItem(item: Item): Promise<boolean>{
+    return true;
+  }
+
   async saveNewProvider(name: string): Promise<boolean> {
     //save new provider with empty data, only name on DB
     return true;

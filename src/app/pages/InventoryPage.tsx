@@ -110,6 +110,9 @@ export const InventoryPage = () => {
       }
     } else {
       const response = await Manager.getInstance().editItem(item);
+      if (!response) {
+        alert("No se pudo editar el item, revisa tu conexión a internet");
+      }
     }
   };
 
@@ -126,8 +129,9 @@ export const InventoryPage = () => {
     }
   };
 
-  const deleteItem = (item: any) => {
-    console.log("delete item");
+  const deleteItem = async (item: any) => {
+    await Manager.getInstance().deleteItem(item);
+    setItems([...Manager.getInstance().getItems()]);
   };
 
   const addItemToFolder = (item: Item) => {

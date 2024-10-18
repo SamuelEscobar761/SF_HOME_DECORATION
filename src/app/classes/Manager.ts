@@ -58,10 +58,25 @@ export class Manager {
   }
 
   public async editItem(item: Item): Promise<boolean> {
-    try{
+    try {
       const answer = await this.apiClient.editItem(item);
       return answer;
-    }catch(error){
+    } catch (error) {
+      console.log(error);
+    }
+    return false;
+  }
+
+  public async deleteItem(item: Item): Promise<boolean> {
+    try {
+      const answer = await this.apiClient.deleteItem(item);
+      if (answer) {
+        this.items = this.items.filter(
+          (itemInList) => itemInList.getId() !== item.getId()
+        );
+        return true;
+      }
+    } catch (error) {
       console.log(error);
     }
     return false;
@@ -114,7 +129,10 @@ export class Manager {
     }
   }
 
-  public async saveNewFolder(folder: Folder, setFolders: React.Dispatch<React.SetStateAction<Folder[]>>) {
+  public async saveNewFolder(
+    folder: Folder,
+    setFolders: React.Dispatch<React.SetStateAction<Folder[]>>
+  ) {
     try {
       this.folders.push(await this.apiClient.saveNewFolder(folder));
       setFolders(this.folders);
@@ -124,15 +142,17 @@ export class Manager {
   }
 
   public async deleteFolder(id: number) {
-    try{
-      this.folders.filter((folder) => {folder.id != id});
+    try {
+      this.folders.filter((folder) => {
+        folder.id != id;
+      });
       await this.apiClient.deleteFolder(id);
     } catch (error) {
       console.log(error);
     }
   }
 
-  public async addItemToFolder(item: Item, folder: Folder){
+  public async addItemToFolder(item: Item, folder: Folder) {
     folder.items.push(item);
     this.apiClient.addItemToFolder(item, folder);
   }
