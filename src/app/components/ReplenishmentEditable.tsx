@@ -22,7 +22,7 @@ export const ReplenishmentEditable = ({replenishment}: {replenishment: Replenish
         <div className="flex justify-around">
             <input
                 type="date"
-                className="p-2 w-[85px] bg-neutral-100 "
+                className="p-2 w-[91px] bg-neutral-100 "
                 value={date.toISOString().substring(0, 10)}
                 onChange={(e) => {handleDateChange(e.target.value)}}
             />

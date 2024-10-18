@@ -192,7 +192,7 @@ export const InventoryPage = () => {
   }, [folders]);
 
   return (
-    <div id="inventory-page" className="relative size-full p-2">
+    <div id="inventory-page" className="p-2">
       {selectItemsView && (
         <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
           <div className="fixed inset-2 size-auto overflow-y-auto">

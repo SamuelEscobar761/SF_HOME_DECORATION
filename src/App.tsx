@@ -3,22 +3,10 @@ import { AppRoutes } from "./app/routes/AppRoutes";
 import { DeviceProvider } from "./app/context/DeviceContext";
 import ResponsiveNavbar from "./app/layout/ResponsiveNavbar";
 import ScrollToTop from "./app/components/ScrollToTop";
-import { useEffect, useState } from "react";
 
 function App() {
-  const [minHeight, setMinHeight] = useState(window.innerHeight - 62);
+  const navbarHeight = 62; // Altura de la navbar
 
-  useEffect(() => {
-    const handleResize = () => {
-      setMinHeight(window.innerHeight - 62);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
   return (
     <DeviceProvider>
       <Router>
@@ -26,7 +14,10 @@ function App() {
         <div className="flex flex-col h-screen bg-primary">
           {window.innerWidth >= 768 && <ResponsiveNavbar />}
           <div
-            style={{ minHeight: `${minHeight}px` }}
+            style={ window.innerHeight < 768 ?{
+              minHeight: `calc(100vh - ${navbarHeight}px)`,
+              paddingBottom: `${navbarHeight}px`,
+            }: {}}
             className="overflow-y-auto bg-primary text-neutral-900"
           >
             <AppRoutes />

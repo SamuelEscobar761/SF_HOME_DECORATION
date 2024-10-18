@@ -17,8 +17,8 @@ export const OptionsButtonComponent = ({
         <span className="block w-1 h-1 bg-black rounded-full"></span>
       </button>
       {optionsOpen && (
-        <div id="options-open" className="w-screen h-screen fixed inset-0 z-40 p-2" onClick={()=>{setOptionsOpen(false)}}>
-          <div id="" className="flex flex-col border border-neutral-400 size-fit justify-self-end bg-primary divide-neutral-300 divide-y rounded">
+        <div id="options-open" className="w-screen h-screen fixed inset-0 z-40 p-2 flex justify-end" onClick={()=>{setOptionsOpen(false)}}>
+          <div id="" className="flex flex-col border border-neutral-400 size-fit bg-primary divide-neutral-300 divide-y rounded">
             {settings.map((setting, index) => (
               <button key={index} className="p-2 text-left min-w-36" onClick={setting.action}>{setting.text}</button>
             ))}
