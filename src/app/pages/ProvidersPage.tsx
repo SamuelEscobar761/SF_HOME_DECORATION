@@ -3,7 +3,7 @@ import { ProviderCardComponent } from "../components/ProviderCardComponent";
 import { OptionsButtonComponent } from "../components/OptionsButtonComponent";
 
 export const ProvidersPage = () => {
-  const [providers, setProviders] = useState<any[]>([1, 2, 3, 4, 5, 6, 7, 8]);
+  const [providers] = useState<any[]>([1, 2, 3, 4, 5, 6, 7, 8]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
 
@@ -51,16 +51,12 @@ export const ProvidersPage = () => {
               setOptionsIsOpen(false);
             }}
           >
-            <OptionsButtonComponent
-              newItem={() => { } }
-              page="InventoryPage"
-              settings={{}}
-              newFolder={undefined}            />
+            <OptionsButtonComponent settings={[]} />
           </div>
         )}
       </div>
       <div id="providers-cards-container" className="space-y-2">
-        {providers.map((provider, index) => (
+        {providers.map((index) => (
           <ProviderCardComponent key={index} />
         ))}
       </div>

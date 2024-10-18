@@ -55,6 +55,7 @@ export class APIClient {
   // metodos a usar
 
   async loadItems(startIndex: number): Promise<Item[]> {
+    startIndex;
     const items = [];
     const item1 = {
       multiItem: null,
@@ -254,19 +255,23 @@ export class APIClient {
   }
 
   async saveNewItem(item: Item): Promise<number | null> {
+    item;
     // save item on db
     return this.getRandomInt();
   }
 
   async editItem(item: Item): Promise<boolean>{
+    item;
     return true;
   }
 
   async deleteItem(item: Item): Promise<boolean>{
+    item;
     return true;
   }
 
   async saveNewProvider(name: string): Promise<boolean> {
+    name;
     //save new provider with empty data, only name on DB
     return true;
   }
@@ -282,6 +287,7 @@ export class APIClient {
   }
 
   public replenish(replenishment: Replenishment, item: Item): number | null {
+    replenishment;
     return item.getReplenishments().length;
   }
 
@@ -302,10 +308,13 @@ export class APIClient {
   }
 
   async deleteFolder(id: number) {
+    id;
     //TODO
   }
 
   async addItemToFolder(item: Item, folder: Folder) {
+    item;
+    folder;
     //TODO
   }
 }
