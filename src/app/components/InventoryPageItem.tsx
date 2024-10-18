@@ -83,7 +83,7 @@ export const InventoryPageItem = ({
           id="inventory-item-image-container"
           className="w-[120px] h-[120px] shrink-0 bg-neutral-100 rounded"
         >
-          <img src={item.getImages()[0] ? item.getImages()[0].image : ""} />
+          <img src={item.getImages()[0] ? item.getImages()[0].image : ""} className="object-contain size-full"/>
         </div>
         <div id="title-provider-container" className="ml-2">
           <p className="text-xl mr-2 break">{item.getName()}</p>

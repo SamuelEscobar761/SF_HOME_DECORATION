@@ -142,13 +142,13 @@ export const InventoryPage = () => {
     if (items.length > 0 && !foldersView) {
       const filtered = items.filter(
         (item) =>
-          item.getName().toLowerCase().includes(searchTerm) ||
-          item.getProvider().getName().toLowerCase().includes(searchTerm)
+          item.getName().toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.getProvider().getName().toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredItems(filtered);
     } else if (folders.length > 0 && foldersView && !itemsOfFolderView) {
       const filtered = folders.filter((folder) =>
-        folder.name.toLowerCase().includes(searchTerm)
+        folder.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredFolders(filtered);
     } else if (
@@ -158,8 +158,8 @@ export const InventoryPage = () => {
     ) {
       const filtered = selectedFolder.items.filter(
         (item) =>
-          item.getName().toLowerCase().includes(searchTerm) ||
-          item.getProvider().getName().toLowerCase().includes(searchTerm)
+          item.getName().toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.getProvider().getName().toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredItems(filtered);
     }

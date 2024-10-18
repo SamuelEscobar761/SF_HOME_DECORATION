@@ -128,7 +128,7 @@ export const ColorImageComponent = ({
           <img
             src={colorImage.image} // Previsualización de la imagen
             alt={`uploaded-${index}`}
-            className="object-conatin w-full h-80"
+            className="object-contain w-full h-80"
           />
           <div
             id="color-container"

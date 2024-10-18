@@ -182,7 +182,7 @@ export const NewSimpleItemComponent = ({
             />
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
-          {fullItem != false && (
+          {fullItem != false && !item &&(
             <input
               id="new-item-units"
               type="number"
