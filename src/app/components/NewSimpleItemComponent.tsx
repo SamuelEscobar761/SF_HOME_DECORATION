@@ -5,51 +5,92 @@ import { ColorImageComponent } from "./ColorImageComponent";
 import { Manager } from "../classes/Manager";
 import { SimpleItem } from "../classes/SimpleItem";
 import { Replenishment } from "../classes/Replenishment";
+import { ReplenishmentList } from "./ReplenishmentsList";
 
 export const NewSimpleItemComponent = ({
   closeNewItem,
   saveNewItem,
   fullItem,
+  item,
 }: {
   closeNewItem: () => void;
-  saveNewItem: (item: SimpleItem) => Promise<void> | void;
+  saveNewItem: (item: SimpleItem, isNew: boolean) => Promise<void> | void;
   fullItem?: boolean;
+  item?: SimpleItem;
 }) => {
-  const [colorImages, setColorImages] = useState<ImageColor[]>([]);
-  const [name, setName] = useState<string>("");
-  const [provider, setProvider] = useState<string>("");
-  const [room, setRoom] = useState<string>("");
-  const [material, setMaterial] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
+  const [colorImages, setColorImages] = useState<ImageColor[]>(
+    item?.getImages() || []
+  );
+  const [name, setName] = useState<string>(item?.getName() || "");
+  const [provider, setProvider] = useState<string>(
+    item?.getProvider().getName() || ""
+  );
+  const [room, setRoom] = useState<string>(item?.getRoom() || "");
+  const [material, setMaterial] = useState<string>(item?.getMaterial() || "");
+  const [price, setPrice] = useState<string>(item?.getPrice().toString() || "");
   const [cost, setCost] = useState<string>("");
-  const [units, setUnits] = useState<string>("");
+  const [units, setUnits] = useState<string>(
+    item?.getTotalUnits().toString() || ""
+  );
   const [canSave, setCanSave] = useState(false);
+  const replenishments =
+    item
+      ?.getReplenishments()
+      .map(
+        (replenishment) =>
+          new Replenishment(
+            replenishment.getId(),
+            replenishment.getItem(),
+            replenishment.getOrderDate(),
+            replenishment.getArriveDate(),
+            replenishment.getUnitCost(),
+            replenishment.getUnitDiscount(),
+            replenishment.getTotalDiscount(),
+            replenishment.getLocations()
+          )
+      ) || [];
 
   const save = async () => {
-    const item = new SimpleItem(
-      null,
-      0,
-      name,
-      parseFloat(price) || 0,
-      colorImages,
-      room,
-      material,
-      await Manager.getInstance().ensureProviderExists(provider),
-    );
-    const replenishment = new Replenishment(
-      0,
-      item,
-      new Date(),
-      new Date(),
-      parseFloat(cost),
-      0,
-      0,
+    if (!item) {
+      const newItem = new SimpleItem(
+        null,
+        0,
+        name,
+        parseFloat(price) || 0,
+        colorImages,
+        room,
+        material,
+        await Manager.getInstance().ensureProviderExists(provider)
+      );
+      const replenishment = new Replenishment(
+        0,
+        newItem,
+        new Date(),
+        new Date(),
+        parseFloat(cost),
+        0,
+        0,
 
-      
-      new Map<string, number>([["almacen", parseFloat(units) || 0], ["Tienda", 0]]),
-    );
-    item.replenish(replenishment);
-    saveNewItem(item);
+        new Map<string, number>([
+          ["almacen", parseFloat(units) || 0],
+          ["Tienda", 0],
+        ])
+      );
+      newItem.replenish(replenishment);
+      saveNewItem(newItem, true);
+    } else {
+      item.setImages(colorImages);
+      item.setMaterial(material);
+      item.setName(name);
+      item.setPrice(parseFloat(price));
+      item.setProvider(
+        await Manager.getInstance().ensureProviderExists(provider)
+      );
+      item.setReplenishments(replenishments);
+      item.setRoom(room);
+      saveNewItem(item, false);
+    }
+
     closeNewItem();
   };
 
@@ -59,7 +100,7 @@ export const NewSimpleItemComponent = ({
       const validCost = !fullItem || parseFloat(cost) > 0;
       const validUnits = !fullItem || parseInt(units) > 0;
       setCanSave(
-        name != "" && provider != "" && validPrice && validCost && validUnits
+        name !== "" && provider !== "" && validPrice && validCost && validUnits
       );
     };
 
@@ -154,29 +195,36 @@ export const NewSimpleItemComponent = ({
             />
           )}
         </div>
-        {fullItem != false && (
-          <div id="new-item-cost-container" className="flex space-x-1">
-            <input
-              id="new-item-cost"
-              type="number"
-              placeholder="Costo"
-              className="w-20 p-2 rounded"
-              value={cost}
-              onChange={(e) => {
-                setCost(e.target.value);
-              }}
-            />
-            <p className="p-2 bg-neutral-100 rounded">Bs</p>
+        {item ? (
+          <div>
+            <ReplenishmentList replenishments={replenishments} />
           </div>
+        ) : (
+          fullItem != false && (
+            <div id="new-item-cost-container" className="flex space-x-1">
+              <input
+                id="new-item-cost"
+                type="number"
+                placeholder="Costo"
+                className="w-20 p-2 rounded"
+                value={cost}
+                onChange={(e) => {
+                  setCost(e.target.value);
+                }}
+              />
+              <p className="p-2 bg-neutral-100 rounded">Bs</p>
+            </div>
+          )
         )}
-
         <p id="new-item-price-cost-description" className="text-xs">
           *El precio es el monto por el cual se vende el item, el costo es lo
           que costó comprar el item
         </p>
         <div
           id="new-item-save-button"
-          className="w-full flex justify-center bg-success p-2 rounded"
+          className={`w-full flex justify-center bg-success p-2 rounded ${
+            !canSave ? "opacity-50 cursor-not-allowed" : ""
+          }`}
           onClick={canSave ? save : undefined}
         >
           <img src={SaveIcon} />

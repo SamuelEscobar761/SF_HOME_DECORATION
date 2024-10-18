@@ -185,7 +185,36 @@ export class APIClient {
         30,
         0,
         0,
-        new Map<string, number>([["almacen", 1]])
+        new Map<string, number>([
+          ["almacen", 1],
+          ["tienda", 3],
+        ])
+      ),
+      new Replenishment(
+        3,
+        items[0],
+        new Date(),
+        new Date(),
+        30,
+        0,
+        0,
+        new Map<string, number>([
+          ["almacen", 1],
+          ["tienda", 3],
+        ])
+      ),
+      new Replenishment(
+        4,
+        items[0],
+        new Date(),
+        new Date(),
+        30,
+        0,
+        0,
+        new Map<string, number>([
+          ["almacen", 1],
+          ["tienda", 3],
+        ])
       ),
     ]);
 
@@ -229,6 +258,10 @@ export class APIClient {
     return this.getRandomInt();
   }
 
+  async editItem(item: Item): Promise<boolean>{
+    return true;
+  }
+
   async saveNewProvider(name: string): Promise<boolean> {
     //save new provider with empty data, only name on DB
     return true;
@@ -256,15 +289,19 @@ export class APIClient {
     ];
   }
 
-  async saveNewFolder(folder: Folder): Promise<Folder>{
-    return {id: Manager.getInstance().getFolders().length, name: folder.name, items: folder.items};
+  async saveNewFolder(folder: Folder): Promise<Folder> {
+    return {
+      id: Manager.getInstance().getFolders().length,
+      name: folder.name,
+      items: folder.items,
+    };
   }
 
-  async deleteFolder(id: number){
+  async deleteFolder(id: number) {
     //TODO
   }
 
-  async addItemToFolder(item: Item, folder: Folder){
+  async addItemToFolder(item: Item, folder: Folder) {
     //TODO
   }
 }

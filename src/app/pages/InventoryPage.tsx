@@ -10,9 +10,11 @@ import { FolderComponent } from "../components/FolderComponent";
 import { NewMultiItemComponent } from "../components/NewMultiItemComponent";
 import { Manager } from "../classes/Manager";
 import { Item } from "../classes/Item";
-import { ReplenishmentComponent } from "../components/ReplenishmentComponent";
+import { NewReplenishmentComponent } from "../components/NewReplenishmentComponent";
 import { Folder } from "../interfaces/Folder";
 import { AllItemsComponent } from "../components/AllItemsComponent";
+import { SimpleItem } from "../classes/SimpleItem";
+import { MultiItem } from "../classes/MultiItem";
 
 export const InventoryPage = () => {
   const [foldersView, setFoldersView] = useState<boolean>(false);
@@ -33,6 +35,7 @@ export const InventoryPage = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedFolder, setSelectedFolder] = useState<Folder>();
   const [selectItemsView, setSelectItemsView] = useState<boolean>(false);
+  const [editingItem, setEditingItem] = useState<Item>();
   const allItemsSettings = [
     { text: "Buscar", action: () => searchButton() },
     { text: "Nuevo artículo", action: () => createNewItem() },
@@ -98,10 +101,15 @@ export const InventoryPage = () => {
     setItemsOfFolderView(true);
   };
 
-  const saveNewItem = async (item: Item) => {
-    const response = await Manager.getInstance().saveNewItem(item);
-    if (!response) {
-      alert("No se pudo guardar el item, revisa tu conexión a internet");
+  const saveNewItem = async (item: Item, isNew: boolean) => {
+    setEditingItem(undefined);
+    if (isNew) {
+      const response = await Manager.getInstance().saveNewItem(item);
+      if (!response) {
+        alert("No se pudo guardar el item, revisa tu conexión a internet");
+      }
+    } else {
+      const response = await Manager.getInstance().editItem(item);
     }
   };
 
@@ -109,8 +117,13 @@ export const InventoryPage = () => {
     setMultiItemView(true);
   };
 
-  const editItem = (item: any) => {
-    console.log("editing item");
+  const editItem = (item: Item) => {
+    if(item instanceof SimpleItem){
+      setNewItemView(true);
+      setEditingItem(item);
+    }else if(item instanceof MultiItem){
+      setMultiItemView(true);
+    }
   };
 
   const deleteItem = (item: any) => {
@@ -144,7 +157,7 @@ export const InventoryPage = () => {
           item.getName().toLowerCase().includes(searchTerm) ||
           item.getProvider().getName().toLowerCase().includes(searchTerm)
       );
-      setFilteredItems(filtered)
+      setFilteredItems(filtered);
     }
   }, [searchTerm]);
 
@@ -235,9 +248,11 @@ export const InventoryPage = () => {
           <div className="fixed inset-2 size-auto overflow-y-auto">
             <NewSimpleItemComponent
               closeNewItem={() => {
+                setEditingItem(undefined);
                 setNewItemView(false);
               }}
               saveNewItem={saveNewItem}
+              item={editingItem as SimpleItem}
             />
           </div>
         </div>
@@ -248,7 +263,7 @@ export const InventoryPage = () => {
           className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]"
         >
           <div className="fixed inset-2 size-auto overflow-y-auto">
-            <ReplenishmentComponent
+            <NewReplenishmentComponent
               item={replenishmentItem!}
               closeReplenishmentView={() => {
                 setReplenishmentView(false);

@@ -57,6 +57,16 @@ export class Manager {
     }
   }
 
+  public async editItem(item: Item): Promise<boolean> {
+    try{
+      const answer = await this.apiClient.editItem(item);
+      return answer;
+    }catch(error){
+      console.log(error);
+    }
+    return false;
+  }
+
   public async saveNewMultiItem(item: MultiItem): Promise<boolean> {
     item.getSimpleItems().map((simpleItem) => {
       simpleItem.setName(

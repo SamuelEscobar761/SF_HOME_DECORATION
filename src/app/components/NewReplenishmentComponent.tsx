@@ -4,7 +4,7 @@ import ReplenishmentIcon from "../../assets/Replenishment-Icon.svg";
 import { Item } from "../classes/Item";
 import { Replenishment } from "../classes/Replenishment";
 
-export const ReplenishmentComponent = ({
+export const NewReplenishmentComponent = ({
   item,
   closeReplenishmentView,
 }: {

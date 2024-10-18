@@ -10,19 +10,19 @@ export const ColorImageComponent = ({
   setColorImages: Dispatch<SetStateAction<{ image: string; color: string }[]>>;
 }) => {
   const [colorEditView, setColorEditView] = useState<boolean>(false);
-  const [editingImage, setEditingImage] = useState<string | null>(null);
+  const [editingImage, setEditingImage] = useState<number | null>(null);
   const [tempColor, setTempColor] = useState<string>("");
   const [loadingColors, setLoadingColors] = useState<boolean>(false);
-  const [colorsSuccess, setColorsSuccesss] = useState<boolean>(false);
+  const [colorsSuccess, setColorsSuccesss] = useState<boolean>(true);
 
-  const handleColorTouch = (image: string, color: string) => {
+  const handleColorTouch = (index: number, color: string) => {
     if (!colorsSuccess) {
       alert(
         "Parece que hubo un error, los colores no cargaron correctamente, por favor modificalos de forma manual y verifica tu conexión a internet. Si el error persiste contacta con soporte."
       );
       setColorsSuccesss(true);
     }
-    setEditingImage(image);
+    setEditingImage(index);
     setTempColor(color);
     setColorEditView(true);
   };
@@ -32,16 +32,12 @@ export const ColorImageComponent = ({
   };
 
   const saveColor = () => {
-    const updatedImages = colorImages.map((img) => {
-      if (img.image === editingImage) {
-        return { ...img, color: tempColor };
-      }
-      return img;
-    });
-    setColorImages(updatedImages);
+    
+    if (editingImage != null) {
+      colorImages[editingImage].color = tempColor;
+    }
     setColorEditView(false);
   };
-  
 
   const cancelEdit = () => {
     setTempColor("");
@@ -52,6 +48,7 @@ export const ColorImageComponent = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setLoadingColors(true);
+    setColorsSuccesss(false);
     const files = event.target.files;
     if (files) {
       const fileArray = Array.from(files);
@@ -139,7 +136,9 @@ export const ColorImageComponent = ({
             style={{
               backgroundColor: loadingColors ? "#FFFFFF" : colorImage.color,
             }}
-            onClick={() => !loadingColors && handleColorTouch(colorImage.image, colorImage.color)}
+            onClick={() =>
+              !loadingColors && handleColorTouch(index, colorImage.color)
+            }
           >
             {loadingColors && <div className="loader"></div>}
           </div>
