@@ -14,10 +14,10 @@ function App() {
         <div className="flex flex-col h-screen bg-primary">
           {window.innerWidth >= 768 && <ResponsiveNavbar />}
           <div
-            style={ window.innerHeight < 768 ?{
+            style={{
               minHeight: `calc(100vh - ${navbarHeight}px)`,
               paddingBottom: `${navbarHeight}px`,
-            }: {}}
+            }}
             className="overflow-y-auto bg-primary text-neutral-900"
           >
             <AppRoutes />
