@@ -24,17 +24,21 @@ export const NewReplenishmentComponent = ({
   const [arriveDate, setArriveDate] = useState<Date>(new Date());
 
   const replenish = () => {
-    const replenishment = new Replenishment(
-      0,
-      item,
-      new Date(),
-      arriveDate,
-      parseFloat(cost),
-      parseFloat(unitDiscount),
-      parseFloat(totalDiscount),
-      new Map<string, number>([[storage, parseFloat(units) || 0]])
-    );
-    item.replenish(replenishment);
+    const unitsParsed = parseFloat(units) || 0;
+    const costParsed = parseFloat(cost) || 0;
+    if (unitsParsed > 0 && storage !== "" && costParsed > 0) {
+      const replenishment = new Replenishment(
+        0,
+        item,
+        new Date(),
+        arriveDate,
+        costParsed,
+        parseFloat(unitDiscount) || 0,
+        parseFloat(totalDiscount) || 0,
+        new Map<string, number>([[storage, unitsParsed]])
+      );
+      item.replenish(replenishment);
+    }
     closeReplenishmentView();
   };
 

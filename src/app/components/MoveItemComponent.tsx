@@ -48,7 +48,13 @@ export const MoveItemComponent = ({
 
   // Maneja la confirmación de mover a nueva localización
   const handleConfirmNewLocation = () => {
-    item.move(selectedFromLocation, newLocation, unitsToMove || 0);
+    if (
+      selectedFromLocation !== "" &&
+      newLocation !== "" &&
+      (unitsToMove || 0) > 0
+    ) {
+      item.move(selectedFromLocation, newLocation, unitsToMove || 0);
+    }
     closeMoveItem();
   };
 
@@ -57,7 +63,13 @@ export const MoveItemComponent = ({
     if (selectedToLocation === "Otro") {
       setShowConfirmation(true);
     } else {
-      item.move(selectedFromLocation, selectedToLocation, unitsToMove || 0);
+      if (
+        selectedFromLocation !== "" &&
+        selectedToLocation !== "" &&
+        (unitsToMove || 0) > 0
+      ) {
+        item.move(selectedFromLocation, selectedToLocation, unitsToMove || 0);
+      }
       closeMoveItem();
     }
   };
