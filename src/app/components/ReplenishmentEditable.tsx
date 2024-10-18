@@ -32,7 +32,7 @@ export const ReplenishmentEditable = ({replenishment}: {replenishment: Replenish
                         <p>{key}:</p>
                         <input 
                             type="number" 
-                            className="w-10 border text-right bg-neutral-100 pr-1" 
+                            className="w-10 border text-left bg-neutral-100 pl-1" 
                             value={value || ""} 
                             onChange={(e) => handleLocationChange(key, parseFloat(e.target.value))}
                         />

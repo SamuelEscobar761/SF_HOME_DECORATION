@@ -121,10 +121,10 @@ export const InventoryPage = () => {
   };
 
   const editItem = (item: Item) => {
-    if(item instanceof SimpleItem){
+    if (item instanceof SimpleItem) {
       setNewItemView(true);
       setEditingItem(item);
-    }else if(item instanceof MultiItem){
+    } else if (item instanceof MultiItem) {
       setMultiItemView(true);
     }
   };
@@ -143,7 +143,11 @@ export const InventoryPage = () => {
       const filtered = items.filter(
         (item) =>
           item.getName().toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.getProvider().getName().toLowerCase().includes(searchTerm.toLowerCase())
+          item
+            .getProvider()
+            .getName()
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
       );
       setFilteredItems(filtered);
     } else if (folders.length > 0 && foldersView && !itemsOfFolderView) {
@@ -159,7 +163,11 @@ export const InventoryPage = () => {
       const filtered = selectedFolder.items.filter(
         (item) =>
           item.getName().toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.getProvider().getName().toLowerCase().includes(searchTerm.toLowerCase())
+          item
+            .getProvider()
+            .getName()
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
       );
       setFilteredItems(filtered);
     }
@@ -190,6 +198,27 @@ export const InventoryPage = () => {
   useEffect(() => {
     setFilteredFolders(folders);
   }, [folders]);
+
+  useEffect(() => {
+    const handleBackButton = (event: PopStateEvent) => {
+      event.preventDefault();
+      if (searchView) {
+        setSearchView(false);
+      } else if (itemsOfFolderView) {
+        setItemsOfFolderView(false);
+      } else if (foldersView) {
+        setFoldersView(false);
+      }
+      // Al cerrar el searchView, modifica el estado sin ir hacia atrás
+      window.history.replaceState(null, "", window.location.href);
+    };
+
+    window.addEventListener("popstate", handleBackButton);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, [searchView, foldersView, itemsOfFolderView]);
 
   return (
     <div id="inventory-page" className="p-2">
