@@ -73,7 +73,7 @@ export const NavbarMobile: React.FC = () => {
 
 
   return (
-    <nav className="fixed bottom-0 w-full bottom-0 bg-primary border-t border-tertiary-dark z-50">
+    <nav className="fixed bottom-0 w-full bottom-0 bg-primary border-t border-tertiary-dark z-20">
       <div ref={navbarRef} className="relative flex justify-around">
         <div
           className="absolute w-6 h-1 bg-secondary-light transition-all duration-300 rounded"
