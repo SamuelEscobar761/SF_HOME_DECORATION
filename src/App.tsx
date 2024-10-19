@@ -13,14 +13,15 @@ function App() {
         <ScrollToTop />
         <div className="flex flex-col h-screen bg-primary">
           {window.innerWidth >= 768 && <ResponsiveNavbar />}
-          <div
-            style={{
-              minHeight: `calc(100vh - ${navbarHeight}px)`,
-              paddingBottom: `${navbarHeight}px`,
-            }}
-            className="overflow-y-auto bg-primary text-neutral-900"
-          >
-            <AppRoutes />
+          <div className="pb-[62px]">
+            <div
+              style={{
+                minHeight: `calc(100vh - ${navbarHeight}px)`
+              }}
+              className="bg-primary text-neutral-900"
+            >
+              <AppRoutes />
+            </div>
           </div>
           {window.innerWidth < 768 && <ResponsiveNavbar />}
         </div>

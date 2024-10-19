@@ -55,16 +55,22 @@ export const NewReplenishmentComponent = ({
       >
         <img src={CloseIcon} className="w-5 h-5" />
       </div>
-      <div className="p-2 bg-neutral-400 rounded">
-        <p className="text-center text-xl">
-          Re-abastecimiento de: <strong>{item.getName()}</strong>
-        </p>
-        <p className="text-center">
-          <strong>{item.getProvider().getName()}</strong>
-        </p>
-        <p className="text-center">
-          {item.getTotalUnits()} unidades almacenadas
-        </p>
+      <div className="p-2 bg-neutral-400 rounded space-y-2">
+        <div className="bg-neutral-100 rounded">
+          <img src={item.getImages()[0].image} className="rounded" alt="" />
+        </div>
+
+        <div className="p-2 bg-neutral-100 rounded">
+          <p className="text-center text-xl">
+            <strong>{item.getName()}</strong>
+          </p>
+          <p className="text-center">
+            <strong>{item.getProvider().getName()}</strong>
+          </p>
+          <p className="text-center">
+            {item.getTotalUnits()} unidades almacenadas
+          </p>
+        </div>
       </div>
       <div className="p-2 bg-neutral-400 rounded space-y-2">
         <div className="flex justify-between items-center">
