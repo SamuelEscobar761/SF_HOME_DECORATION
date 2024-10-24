@@ -85,7 +85,7 @@ export const NewReplenishmentComponent = ({
               setUnits(e.target.value);
             }}
           />
-          <div id="new-item-cost-container" className="flex space-x-1 ">
+          <div id="new-replenishment-cost-container" className="flex space-x-1 ">
             <input
               id="new-item-cost"
               type="number"

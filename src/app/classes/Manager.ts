@@ -84,9 +84,6 @@ export class Manager {
 
   public async saveNewMultiItem(item: MultiItem): Promise<boolean> {
     item.getSimpleItems().map((simpleItem) => {
-      simpleItem.setName(
-        simpleItem.getName() + " (parte de: " + item.getName() + ")"
-      );
       simpleItem.setMultiItem(item);
       this.saveNewItem(simpleItem);
     });
@@ -155,5 +152,14 @@ export class Manager {
   public async addItemToFolder(item: Item, folder: Folder) {
     folder.items.push(item);
     this.apiClient.addItemToFolder(item, folder);
+  }
+
+  public async ensureItemSaved(itemToEnsure: SimpleItem){
+    for(const item of this.items){
+      if(item === itemToEnsure){
+        return true;
+      }
+    }
+    this.saveNewItem(itemToEnsure);
   }
 }

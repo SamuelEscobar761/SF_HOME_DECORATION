@@ -6,6 +6,7 @@ export const ReplenishmentList = ({
 }: {
   replenishments: Replenishment[];
 }) => {
+  
   return (
     <div id="replenishment-list" className="flex justify-center p-2 bg-neutral-300 rounded ">
       <div className="flex flex-col bg-neutral-100 w-full rounded p-2 divide-y max-h-96 overflow-y-auto">

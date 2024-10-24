@@ -95,7 +95,6 @@ export class Replenishment {
   }
 
   public getTotalValue(): number {
-    
     return this.getTotalUnits() * this.unitCost;
   }
 

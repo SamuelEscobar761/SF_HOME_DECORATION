@@ -135,17 +135,19 @@ export const NewSimpleItemComponent = ({
             }}
           />
         </div>
-        <div id="new-item-provider">
-          <input
-            type="text"
-            placeholder="Proveedor"
-            className="w-full p-2 rounded"
-            value={provider}
-            onChange={(e) => {
-              setProvider(e.target.value);
-            }}
-          />
-        </div>
+        {!item?.getMultiItem() && (
+          <div id="new-item-provider">
+            <input
+              type="text"
+              placeholder="Proveedor"
+              className="w-full p-2 rounded"
+              value={provider}
+              onChange={(e) => {
+                setProvider(e.target.value);
+              }}
+            />
+          </div>
+        )}
         <div id="new-item-room">
           <input
             type="text"
@@ -182,7 +184,7 @@ export const NewSimpleItemComponent = ({
             />
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
-          {fullItem != false && !item &&(
+          {fullItem != false && !item && (
             <input
               id="new-item-units"
               type="number"
@@ -195,12 +197,12 @@ export const NewSimpleItemComponent = ({
             />
           )}
         </div>
-        {item ? (
+        {item && !item.getMultiItem() ? (
           <div>
             <ReplenishmentList replenishments={replenishments} />
           </div>
         ) : (
-          fullItem != false && (
+          fullItem != false && !item?.getMultiItem() && (
             <div id="new-item-cost-container" className="flex space-x-1">
               <input
                 id="new-item-cost"

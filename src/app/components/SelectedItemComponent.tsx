@@ -10,7 +10,9 @@ export const SelectedItemComponent = ({
   entireCost: number;
   numberOfItems: number;
 }) => {
-  const [percentage, setPercentage] = useState<number>(0);
+  const [percentage, setPercentage] = useState<number>(
+    item.getPercentage() || 0
+  );
   const [cost, setCost] = useState<number>(0);
   const [price, setPrice] = useState<number>(item.getPrice());
 
@@ -21,22 +23,35 @@ export const SelectedItemComponent = ({
   };
 
   useEffect(() => {
-    const newCost = (entireCost * percentage) / 100;
-    setCost(newCost);
+    if (!item.getMultiItem()) {
+      setPercentage(100 / numberOfItems);
+    }
+  }, [numberOfItems]);
+
+  useEffect(() => {
+    if (!item.getMultiItem()) {
+      const newCost = (entireCost * percentage) / 100;
+      setCost(newCost);
+    }
+    item.setTempPercentage(percentage);
   }, [percentage, entireCost]);
 
   useEffect(() => {
-    const newPercentage =
-      entireCost != 0 ? Math.round((cost * 100) / entireCost) : 100/numberOfItems;
-    setPercentage(newPercentage);
-    item.getReplenishments()[0] && item.getReplenishments()[0].setUnitCost(cost);
+    if (!item.getMultiItem()) {
+      const newPercentage =
+        entireCost != 0
+          ? Math.round((cost * 100) / entireCost)
+          : 100 / numberOfItems;
+      setPercentage(newPercentage);
+      item.getReplenishments()[0]?.setUnitCost(cost);
+    }
   }, [cost]);
 
-  useEffect(() => {
-    setPercentage(100 / numberOfItems);
-  }, [numberOfItems]);
   return (
-    <div id="image-name-component" className="flex flex-col divide-y space-y-2 p-2 bg-primary rounded">
+    <div
+      id="image-name-component"
+      className="flex flex-col divide-y space-y-2 p-2 bg-primary rounded"
+    >
       <div className="w-full  flex justify-between items-center">
         <div className="flex space-x-2 items-center">
           <img
@@ -64,22 +79,24 @@ export const SelectedItemComponent = ({
               <p>%</p>
             </div>
           </div>
-          <div>
-            <p className="text-xs">costo Bs.</p>
-            <div className="flex space-x-1 items-center">
-              <input
-                type="number"
-                className="w-14 h-fit border border-neutral-900 p-1 rounded text-right"
-                value={cost == 0 ? "" : cost}
-                onChange={(e) => {
-                  setCost(
-                    parseFloat(parseFloat(e.target.value).toFixed(2)) || 0
-                  );
-                }}
-              />
-              <p>Bs</p>
+          {!item.getMultiItem() && (
+            <div>
+              <p className="text-xs">costo Bs.</p>
+              <div className="flex space-x-1 items-center">
+                <input
+                  type="number"
+                  className="w-14 h-fit border border-neutral-900 p-1 rounded text-right"
+                  value={cost == 0 ? "" : cost}
+                  onChange={(e) => {
+                    setCost(
+                      parseFloat(parseFloat(e.target.value).toFixed(2)) || 0
+                    );
+                  }}
+                />
+                <p>Bs</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
       <div className="flex justify-between items-center pt-2">

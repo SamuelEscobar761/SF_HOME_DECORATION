@@ -116,6 +116,12 @@ export const InventoryPage = () => {
     }
   };
 
+  const saveNewMultiItem = async (item: Item, isNew: boolean) => {
+    item;
+    isNew;
+    setEditingItem(undefined);
+  }
+
   const newMultiItem = () => {
     setMultiItemView(true);
   };
@@ -123,10 +129,10 @@ export const InventoryPage = () => {
   const editItem = (item: Item) => {
     if (item instanceof SimpleItem) {
       setNewItemView(true);
-      setEditingItem(item);
     } else if (item instanceof MultiItem) {
       setMultiItemView(true);
     }
+    setEditingItem(item);
   };
 
   const deleteItem = async (item: any) => {
@@ -269,9 +275,12 @@ export const InventoryPage = () => {
         <div className="fixed left-0 top-0 z-40 h-screen w-screen bg-white/[0.60]">
           <div className="fixed inset-2 size-auto overflow-y-auto">
             <NewMultiItemComponent
+              item={editingItem as MultiItem}
               closeNewMultiItem={() => {
+                setEditingItem(undefined);
                 setMultiItemView(false);
               }}
+              saveNewItem={saveNewMultiItem}
             />
           </div>
         </div>

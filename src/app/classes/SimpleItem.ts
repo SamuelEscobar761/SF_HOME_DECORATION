@@ -4,6 +4,8 @@ import { Item } from "./Item";
 
 export class SimpleItem extends Item {
   private multiItem: MultiItem | null;
+  private percentage: number | null = null;
+  private tempPercentage: number | null = null;
 
   constructor(
     multiItem: MultiItem | null,
@@ -25,5 +27,21 @@ export class SimpleItem extends Item {
 
   public setMultiItem(multiItem: MultiItem): void {
     this.multiItem = multiItem;
+  }
+
+  public getPercentage(): number | null {
+    return this.percentage;
+  }
+
+  public setPercentage(percentage: number): void {
+    this.percentage = percentage;
+  }
+
+  public getTempPercentage(): number | null {
+    return this.tempPercentage;
+  }
+
+  public setTempPercentage(percentage: number): void {
+    this.tempPercentage = percentage;
   }
 }

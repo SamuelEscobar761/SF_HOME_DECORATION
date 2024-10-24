@@ -10,98 +10,146 @@ import { MultiItem } from "../classes/MultiItem";
 import { NewSimpleItemComponent } from "./NewSimpleItemComponent";
 import { Replenishment } from "../classes/Replenishment";
 import { Item } from "../classes/Item";
+import { ReplenishmentList } from "./ReplenishmentsList";
 
 export const NewMultiItemComponent = ({
   closeNewMultiItem,
+  item,
+  saveNewItem,
 }: {
   closeNewMultiItem: any;
+  item?: MultiItem;
+  saveNewItem: (item: MultiItem, isNew: boolean) => Promise<void> | void;
 }) => {
   const [colorImages, setColorImages] = useState<ImageColor[]>([]);
   const [allItems] = useState<SimpleItem[]>(
-    Manager.getInstance().getSimpleItems()
+    Manager.getInstance().getSimpleItems().filter((item)=>{return!item.getMultiItem()})
   );
-  const [selectedItems, setSelectedItems] = useState<SimpleItem[]>([]);
-  const [name, setName] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
+  const [selectedItems] = useState<SimpleItem[]>(item?.getSimpleItems() || []);
+  const [name, setName] = useState<string>(item?.getName() || "");
+  const [price, setPrice] = useState<string>(item?.getPrice().toString() || "");
   const [cost, setCost] = useState<string>("");
   const [units, setUnits] = useState<string>("");
-  const [room, setRoom] = useState<string>("");
-  const [material, setMaterial] = useState<string>("");
-  const [provider, setProvider] = useState<string>("");
+  const [room, setRoom] = useState<string>(item?.getRoom() || "");
+  const [material, setMaterial] = useState<string>(item?.getMaterial() || "");
+  const [provider, setProvider] = useState<string>(
+    item?.getProvider().getName() || ""
+  );
   const [allItemsView, setAllItemsView] = useState<boolean>(false);
   const [newItemView, setNewItemView] = useState<boolean>(false);
+  const replenishments =
+    item
+      ?.getReplenishments()
+      .map(
+        (replenishment) =>
+          new Replenishment(
+            replenishment.getId(),
+            replenishment.getItem(),
+            replenishment.getOrderDate(),
+            replenishment.getArriveDate(),
+            replenishment.getUnitCost(),
+            replenishment.getUnitDiscount(),
+            replenishment.getTotalDiscount(),
+            replenishment.getLocations()
+          )
+      ) || [];
 
-  const addItem = (item: Item) => {
+  const addItem = (itemToAdd: Item) => {
     const newItem = new SimpleItem(
-      null,
+      item ? item : null,
       0,
-      item.getName(),
-      item.getPrice(),
-      item.getImages(),
-      item.getRoom(),
-      item.getMaterial(),
-      item.getProvider()
+      itemToAdd.getName(),
+      itemToAdd.getPrice(),
+      itemToAdd.getImages(),
+      itemToAdd.getRoom(),
+      itemToAdd.getMaterial(),
+      itemToAdd.getProvider()
     );
-    newItem.replenish(
-      new Replenishment(
-        0,
-        newItem,
-        new Date(),
-        new Date(),
-        0,
-        0,
-        0,
-        new Map<string, number>()
-      )
+    const replenishment = new Replenishment(
+      0,
+      newItem,
+      new Date(),
+      new Date(),
+      0,
+      0,
+      0,
+      new Map<string, number>()
     );
+    newItem.setReplenishments([replenishment]);
     setColorImages([...colorImages, ...newItem.getImages()]);
-    setSelectedItems([...selectedItems, newItem]);
+    selectedItems.push(newItem);
+    setAllItemsView(false);
   };
 
-  const saveSimpleItem = (item: SimpleItem) => {
-    const replenishment = new Replenishment(
-      0,
-      item,
-      new Date(),
-      new Date(),
-      parseFloat(cost)/selectedItems.length,
-      0,
-      0,
-      new Map<string, number>([["almacen", parseFloat(units) || 0], ["Tienda", 0]]),
-    );
-    item.setReplenishments([replenishment]);
-    setSelectedItems([...selectedItems, item]);
-    setAllItemsView(false);
-  }
-
   const save = async () => {
-    for(const selectedItem of selectedItems){
-      selectedItem.getReplenishments()[0].setLocations(new Map<string, number>([["almacen", parseFloat(units) || 0], ["Tienda", 0]]));
+    item && saveNewItem(item, false);
+    if (item) {
+      //Modificar el multi item con la información actualizada
+      item.setName(name);
+      item.setProvider(
+        await Manager.getInstance().ensureProviderExists(provider)
+      );
+      item.setRoom(room);
+      item.setMaterial(material);
+      item.setPrice(parseFloat(price));
+      item.setReplenishments(replenishments);
+      //Modificar cada item con la información padre del multi item
+      for (const selectedItem of selectedItems) {
+        Manager.getInstance().ensureItemSaved(selectedItem);
+        selectedItem.setPercentage(selectedItem.getTempPercentage()!);
+        selectedItem.setProvider(item.getProvider());
+        selectedItem.setRoom(item.getRoom());
+        selectedItem.setMaterial(item.getMaterial());
+        selectedItem.setReplenishments(
+          item.getReplenishments().map((replenishment) => {
+            // Clonar el replenishment con el nuevo item
+            const clonedReplenishment =
+              replenishment.cloneWithNewItem(selectedItem);
+            // Obtener el nuevo costo unitario basado en el porcentaje correspondiente
+            const newUnitCost =
+              selectedItem.getPercentage()! / 100 * replenishment.getUnitCost();
+            // Establecer el nuevo costo unitario al replenishment clonado
+            clonedReplenishment.setUnitCost(newUnitCost);
+            return clonedReplenishment;
+          })
+        );
+      }
+    } else {
+      for (const selectedItem of selectedItems) {
+        selectedItem.setPercentage(selectedItem.getTempPercentage()!);
+        selectedItem.getReplenishments()[0].setLocations(
+          new Map<string, number>([
+            ["almacen", parseFloat(units) || 0],
+            ["Tienda", 0],
+          ])
+        );
+      }
+      const newMultiItem = new MultiItem(
+        selectedItems,
+        0,
+        name,
+        parseFloat(price),
+        colorImages,
+        room,
+        material,
+        await Manager.getInstance().ensureProviderExists(provider)
+      );
+      const replenishment = new Replenishment(
+        0,
+        newMultiItem,
+        new Date(),
+        new Date(),
+        parseFloat(cost),
+        0,
+        0,
+        new Map<string, number>([
+          ["almacen", parseFloat(units) || 0],
+          ["Tienda", 0],
+        ])
+      );
+      newMultiItem.setReplenishments([replenishment]);
+      Manager.getInstance().saveNewMultiItem(newMultiItem);
     }
-    const newMultiItem = new MultiItem(
-      selectedItems,
-      0,
-      name,
-      parseFloat(price),
-      colorImages,
-      room,
-      material,
-      await Manager.getInstance().ensureProviderExists(provider)
-    );
-
-    const replenishment = new Replenishment(
-      0,
-      newMultiItem,
-      new Date(),
-      new Date(),
-      parseFloat(cost),
-      0,
-      0,
-      new Map<string, number>([["almacen", parseFloat(units) || 0], ["Tienda", 0]]),
-    );
-
-    newMultiItem.setReplenishments([replenishment]);
-    Manager.getInstance().saveNewMultiItem(newMultiItem);
     closeNewMultiItem();
   };
 
@@ -113,7 +161,7 @@ export const NewMultiItemComponent = ({
             closeNewItem={() => {
               setNewItemView(false);
             }}
-            saveNewItem={saveSimpleItem}
+            saveNewItem={addItem}
             fullItem={false}
           />
         </div>
@@ -136,9 +184,9 @@ export const NewMultiItemComponent = ({
         className="p-2 mt-2 bg-neutral-400 rounded space-y-2"
       >
         {selectedItems.length > 0 ? (
-          selectedItems.map((item, index) => (
+          selectedItems.map((selectedItem, index) => (
             <SelectedItemComponent
-              item={item}
+              item={selectedItem}
               entireCost={parseFloat(cost) || 0}
               numberOfItems={selectedItems.length}
               key={index}
@@ -155,7 +203,10 @@ export const NewMultiItemComponent = ({
           </button>
         )}
         {allItemsView ? (
-          <div id="new-multi-item-all-items" className="w-full h-48 overflow-y-auto rounded">
+          <div
+            id="new-multi-item-all-items"
+            className="w-full h-96 overflow-y-auto rounded"
+          >
             <AllItemsComponent
               addItem={addItem}
               itemsList={allItems}
@@ -239,34 +290,43 @@ export const NewMultiItemComponent = ({
             />
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
-          <input
-            id="new-multi-item-units"
-            type="number"
-            placeholder="Unidades"
-            className="w-full p-2 rounded"
-            value={units}
-            onChange={(e) => {
-              setUnits(e.target.value);
-            }}
-          />
+          {!item && (
+            <input
+              id="new-multi-item-units"
+              type="number"
+              placeholder="Unidades"
+              className="w-full p-2 rounded"
+              value={units}
+              onChange={(e) => {
+                setUnits(e.target.value);
+              }}
+            />
+          )}
         </div>
-        <div id="new-multi-item-cost-container" className="flex space-x-1">
-          <input
-            id="new-multi-item-cost"
-            type="number"
-            placeholder="Costo"
-            className="w-20 p-2 rounded"
-            value={cost}
-            onChange={(e) => {
-              setCost(e.target.value);
-            }}
-          />
-          <p className="p-2 bg-neutral-100 rounded">Bs</p>
-        </div>
+        {!item && (
+          <div id="new-multi-item-cost-container" className="flex space-x-1">
+            <input
+              id="new-multi-item-cost"
+              type="number"
+              placeholder="Costo"
+              className="w-20 p-2 rounded"
+              value={cost}
+              onChange={(e) => {
+                setCost(e.target.value);
+              }}
+            />
+            <p className="p-2 bg-neutral-100 rounded">Bs</p>
+          </div>
+        )}
         <p id="new-multi-item-price-cost-description" className="text-xs">
           *El precio es el monto por el cual se vende el item y el costo es lo
           que costó comprar el item compuesto entero
         </p>
+        {item && (
+          <div>
+            <ReplenishmentList replenishments={replenishments} />
+          </div>
+        )}
         <div
           id="new-multi-item-save-button"
           className="w-full flex justify-center bg-success p-2 rounded"

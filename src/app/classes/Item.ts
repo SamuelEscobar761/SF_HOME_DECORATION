@@ -6,7 +6,6 @@ export class Item {
   private id: number;
   private name: string;
   private price: number;
-
   private images: ImageColor[];
   private room: string;
   private material: string;
