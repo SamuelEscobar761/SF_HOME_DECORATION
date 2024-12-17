@@ -14,11 +14,12 @@ export const ColorImageComponent = ({
   const [tempColor, setTempColor] = useState<string>("");
   const [loadingColors, setLoadingColors] = useState<boolean>(false);
   const [colorsSuccess, setColorsSuccesss] = useState<boolean>(true);
+  let errorShow: unknown ;
 
   const handleColorTouch = (index: number, color: string) => {
     if (!colorsSuccess) {
       alert(
-        "Parece que hubo un error, los colores no cargaron correctamente, por favor modificalos de forma manual y verifica tu conexión a internet. Si el error persiste contacta con soporte."
+        "Parece que hubo un error, " + errorShow
       );
       setColorsSuccesss(true);
     }
@@ -75,6 +76,7 @@ export const ColorImageComponent = ({
         setColorsSuccesss(true);
         setLoadingColors(false);
       } catch (error) {
+        alert(error);
         console.error("Error al obtener colores:", error);
         setLoadingColors(false);
       }
