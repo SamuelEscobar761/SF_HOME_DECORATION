@@ -1,6 +1,7 @@
 import Sketch from "@uiw/react-color-sketch";
 import { GetColorsFromImage } from "../services/GetColorsFromImage";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { resizeAndCompressImage } from "../services/ImageService";
 
 export const ColorImageComponent = ({
   colorImages,
@@ -45,43 +46,50 @@ export const ColorImageComponent = ({
     setColorEditView(false);
   };
 
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setLoadingColors(true);
     setColorsSuccesss(false);
     const files = event.target.files;
     if (files) {
       const fileArray = Array.from(files);
-      const newColorImages = fileArray.map((file) => ({
-        image: URL.createObjectURL(file),
-        color: "#FFFFFF", // Color predeterminado
+      const compressedFilesPromises = fileArray.map(file => new Promise<{ image: string, file: File }>((resolve) => {
+        resizeAndCompressImage(file, (resizedImage) => {
+          resolve({
+            image: URL.createObjectURL(resizedImage),
+            file: resizedImage
+          });
+        });
       }));
-
-      setColorImages([...colorImages, ...newColorImages]);
-
-      try {
-        const colorMap = await GetColorsFromImage(fileArray);
-        // Asigna los colores desde el mapa a las nuevas imágenes
-        const updatedImages = newColorImages.map((img, index) => ({
-          ...img,
-          color: colorMap[fileArray[index].name] || "#FFFFFF", // Asume que el nombre del archivo es la clave en colorMap
-        }));
-
-        // Actualiza el estado reemplazando las imágenes provisionales con las actualizadas
-        setColorImages((prev) => [
-          ...prev.slice(0, prev.length - fileArray.length), // Conserva todos los ítems excepto los últimos agregados provisionalmente
-          ...updatedImages, // Agrega las nuevas imágenes actualizadas
-        ]);
-        setColorsSuccesss(true);
-        setLoadingColors(false);
-      } catch (error) {
-        alert(error);
-        console.error("Error al obtener colores:", error);
-        setLoadingColors(false);
-      }
+  
+      Promise.all(compressedFilesPromises)
+        .then(compressedFiles => {
+          setColorImages(prev => [...prev, ...compressedFiles.map(file => ({ image: file.image, color: "#FFFFFF" }))]);
+          return compressedFiles; // Continúa pasando los archivos comprimidos
+        })
+        .then(compressedFiles => {
+          // Ahora obtenemos los colores y continuamos pasando los archivos comprimidos
+          return GetColorsFromImage(compressedFiles.map(file => file.file)).then(colorMap => {
+            return { colorMap, compressedFiles };
+          });
+        })
+        .then(({ colorMap, compressedFiles }) => {
+          setColorImages(prev => {
+            const updatedImages = prev.map((img, index) => ({
+              ...img,
+              color: colorMap[compressedFiles[index].file.name] || "#FFFFFF"
+            }));
+            return updatedImages;
+          });
+          setColorsSuccesss(true);
+          setLoadingColors(false);
+        })
+        .catch(error => {
+          console.error("Error al procesar imágenes:", error);
+          setLoadingColors(false);
+        });
     }
   };
+  
 
   useEffect(() => {
     //Scroll to the first image

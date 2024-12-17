@@ -57,7 +57,11 @@ export const GetColorsFromImage = async (files: File[]) => {
         });
 
         // Envía la solicitud POST al backend
-        const response = await fetch('http://127.0.0.1:8000/images/upload-images/', {
+        // Para dev:
+        // const response = await fetch('https://localhost:8000/images/upload-images/', {
+
+        // Para Prod:
+        const response = await fetch('https://sf-backend.samuelescobarbejarano.space/images/upload-images/', {
             method: 'POST',
             body: formData,
         });
