@@ -11,7 +11,8 @@ export class Manager {
   private items: Item[] = [];
   private folders: Folder[] = [];
   private providers: Provider[] = [];
-  private apiClient = APIClient.getInstance("https://api.misitio.com");
+  private apiClient = APIClient.getInstance("https://sf-backend.samuelescobarbejarano.space");
+  // private apiClient = APIClient.getInstance("http://127.0.0.1:8000");
 
   // Constructor privado para prevenir instanciación externa
   private constructor() {
@@ -47,15 +48,18 @@ export class Manager {
   }
 
   public async saveNewItem(item: Item): Promise<boolean> {
-    const answer = await this.apiClient.saveNewItem(item);
-    if (answer != null) {
-      item.setId(answer);
+    const response = await this.apiClient.saveNewItem(item);
+    if (response !== null) {
+      item.setId(response['id']);
+      item.setImages(response['images']);
+      console.log(item.getImages())
       this.items.push(item);
       return true;
     } else {
+      console.error("Failed to save item");
       return false;
     }
-  }
+}
 
   public async editItem(item: Item): Promise<boolean> {
     try {

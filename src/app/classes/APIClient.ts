@@ -36,17 +36,11 @@ export class APIClient {
     }
   }
 
-  async postData(
-    endpoint: string,
-    data: any,
-    options: RequestInit = {}
-  ): Promise<any> {
+  async postData(endpoint: string, data: any, options: RequestInit = {}): Promise<any> {
     const defaultOptions = {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+      body: data instanceof FormData ? data : JSON.stringify(data),
+      headers: data instanceof FormData ? {} : { 'Content-Type': 'application/json' },
       ...options,
     };
     return this.fetchData(endpoint, defaultOptions);
@@ -56,209 +50,67 @@ export class APIClient {
 
   async loadItems(startIndex: number): Promise<Item[]> {
     startIndex;
-    const items = [];
-    const item1 = {
-      multiItem: null,
-      id: 1,
-      name: "Sofa",
-      price: 50,
-      locations: new Map<string, number>([
-        ["almacen", 3],
-        ["tienda", 2],
-      ]),
-      images: [
-        { color: "#FFE324", image: "https://t.ly/7nTCp" },
-        { color: "#11F34A", image: "https://t.ly/7nTCp" },
-        { color: "#33FE22", image: "https://t.ly/7nTCp" },
-      ],
-      room: "Comedor",
-      material: "Tela Turca",
-      provider: new Provider("Proveedor universal", []),
-    };
-
-    const item2 = {
-      multiItem: null,
-      id: 2,
-      name: "Sofa de 1 plaza",
-      price: 65,
-      locations: new Map<string, number>([
-        ["almacen", 25],
-        ["tienda", 5],
-      ]),
-      images: [
-        { color: "#FFE324", image: "https://t.ly/vsT0F" },
-        { color: "#11F34A", image: "https://t.ly/vsT0F" },
-        { color: "#33FE22", image: "https://t.ly/vsT0F" },
-      ],
-      room: "Comedor",
-      material: "Tela Turca",
-      provider: new Provider("Proveedor universal", []),
-    };
-
-    const item3 = {
-      multiItem: null,
-      id: 3,
-      name: "Silla de madera",
-      price: 50,
-      locations: new Map<string, number>([
-        ["almacen", 20],
-        ["tienda", 8],
-      ]),
-      images: [
-        { color: "#FFE324", image: "https://t.ly/4Q6Tb" },
-        { color: "#11F34A", image: "https://t.ly/4Q6Tb" },
-        { color: "#33FE22", image: "https://t.ly/4Q6Tb" },
-      ],
-      room: "Comedor",
-      material: "Madera",
-      provider: new Provider("Proveedor universal", []),
-    };
-
-    items.push(
-      new SimpleItem(
-        item1.multiItem,
-        item1.id,
-        item1.name,
-        item1.price,
-        item1.images,
-        item1.room,
-        item1.material,
-        item1.provider
-      )
-    );
-    items.push(
-      new SimpleItem(
-        item2.multiItem,
-        item2.id,
-        item2.name,
-        item2.price,
-        item2.images,
-        item2.room,
-        item2.material,
-        item2.provider
-      )
-    );
-    items.push(
-      new SimpleItem(
-        item3.multiItem,
-        item3.id,
-        item3.name,
-        item3.price,
-        item3.images,
-        item3.room,
-        item3.material,
-        item3.provider
-      )
-    );
-
-    items[0].setReplenishments([
-      new Replenishment(
-        0,
-        items[0],
-        new Date(),
-        new Date(),
-        50,
-        0,
-        0,
-        new Map<string, number>([
-          ["almacen", 3],
-          ["tienda", 2],
-        ])
-      ),
-      new Replenishment(
-        1,
-        items[0],
-        new Date(),
-        new Date(),
-        40,
-        0,
-        0,
-        new Map<string, number>([
-          ["almacen", 4],
-          ["tienda", 3],
-        ])
-      ),
-      new Replenishment(
-        2,
-        items[0],
-        new Date(),
-        new Date(),
-        30,
-        0,
-        0,
-        new Map<string, number>([
-          ["almacen", 1],
-          ["tienda", 3],
-        ])
-      ),
-      new Replenishment(
-        3,
-        items[0],
-        new Date(),
-        new Date(),
-        30,
-        0,
-        0,
-        new Map<string, number>([
-          ["almacen", 1],
-          ["tienda", 3],
-        ])
-      ),
-      new Replenishment(
-        4,
-        items[0],
-        new Date(),
-        new Date(),
-        30,
-        0,
-        0,
-        new Map<string, number>([
-          ["almacen", 1],
-          ["tienda", 3],
-        ])
-      ),
-    ]);
-
-    items[1].setReplenishments([
-      new Replenishment(
-        0,
-        items[1],
-        new Date(),
-        new Date(),
-        55,
-        0,
-        0,
-        new Map<string, number>([
-          ["almacen", 3],
-          ["tienda", 2],
-        ])
-      ),
-    ]);
-
-    items[2].setReplenishments([
-      new Replenishment(
-        0,
-        items[2],
-        new Date(),
-        new Date(),
-        65,
-        0,
-        0,
-        new Map<string, number>([
-          ["almacen", 3],
-          ["tienda", 2],
-        ])
-      ),
-    ]);
-
+    const data = await this.fetchData('products/');
+    const items: Item[] = data.results.map((result: any) => {
+      const item = new SimpleItem(
+        result.fk_id_multi_item,
+        result.id,
+        result.name,
+        result.price,
+        result.images.map((img: any) => ({ color: img.color, url: img.url })),
+        result.room,
+        result.material,
+        new Provider("Proveedor universal", []) // Assuming all have this provider
+      );
+  
+      const replenishments: Replenishment[] = result.replenishments.map((rep: any) => {
+        const locationsMap = new Map<string, number>(Object.entries(rep.locations));
+        return new Replenishment(
+          rep.id,
+          item,
+          new Date(rep.order_date),
+          new Date(rep.arrival_date),
+          rep.unit_cost,
+          rep.unit_discount,
+          rep.total_discount,
+          locationsMap
+        );
+      });
+  
+      item.setReplenishments(replenishments);
+      return item;
+    });
+  
     return items;
   }
 
-  async saveNewItem(item: Item): Promise<number | null> {
-    item;
-    // save item on db
-    return this.getRandomInt();
-  }
+  async saveNewItem(item: Item): Promise<{'id': number, 'images': any[]} | null> {
+    const location = item.getLocations().keys().next().value;
+    const images = item.getImages().map(item => item.image);
+    const colors = item.getImages().map(item => item.color);
+    
+    let formData = new FormData();
+    formData.append('name', item.getName());
+    formData.append('fk_id_provider', '1');
+    formData.append('price', item.getPrice().toString());
+    formData.append('room', item.getRoom());
+    formData.append('material', item.getMaterial());
+    formData.append('unit_cost', item.getReplenishments()[0].getUnitCost().toString());
+    formData.append('unit_discount', item.getReplenishments()[0].getUnitDiscount().toString());
+    formData.append('total_discount', item.getReplenishments()[0].getTotalDiscount().toString());
+    formData.append('location', location!);
+    formData.append('location_stock', item.getLocations().get(location!)!.toString());
+    formData.append('images', images[0]!); // Asegúrate de que esto es un objeto File
+    formData.append('colors', colors[0]);
+
+    try {
+        const response = await this.postData('products/create/', formData);
+        return response; // Asumiendo que tu API devuelve un identificador o algún dato relevante
+    } catch (error) {
+        console.error('Error al guardar el artículo:', error);
+        return null;
+    }
+}
 
   async editItem(item: Item): Promise<boolean>{
     item;

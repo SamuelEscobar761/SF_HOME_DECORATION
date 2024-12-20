@@ -7,8 +7,8 @@ export const ColorImageComponent = ({
   colorImages,
   setColorImages,
 }: {
-  colorImages: { image: string; color: string }[];
-  setColorImages: Dispatch<SetStateAction<{ image: string; color: string }[]>>;
+  colorImages: ImageColor[];
+  setColorImages: Dispatch<SetStateAction<ImageColor[]>>;
 }) => {
   const [colorEditView, setColorEditView] = useState<boolean>(false);
   const [editingImage, setEditingImage] = useState<number | null>(null);
@@ -63,7 +63,7 @@ export const ColorImageComponent = ({
   
       Promise.all(compressedFilesPromises)
         .then(compressedFiles => {
-          setColorImages(prev => [...prev, ...compressedFiles.map(file => ({ image: file.image, color: "#FFFFFF" }))]);
+          setColorImages(prev => [...prev, ...compressedFiles.map(file => ({ image: file.file, color: "#FFFFFF" }))]);
           return compressedFiles; // Continúa pasando los archivos comprimidos
         })
         .then(compressedFiles => {
@@ -74,11 +74,12 @@ export const ColorImageComponent = ({
         })
         .then(({ colorMap, compressedFiles }) => {
           setColorImages(prev => {
-            const updatedImages = prev.map((img, index) => ({
+            //EL PROBLEMA EMPIEZA AQUI
+            const updatedImages = prev.filter(img => !img.url).map((img, index) => ({
               ...img,
               color: colorMap[compressedFiles[index].file.name] || "#FFFFFF"
             }));
-            return updatedImages;
+            return [...prev.filter(img => img.url), ...updatedImages];
           });
           setColorsSuccesss(true);
           setLoadingColors(false);
@@ -136,7 +137,7 @@ export const ColorImageComponent = ({
           key={index}
         >
           <img
-            src={colorImage.image} // Previsualización de la imagen
+            src={colorImage.image ? URL.createObjectURL(colorImage.image): colorImage.url!} // Previsualización de la imagen
             alt={`uploaded-${index}`}
             className="object-contain w-full h-80"
           />

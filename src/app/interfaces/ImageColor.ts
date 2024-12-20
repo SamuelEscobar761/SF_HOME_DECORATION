@@ -1,4 +1,5 @@
 interface ImageColor {
     color: string;
-    image: string;
+    image?: File;
+    url?: string;
   }

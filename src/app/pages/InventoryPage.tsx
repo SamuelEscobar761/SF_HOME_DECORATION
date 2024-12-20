@@ -107,6 +107,8 @@ export const InventoryPage = () => {
       const response = await Manager.getInstance().saveNewItem(item);
       if (!response) {
         alert("No se pudo guardar el item, revisa tu conexión a internet");
+      }else{
+        setItems([...Manager.getInstance().getItems()])
       }
     } else {
       const response = await Manager.getInstance().editItem(item);
