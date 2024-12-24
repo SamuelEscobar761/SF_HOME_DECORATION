@@ -11,8 +11,8 @@ export class Manager {
   private items: Item[] = [];
   private folders: Folder[] = [];
   private providers: Provider[] = [];
-  private apiClient = APIClient.getInstance("https://sf-backend.samuelescobarbejarano.space");
-  // private apiClient = APIClient.getInstance("http://127.0.0.1:8000");
+  // private apiClient = APIClient.getInstance("https://sf-backend.samuelescobarbejarano.space");
+  private apiClient = APIClient.getInstance("http://127.0.0.1:8000");
 
   // Constructor privado para prevenir instanciación externa
   private constructor() {

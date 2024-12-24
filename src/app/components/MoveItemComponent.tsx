@@ -87,7 +87,7 @@ export const MoveItemComponent = ({
         id="move-item-component-image-container"
         className="bg-neutral-100 h-[360px] w-full"
       >
-        <img src={item.getImages()[0].image} alt="" />
+        <img src={item.getImages()[0].url} alt="" />
       </div>
       <div id="move-item-component-content" className="bg-neutral-100 p-2 mt-2">
         <p className="text-2xl">{item.getName()}</p>

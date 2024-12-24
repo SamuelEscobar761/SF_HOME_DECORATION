@@ -56,7 +56,7 @@ export const SelectedItemComponent = ({
         <div className="flex space-x-2 items-center">
           <img
             id="image-name-component-image"
-            src={item.getImages()[0].image}
+            src={item.getImages()[0].image ? URL.createObjectURL(item.getImages()[0].image!) : item.getImages()[0].url}
             alt=""
             className="size-14 border border-neutral-900"
           />

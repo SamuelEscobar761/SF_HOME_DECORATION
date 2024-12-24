@@ -57,7 +57,7 @@ export const NewReplenishmentComponent = ({
       </div>
       <div className="p-2 bg-neutral-400 rounded space-y-2">
         <div className="bg-neutral-100 rounded">
-          <img src={item.getImages()[0].image} className="rounded" alt="" />
+          <img src={item.getImages()[0].url} className="rounded" alt="" />
         </div>
 
         <div className="p-2 bg-neutral-100 rounded">

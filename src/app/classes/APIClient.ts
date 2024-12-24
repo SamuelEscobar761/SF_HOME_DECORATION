@@ -27,9 +27,15 @@ export class APIClient {
     try {
       const response = await fetch(`${this.baseUrl}/${endpoint}`, options);
       if (!response.ok) {
-        throw new Error(`API call failed: ${response.status}`);
+        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
       }
-      return await response.json();
+  
+      // Solo intentar convertir a JSON si la respuesta no es 204 No Content
+      if (response.status !== 204) {
+        return await response.json();
+      } else {
+        return response; // Devuelve el objeto de respuesta directamente
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
       throw error; // Re-throw to let the caller handle it
@@ -46,11 +52,19 @@ export class APIClient {
     return this.fetchData(endpoint, defaultOptions);
   }
 
+  async deleteData(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const defaultOptions = {
+      method: "DELETE",
+      ...options,
+    };
+    return this.fetchData(endpoint, defaultOptions)
+  }
+
   // metodos a usar
 
   async loadItems(startIndex: number): Promise<Item[]> {
     startIndex;
-    const data = await this.fetchData('products/');
+    const data = await this.fetchData('items/');
     const items: Item[] = data.results.map((result: any) => {
       const item = new SimpleItem(
         result.fk_id_multi_item,
@@ -84,6 +98,8 @@ export class APIClient {
     return items;
   }
 
+
+
   async saveNewItem(item: Item): Promise<{'id': number, 'images': any[]} | null> {
     const location = item.getLocations().keys().next().value;
     const images = item.getImages().map(item => item.image);
@@ -100,11 +116,13 @@ export class APIClient {
     formData.append('total_discount', item.getReplenishments()[0].getTotalDiscount().toString());
     formData.append('location', location!);
     formData.append('location_stock', item.getLocations().get(location!)!.toString());
-    formData.append('images', images[0]!); // Asegúrate de que esto es un objeto File
-    formData.append('colors', colors[0]);
+    images.map((image, index) => {
+      formData.append('images', image!);
+      formData.append('colors', colors[index]);
+    })
 
     try {
-        const response = await this.postData('products/create/', formData);
+        const response = await this.postData('items/create/', formData);
         return response; // Asumiendo que tu API devuelve un identificador o algún dato relevante
     } catch (error) {
         console.error('Error al guardar el artículo:', error);
@@ -117,9 +135,13 @@ export class APIClient {
     return true;
   }
 
-  async deleteItem(item: Item): Promise<boolean>{
-    item;
-    return true;
+  async deleteItem(item: Item): Promise<any>{
+    try{
+      const answer = await this.deleteData(`items/${item.getId()}/delete/`);
+      return answer;
+    } catch (error) {
+      return null;
+    }
   }
 
   async saveNewProvider(name: string): Promise<boolean> {

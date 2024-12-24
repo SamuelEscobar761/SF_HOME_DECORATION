@@ -60,7 +60,7 @@ export const AllItemsComponent = ({
           >
             <ImageNameComponent
               name={item.getName()}
-              image={item.getImages()[0].image}
+              image={item.getImages()[0].url!}
             />
           </div>
         ))}

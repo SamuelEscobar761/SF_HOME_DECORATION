@@ -82,7 +82,6 @@ export const NewMultiItemComponent = ({
   };
 
   const save = async () => {
-    item && saveNewItem(item, false);
     if (item) {
       //Modificar el multi item con la información actualizada
       item.setName(name);
@@ -114,6 +113,7 @@ export const NewMultiItemComponent = ({
           })
         );
       }
+      saveNewItem(item, false);
     } else {
       for (const selectedItem of selectedItems) {
         selectedItem.setPercentage(selectedItem.getTempPercentage()!);
@@ -148,7 +148,12 @@ export const NewMultiItemComponent = ({
         ])
       );
       newMultiItem.setReplenishments([replenishment]);
-      Manager.getInstance().saveNewMultiItem(newMultiItem);
+      const result = await Manager.getInstance().saveNewMultiItem(newMultiItem);
+      if(result){
+        saveNewItem(newMultiItem, true);
+      }else{
+
+      }
     }
     closeNewMultiItem();
   };

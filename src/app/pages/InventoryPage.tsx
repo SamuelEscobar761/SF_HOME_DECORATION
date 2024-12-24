@@ -122,6 +122,7 @@ export const InventoryPage = () => {
     item;
     isNew;
     setEditingItem(undefined);
+    setItems([...Manager.getInstance().getItems()])
   }
 
   const newMultiItem = () => {
@@ -138,7 +139,11 @@ export const InventoryPage = () => {
   };
 
   const deleteItem = async (item: any) => {
-    await Manager.getInstance().deleteItem(item);
+    const answer = await Manager.getInstance().deleteItem(item);
+    if(answer){
+      console.log('Item deleted');
+      console.log(Manager.getInstance().getItems());
+    }
     setItems([...Manager.getInstance().getItems()]);
   };
 
