@@ -23,10 +23,10 @@ export const SellItemComponent = ({
 }) => {
   return (
     <div
-      className="bg-neutral-300 p-2 text-neutral-900 rounded"
+      className="bg-neutral-300 p-2 text-neutral-900 rounded flex flex-col h-full"
       onClick={onClick}
     >
-      <div className="relative">
+      <div className="relative flex-grow">
         {checked && (
           <div
             id="checkbox"
@@ -38,11 +38,13 @@ export const SellItemComponent = ({
         <div className="h-52 bg-neutral-100 rounded flex justify-center">
           <img
             src={image}
-            className="h-full flex-shrink-0 snap-center object-contain rounded"
+            className="h-full flex-shrink-0 snap-center object-cover rounded"
           />
         </div>
-        <div className="bg-neutral-100 mt-2 p-2 rounded">
-          <p className="text-xl mb-2">{title}</p>
+      </div>
+      <div className="bg-neutral-100 mt-2 p-2 rounded flex flex-col justify-between flex-grow h-full">
+        <p className="text-xl mb-2">{title}</p>
+        <div>
           <div id="colors" className="flex justify-between items-center mb-2">
             {colors.map((color, index) => (
               <div
@@ -56,7 +58,6 @@ export const SellItemComponent = ({
             )}
           </div>
           <div id="price" className="flex justify-between">
-            {/* Si el descuento es distinto de 0, se muestran ambos, el descuento y el precio anterior */}
             <div id="discount" className="flex flex-col">
               {discount !== 0 ? (
                 <>
@@ -69,7 +70,6 @@ export const SellItemComponent = ({
                 <div className="h-[1.5rem]"></div>
               )}
             </div>
-
             <div className="flex items-baseline">
               <p className="text-2xl">{price}</p>
               <p className="text-xs ml-1">Bs</p>

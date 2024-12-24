@@ -3,6 +3,7 @@ import HamburguerButton from "../../assets/Hamburguer-Button-Icon.svg";
 import { useEffect, useRef, useState } from "react";
 import { LateralMenuComponent } from "../components/LateralMenuComponent";
 import { ShowItemComponent } from "../components/ShowItemComponent";
+import { Manager } from "../classes/Manager";
 
 export const SellPage = () => {
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
@@ -42,98 +43,35 @@ export const SellPage = () => {
 
   useEffect(() => {
     const fetchItems = async () => {
-      // Aquí iría la llamada a tu API para recuperar los datos
-      // const response = await fetch("/api/items"); // Ejemplo: fetch a la API
-      // const data = await response.json();
-      const data = [
-        {
-          id: 1,
-          image: "./delete/cuadrille-n.jpg",
-          title: "Funda de silla",
-          provider: "Shein",
-          colors: ["#000000", "#FFFFFF", "#FF0000"],
-          extraColors: 3,
-          discount: 30,
-          previousPrice: 50,
-          price: 35.0,
+      await Manager.getInstance().loadMoreItems();
+      const items = Manager.getInstance().getItems();
+    
+      const sellItems = items.map(item => {
+        // Asumiendo que cada imagen tiene una propiedad 'url' y 'color'
+        const images = item.getImages();
+        const colors = [...new Set(images.map(img => img.color))];
+        const units = item.getReplenishments().reduce((sum, replenishment) => {
+          return sum + Array.from(replenishment.getLocations().values()).reduce((acc, val) => acc + val, 0);
+        }, 0);
+    
+        return {
+          id: item.getId(),
+          image: images[0]?.url || '', // Usa un valor predeterminado en caso de que no haya imágenes
+          title: item.getName(),
+          provider: item.getProvider().getName(),
+          colors: colors,
+          extraColors: colors.length > 6 ? colors.length - 6 : 0,
+          discount: 0, // Establecido estáticamente como 0 según el ejemplo
+          previousPrice: 0, // Establecido estáticamente como 0 según el ejemplo
+          price: item.getPrice(), // Asegúrate de convertir el precio a número si es necesario
           checked: false,
-          units: 0,
-          color: "",
-        },
-        {
-          id: 2,
-          image: "",
-          title: "Title 2",
-          provider: "provider",
-          colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-          extraColors: 5,
-          discount: 0,
-          previousPrice: 0,
-          price: 0.0,
-          checked: false,
-          units: 0,
-          color: "",
-        },
-        {
-          id: 3,
-          image: "",
-          title: "Title 3",
-          provider: "Ertek Textile Company",
-          colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-          extraColors: 8,
-          discount: 0,
-          previousPrice: 0,
-          price: 0.0,
-          checked: false,
-          units: 0,
-          color: "",
-        },
-        {
-          id: 4,
-          image: "",
-          title: "Title 4",
-          provider: "Instanbul Factory",
-          colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-          extraColors: 9,
-          discount: 0,
-          previousPrice: 0,
-          price: 0.0,
-          checked: false,
-          units: 0,
-          color: "",
-        },
-        {
-          id: 5,
-          image: "",
-          title: "Title 5",
-          provider: "Karsaklar Sementa Tekstil A.S.",
-          colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-          extraColors: 14,
-          discount: 0,
-          previousPrice: 0,
-          price: 0.0,
-          checked: false,
-          units: 0,
-          color: "",
-        },
-        {
-          id: 6,
-          image: "",
-          title: "Title 6",
-          provider: "Lagomtex Textile LTD",
-          colors: ["#FFFFFF", "#FFFFFF", "#FFFFFF"],
-          extraColors: 2,
-          discount: 0,
-          previousPrice: 0,
-          price: 0.0,
-          checked: false,
-          units: 0,
-          color: "",
-        },
-      ];
-      // Actualizamos el estado con los items recuperados del backend
-      setItems(data);
-      setFilteredItems(data); // Inicialmente mostrar todos los items
+          units: units,
+          color: images[0]?.color || '' // Usa un valor predeterminado en caso de que no haya imágenes
+        };
+      });
+      setItems(sellItems);
+      setFilteredItems(sellItems);
+      console.log(sellItems);
     };
 
     fetchItems();
@@ -146,31 +84,32 @@ export const SellPage = () => {
       event.stopPropagation(); // Detiene la propagación del evento de clic
     } else {
       setSelectedSellItem(item);
-      setSelectedItem({
-        id: item.id,
-        discount: item.discount,
-        imagesByColors: [
-          [
-            "#000000",
-            [
-              "./delete/cuadrille-n.jpg",
-              "./delete/cuadrille-n1.jpg",
-              "./delete/cuadrille.jpg",
-            ],
-          ],
-          ["#FFFFFF", ["./delete/cuadrille-b.jpg"]],
-          ["#FF0000", ["./delete/cuadrille-r.jpg", "./delete/cuadrille-r1.jpg"]],
-          [
-            "#0000FF",
-            ["./delete/cuadrille-a.jpg", "./delete/cuadrille-a1.jpg"],
-          ],
-          ["#5D4952", ["./delete/cuadrille-c.jpg"]],
-          ["#757A8D", ["./delete/cuadrille-g.jpg"]],
-        ],
-        price: item.price,
-        provider: item.provider,
-        title: item.title,
-      });
+      const savedItem = Manager.getInstance().getItems().filter((savedItem) => savedItem.getId() === item.id)[0];
+      console.log(savedItem.getImages())
+      // Crear un objeto para agrupar las imágenes por color
+      const groupedByColor: { [key: string]: string[] } = {};
+
+      // Agrupar las URLs de las imágenes por color
+      for (const item of savedItem.getImages()) {
+        if (!groupedByColor[item.color]) {
+            groupedByColor[item.color] = [];
+        }
+        groupedByColor[item.color].push(item.url!);
+      }
+
+      // Convertir el objeto a un arreglo de tuplas ImagesByColor
+      const imagesByColor: ImagesByColor[] = Object.keys(groupedByColor).map(color => [color, groupedByColor[color]]);
+
+      console.log(groupedByColor);
+      const entireItem: EntireItem = {
+        id: savedItem.getId(),
+        title: savedItem.getName(),
+        provider: savedItem.getProvider().getName(),
+        discount: 0,
+        price: savedItem.getPrice(),
+        imagesByColors: imagesByColor
+      } 
+      setSelectedItem(entireItem);
       setFullItemView(true);
     }
   };
