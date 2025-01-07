@@ -60,8 +60,6 @@ export class APIClient {
     return this.fetchData(endpoint, defaultOptions)
   }
 
-  // metodos a usar
-
   async loadItems(startIndex: number): Promise<Item[]> {
     startIndex;
     const data = await this.fetchData('items/');
@@ -98,8 +96,6 @@ export class APIClient {
     return items;
   }
 
-
-
   async saveNewItem(item: Item): Promise<{'id': number, 'images': any[]} | null> {
     const location = item.getLocations().keys().next().value;
     const images = item.getImages().map(item => item.image);
@@ -123,7 +119,7 @@ export class APIClient {
 
     try {
         const response = await this.postData('items/create/', formData);
-        return response; // Asumiendo que tu API devuelve un identificador o algún dato relevante
+        return response;
     } catch (error) {
         console.error('Error al guardar el artículo:', error);
         return null;
@@ -131,7 +127,9 @@ export class APIClient {
 }
 
   async editItem(item: Item): Promise<boolean>{
-    item;
+    const itemStored = await this.fetchData(`items/${item.getId()}`);
+    
+    console.log(itemStored)
     return true;
   }
 
@@ -148,16 +146,6 @@ export class APIClient {
     name;
     //save new provider with empty data, only name on DB
     return true;
-  }
-
-  //Funcion momentanea para generar ids, los ids, se tienen que conseguir de la base de datos:
-  private getRandomInt(): number {
-    // Redondea hacia arriba el mínimo y hacia abajo el máximo
-    const min = Math.ceil(1);
-    const max = Math.floor(4000);
-    // La función Math.random() genera un número aleatorio entre 0 (inclusive) y 1 (exclusivo),
-    // aquí se escala al rango deseado y se redondea hacia abajo para asegurar un entero.
-    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   public replenish(replenishment: Replenishment, item: Item): number | null {

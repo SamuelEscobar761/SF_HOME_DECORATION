@@ -12,13 +12,38 @@ export const ShowItemComponent = ({
   closeItem: () => void;
   addToCart: (item: SellItem, units: number) => void;
 }) => {
+  const [rebajaUnitaria, setRebajaUnitaria] = useState<number>(0);
+  const [rebajaUnitariaProblem, setRebajaUnitariaProblem] = useState<string>("");
+  const [rebajaTotalProblem, setRebajaTotalProblem] = useState<string>("");
+  const [rebajaTotal, setRebajaTotal] = useState<number>(0);
   const [units, setUnits] = useState<number>(0);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [colorSelected, setColorSelected] = useState<number>(0);
 
+  const handleRebajaUnitariaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRebajaUnitaria(Number(event.target.value));
+  }
+
+  const handleRebajaTotalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRebajaTotal(Number(event.target.value));
+  }
+
   useEffect(() => {
-    setTotalPrice(item.price * units);
-  }, [units]);
+    const maxRebaja = item.price*units - rebajaUnitaria*units
+    if(rebajaUnitaria > 50){
+      setRebajaUnitariaProblem("El descuento por unidad no puede superar los 50 Bs.");
+    }else{
+      setRebajaUnitariaProblem("");
+    }
+
+    if(rebajaTotal > maxRebaja){
+      setRebajaTotalProblem(`El descuento total no puede superar los ${maxRebaja} Bs.`);
+    }else{
+      setRebajaTotalProblem("");
+    }
+    setTotalPrice(item.price * units - rebajaUnitaria * units - rebajaTotal);
+  }, [units, rebajaUnitaria, rebajaTotal]);
+
   return (
     <div id="item-container" className="bg-neutral-100 p-2">
       <div id="close-item-images-container" className="relative">
@@ -38,7 +63,7 @@ export const ShowItemComponent = ({
               key={index}
               src={image}
               alt={`Image ${index + 1}`}
-              className="w-full flex-shrink-0 snap-center object-contain"
+              className="w-full flex-shrink-0 snap-center object-cover"
             />
           ))}
         </div>
@@ -69,14 +94,6 @@ export const ShowItemComponent = ({
             {item.provider}
           </p>
         </div>
-        <div id="discount" className="flex justify-between mt-2">
-          <p id="discount-text" className="text-tertiary">
-            Descuento:
-          </p>
-          <p id="discount-amount" className="text-tertiary">
-            {item.discount}%
-          </p>
-        </div>
         <div id="unit-price" className="flex justify-between mt-2">
           <p id="unit-price-text" className="text-neutral-900">
             Precio unitario:
@@ -93,9 +110,51 @@ export const ShowItemComponent = ({
             id="units-input"
             type="number"
             placeholder={units.toString()}
-            className="w-10 h-6 border border-neutral-900 rounded text-right"
+            className="w-10 h-6 border border-neutral-900 rounded text-right pr-1"
             onChange={(event) => setUnits(Number(event.target.value))}
           />
+        </div>
+        <div id="discount" className="flex justify-between mt-2">
+          <p id="discount-text" className="text-tertiary">
+            Descuento:
+          </p>
+          <p id="discount-amount" className="text-tertiary">
+            {item.discount}%
+          </p>
+        </div>
+        <div id="rebaja-unitaria" className="flex justify-between items-end mt-2">
+          <p id="rebaja-unitaria-text" className="text-tertiary m-0">
+            Rebaja en cada unidad:
+          </p>
+          <div id="input-field" className="flex items-end space-x-1">
+            <input
+            id="rebaja-unitaria-input"
+            type="number"
+            placeholder={rebajaUnitaria.toString()}
+            className="w-16 rounded border border-neutral-900 text-right pr-1"
+            onChange={handleRebajaUnitariaChange}/>
+            <p id="bs" className="rounded px-1 border border-black m-0 flex items-center">Bs</p>
+          </div>
+        </div>
+        <div id="rebaja-unidad-problem">
+          <p className="text-xs text-tertiary-dark">{rebajaUnitariaProblem}</p>
+        </div>
+        <div id="rebaja-total" className="flex justify-between items-end mt-2">
+          <p id="rebaja-total-text" className="text-tertiary m-0">
+            Rebaja en el total:
+          </p>
+          <div id="input-field" className="flex items-end space-x-1">
+            <input
+            id="rebaja-unitaria-input"
+            type="number"
+            placeholder={rebajaTotal.toString()}
+            className="w-16 rounded border border-neutral-900 text-right pr-1"
+            onChange={handleRebajaTotalChange}/>
+            <p id="bs" className="rounded px-1 border border-black m-0 flex items-center">Bs</p>
+          </div>
+        </div>
+        <div id="rebaja-unidad-problem">
+          <p className="text-xs text-tertiary-dark">{rebajaTotalProblem}</p>
         </div>
         <div id="total" className="flex justify-between font-bold mt-2">
           <p id="total-price-text" className="text-neutral-900">
@@ -110,7 +169,7 @@ export const ShowItemComponent = ({
         id="add-cartaddToCart-button"
         className="bg-success flex justify-center rounded p-2"
         onClick={() => {
-          addToCart(sellItem, units);
+          rebajaTotalProblem === "" && rebajaUnitariaProblem === "" && addToCart(sellItem, units);
         }}
       >
         <img src={WheelbarrowIcon} className="w-7 h-7" />

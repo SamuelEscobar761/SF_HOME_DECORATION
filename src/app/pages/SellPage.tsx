@@ -6,6 +6,7 @@ import { ShowItemComponent } from "../components/ShowItemComponent";
 import { Manager } from "../classes/Manager";
 
 export const SellPage = () => {
+  const [loading, setLoading] = useState(false);
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
   const [fullItemView, setFullItemView] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<EntireItem>();
@@ -99,8 +100,6 @@ export const SellPage = () => {
 
       // Convertir el objeto a un arreglo de tuplas ImagesByColor
       const imagesByColor: ImagesByColor[] = Object.keys(groupedByColor).map(color => [color, groupedByColor[color]]);
-
-      console.log(groupedByColor);
       const entireItem: EntireItem = {
         id: savedItem.getId(),
         title: savedItem.getName(),
@@ -121,6 +120,7 @@ export const SellPage = () => {
   const generateKey = (id: number, color: string) => `${id}-${color}`;
 
   const addToCart = (item: SellItem, units: number) => {
+    console.log("cart")
     setCart((prevCart) => {
       const key = generateKey(item.id, item.color);
       const newCart = new Map(prevCart);
@@ -160,6 +160,24 @@ export const SellPage = () => {
       setFilteredItems(filtered);
     }
   };
+
+  const loadMoreItems = async () => {
+    setLoading(true); // Mostrar la barra de carga
+    await Manager.getInstance().loadMoreItems();
+    const newItems = Manager.getInstance().getItems();
+    console.log(newItems);
+    setLoading(false); // Ocultar la barra de carga
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight) return;
+      loadMoreItems(); // Llamar a la función cuando se llega al final de la página
+    };
+  
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [items]); // Asegúrate de incluir todas las dependencias necesarias aquí
 
   return (
     <div id="sell-page" className="text-neutral-900 min-h-screen">
@@ -238,6 +256,7 @@ export const SellPage = () => {
             ))}
           </div>
         )}
+        {loading && <div className="loader"></div>}
       </div>
     </div>
   );
