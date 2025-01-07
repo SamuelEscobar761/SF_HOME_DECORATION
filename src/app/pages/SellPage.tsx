@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { LateralMenuComponent } from "../components/LateralMenuComponent";
 import { ShowItemComponent } from "../components/ShowItemComponent";
 import { Manager } from "../classes/Manager";
+import Cookies from 'js-cookie';
 
 export const SellPage = () => {
   const [loading, setLoading] = useState(false);
@@ -33,6 +34,20 @@ export const SellPage = () => {
       event.stopPropagation(); // Detiene la propagación para que no se active ninguna otra acción
     }
   };
+
+  useEffect(() => {
+    const existingCart = Cookies.get('cartItems');
+    let cartItems: CartItem[] = existingCart ? JSON.parse(existingCart) : [];
+    
+    const cartItemIds = new Set(cartItems.map(item => item.id));
+  
+    setFilteredItems(items.map(item => ({
+      ...item,
+      checked: cartItemIds.has(item.id) // Asegúrate de convertir los IDs a cadena si es necesario
+  })));
+  }, [items]); // Dependencia a 'items' para recalcular cuando los ítems cargados cambien
+  
+  
 
   useEffect(() => {
     if (menuOpened) {
@@ -67,12 +82,13 @@ export const SellPage = () => {
           price: item.getPrice(), // Asegúrate de convertir el precio a número si es necesario
           checked: false,
           units: units,
-          color: images[0]?.color || '' // Usa un valor predeterminado en caso de que no haya imágenes
+          color: images[0]?.color || '', // Usa un valor predeterminado en caso de que no haya imágenes
+          rebajaUnidad: 0,
+          rebajaTotal: 0
         };
       });
       setItems(sellItems);
       setFilteredItems(sellItems);
-      console.log(sellItems);
     };
 
     fetchItems();
@@ -117,27 +133,13 @@ export const SellPage = () => {
     setFullItemView(false);
   };
 
-  const generateKey = (id: number, color: string) => `${id}-${color}`;
-
   const addToCart = (item: SellItem, units: number) => {
-    console.log("cart")
-    setCart((prevCart) => {
-      const key = generateKey(item.id, item.color);
-      const newCart = new Map(prevCart);
-
-      // Si el ítem ya existe, suma las unidades, si no, crea un nuevo ítem
-      if (newCart.has(key)) {
-        const existingItem = newCart.get(key)!;
-        newCart.set(key, {
-          ...existingItem,
-          units: existingItem.units + units,
-        });
-      } else {
-        newCart.set(key, item);
-      }
-
-      return newCart;
-    });
+    const newItem = {id: item.id, color: item.color, units: units, rebajaUnidad: item.rebajaUnidad, rebajaTotal: item.rebajaTotal}
+    const existingCart = Cookies.get('cartItems'); // Obtener la cookie actual
+    let cartItems: CartItem[] = existingCart ? JSON.parse(existingCart) : []; // Parsear el JSON si existe, o usar un array vacío
+    cartItems.push(newItem); // Agregar el nuevo ítem al array
+    const updatedCartJson = JSON.stringify(cartItems); // Convertir el array actualizado a JSON
+    Cookies.set('cartItems', updatedCartJson, { expires: 7 }); // Guardar de nuevo en la cookie con expiración de 7 días
     setFullItemView(false);
     setFilteredItems((prevItems) =>
       prevItems.map((prevItem) =>
@@ -178,6 +180,8 @@ export const SellPage = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [items]); // Asegúrate de incluir todas las dependencias necesarias aquí
+
+  
 
   return (
     <div id="sell-page" className="text-neutral-900 min-h-screen">

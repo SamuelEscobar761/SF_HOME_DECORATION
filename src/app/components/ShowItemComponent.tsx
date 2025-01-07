@@ -21,11 +21,15 @@ export const ShowItemComponent = ({
   const [colorSelected, setColorSelected] = useState<number>(0);
 
   const handleRebajaUnitariaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRebajaUnitaria(Number(event.target.value));
+    const rebaja = Number(event.target.value)
+    sellItem.rebajaUnidad = rebaja;
+    setRebajaUnitaria(rebaja);
   }
 
   const handleRebajaTotalChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRebajaTotal(Number(event.target.value));
+    const rebaja = Number(event.target.value)
+    sellItem.rebajaTotal = rebaja;
+    setRebajaTotal(rebaja);
   }
 
   useEffect(() => {

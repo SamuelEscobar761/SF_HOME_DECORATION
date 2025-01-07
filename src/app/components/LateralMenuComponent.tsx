@@ -1,4 +1,5 @@
 import { Dispatch, LegacyRef, SetStateAction } from "react";
+import ShoppingIcon from "../../assets/Wheelbarrow-Icon.svg";
 
 export const LateralMenuComponent = ({
   // setMinPrice,
@@ -29,7 +30,10 @@ export const LateralMenuComponent = ({
       className="bg-primary h-screen w-fit p-2"
       ref={menuRef}
     >
-      <button onClick={() => {console.log(cart)}}>Carrito</button>
+      <button id="shopping-cart" className="flex space-x-2 bg-secondary p-2 rounded w-full justify-center">
+        <img src={ShoppingIcon} className="icon-white"/>
+        <p className="text-xl text-neutral-100">Carrito</p>
+      </button>
       <div>
         <p>Rango de precio</p>
         <div>

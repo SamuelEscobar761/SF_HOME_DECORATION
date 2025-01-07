@@ -17,6 +17,18 @@ img.svg-neutral-900{
   filter: brightness(0) saturate(100%) invert(8%) sepia(9%) saturate(438%) hue-rotate(2deg) brightness(101%) contrast(91%);
 }
 
+img.svg-primary{
+  filter: brightness(0) saturate(100%) invert(99%) sepia(48%) saturate(892%) hue-rotate(304deg) brightness(108%) contrast(103%);
+}
+
+img.svg-secondary{
+  filter: brightness(0) saturate(100%) invert(33%) sepia(14%) saturate(5024%) hue-rotate(236deg) brightness(92%) contrast(88%);
+}
+
+img.svg-tertiary{
+  filter: brightness(0) saturate(100%) invert(84%) sepia(62%) saturate(4357%) hue-rotate(289deg) brightness(95%) contrast(93%);
+}
+
 body { 
 	font-family: 'Helvetica Neue', sans-serif;
   font-feature-settings: 'tnum'; 
