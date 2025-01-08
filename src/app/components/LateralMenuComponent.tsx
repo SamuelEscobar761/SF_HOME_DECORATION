@@ -11,6 +11,7 @@ export const LateralMenuComponent = ({
   // setDiscount,
   menuRef,
   cart,
+  goToCart,
   // setCart,
 }: {
   setMinPrice: any;
@@ -23,6 +24,7 @@ export const LateralMenuComponent = ({
   menuRef: LegacyRef<HTMLDivElement>;
   cart: Map<string, SellItem>;
   setCart: Dispatch<SetStateAction<Map<string, SellItem>>>;
+  goToCart: any
 }) => {
   return (
     <div
@@ -30,7 +32,7 @@ export const LateralMenuComponent = ({
       className="bg-primary h-screen w-fit p-2"
       ref={menuRef}
     >
-      <button id="shopping-cart" className="flex space-x-2 bg-secondary p-2 rounded w-full justify-center">
+      <button onClick={()=>goToCart()} id="shopping-cart" className="flex space-x-2 bg-secondary p-2 rounded w-full justify-center">
         <img src={ShoppingIcon} className="icon-white"/>
         <p className="text-xl text-neutral-100">Carrito</p>
       </button>

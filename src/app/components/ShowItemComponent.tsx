@@ -20,6 +20,11 @@ export const ShowItemComponent = ({
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [colorSelected, setColorSelected] = useState<number>(0);
 
+  const handleSelectColor = (index: number) => {
+    sellItem.color = item.imagesByColors[index][0];
+    setColorSelected(index);
+  }
+
   const handleRebajaUnitariaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const rebaja = Number(event.target.value)
     sellItem.rebajaUnidad = rebaja;
@@ -86,7 +91,7 @@ export const ShowItemComponent = ({
                   ? "border-neutral-900 border-2"
                   : "border-neutral-700"
               }`}
-              onClick={() => setColorSelected(index)}
+              onClick={() => handleSelectColor(index)}
             ></div>
           ))}
         </div>

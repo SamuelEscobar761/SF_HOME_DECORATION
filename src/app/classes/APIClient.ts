@@ -60,6 +60,17 @@ export class APIClient {
     return this.fetchData(endpoint, defaultOptions)
   }
 
+  async getShoppingCartItemByIdColor(id: number, colorSearched: string): Promise<{id: number, name: string, price: number, image: any}> {
+    const data = await this.fetchData(`items/${id}`);
+    const item = {
+      id: data.id,
+      name: data.name,
+      price: data.price,
+      image: data.images.map((img: any) => ({ color: img.color, url: img.url })).find((image: {color: string; url: string}) => image.color === colorSearched)?.url
+    }
+    return item;
+  }
+
   async loadItems(startIndex: number): Promise<Item[]> {
     startIndex;
     const data = await this.fetchData('items/');

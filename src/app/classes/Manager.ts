@@ -27,6 +27,10 @@ export class Manager {
     return Manager.instance;
   }
 
+  public getItemFromIdColor(id: number, color: string){
+    return this.apiClient.getShoppingCartItemByIdColor(id, color);
+  }
+
   public getItems(): Item[] {
     return this.items;
   }

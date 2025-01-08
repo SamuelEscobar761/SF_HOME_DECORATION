@@ -416,7 +416,7 @@ export const InventoryPage = () => {
               />
             ))
           ) : (
-            <p>
+            <p className="p-2">
               Parece que todavía no hay artículos para mostrar, intenta crear
               nuevos.
             </p>
@@ -434,7 +434,7 @@ export const InventoryPage = () => {
             />
           ))
         ) : (
-          <p>
+          <p className="p-2">
             Parece que todavía no hay carpetas para mostrar, intenta crear
             nuevos.
           </p>

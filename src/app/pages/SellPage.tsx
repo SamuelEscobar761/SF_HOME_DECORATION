@@ -1,12 +1,14 @@
 import { SellItemComponent } from "../components/SellItemComponent";
 import HamburguerButton from "../../assets/Hamburguer-Button-Icon.svg";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { LateralMenuComponent } from "../components/LateralMenuComponent";
 import { ShowItemComponent } from "../components/ShowItemComponent";
 import { Manager } from "../classes/Manager";
 import Cookies from 'js-cookie';
 
 export const SellPage = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [menuOpened, setMenuOpened] = useState<boolean>(false);
   const [fullItemView, setFullItemView] = useState<boolean>(false);
@@ -171,6 +173,13 @@ export const SellPage = () => {
     setLoading(false); // Ocultar la barra de carga
   };
 
+  const goToCart = () => {
+    //TODO see cart
+    console.log("goto cart clicked")
+    // Cookies.remove('cartItems');
+    navigate('/shopping_cart');
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight) return;
@@ -180,7 +189,6 @@ export const SellPage = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [items]); // Asegúrate de incluir todas las dependencias necesarias aquí
-
   
 
   return (
@@ -201,6 +209,7 @@ export const SellPage = () => {
             menuRef={menuRef}
             cart={cart}
             setCart={setCart}
+            goToCart={goToCart}
           />
         </div>
       )}
