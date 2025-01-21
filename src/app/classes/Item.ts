@@ -109,26 +109,28 @@ export class Item {
   public getLocations(): Map<string, number> {
     const allLocations = new Map<string, number>();
     this.getReplenishments().forEach((replenishment) => {
-      replenishment.getLocations().forEach((value, key) => {
+      replenishment.getUnitsPerAllLocation().forEach((value, key) => {
         allLocations.set(key, (allLocations.get(key) || 0) + value);
       });
     });
     return allLocations;
   }
 
-  public move(fromLocation: string, toLocation: string, units: number): void {
+  public move(fromLocation: string, toLocation: string, color: string, units: number): void {
     let remainingUnitsToMove = units;
 
     this.getReplenishments().forEach((replenishment) => {
       const locations = replenishment.getLocations();
-      const availableUnits = locations.get(fromLocation) || 0;
+      const availableUnits = locations.get(fromLocation)!.get(color) || 0;
 
       if (availableUnits > 0) {
         const unitsToMove = Math.min(availableUnits, remainingUnitsToMove);
-        locations.set(fromLocation, availableUnits - unitsToMove);
+        locations.get(fromLocation)!.set(color, availableUnits - unitsToMove);
 
-        const currentUnitsInTarget = locations.get(toLocation) || 0;
-        locations.set(toLocation, currentUnitsInTarget + unitsToMove);
+        const currentLocations = locations.get(toLocation) || new Map<string, number>();
+        const currentUnitsTarget = currentLocations.get(color) || 0;
+        locations.set(toLocation, currentLocations.set(color, currentUnitsTarget + unitsToMove));
+        locations.get
 
         remainingUnitsToMove -= unitsToMove;
 
@@ -151,7 +153,7 @@ export class Item {
   public getCost(storage: string): number {
     let cost = 0;
     this.getReplenishments().forEach((replenishment) => {
-      const units = replenishment.getLocations().get(storage) || 0;
+      const units = replenishment.getUnitsPerAllLocation().get(storage) || 0;
       const unitCost = replenishment.getUnitCost();
       cost += units * unitCost;
     });
@@ -172,5 +174,15 @@ export class Item {
       units += replenishment.getTotalUnits();
     })
     return units;
+  }
+
+  public getColorUnits(): Map<string, number> {
+    const totalColorUnits = new Map<string, number>();
+    this.getReplenishments().forEach((replenishment) => {
+      replenishment.getUnitsPerColor().forEach((value, key) =>{
+        totalColorUnits.set(key, (totalColorUnits.get(key) || 0) + value)
+      })
+    });
+    return totalColorUnits;
   }
 }

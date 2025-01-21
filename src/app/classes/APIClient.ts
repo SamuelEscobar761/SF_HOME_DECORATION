@@ -22,14 +22,15 @@ export class APIClient {
     return APIClient.instance;
   }
 
-  //ejemplos de uso cuando haya backend
   async fetchData(endpoint: string, options: RequestInit = {}): Promise<any> {
     try {
       const response = await fetch(`${this.baseUrl}/${endpoint}`, options);
       if (!response.ok) {
-        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `API call failed: ${response.status} ${response.statusText}`
+        );
       }
-  
+
       // Solo intentar convertir a JSON si la respuesta no es 204 No Content
       if (response.status !== 204) {
         return await response.json();
@@ -42,11 +43,18 @@ export class APIClient {
     }
   }
 
-  async postData(endpoint: string, data: any, options: RequestInit = {}): Promise<any> {
+  async postData(
+    endpoint: string,
+    data: any,
+    options: RequestInit = {}
+  ): Promise<any> {
+    console.log("con json");
+    console.log(JSON.stringify(data));
     const defaultOptions = {
       method: "POST",
       body: data instanceof FormData ? data : JSON.stringify(data),
-      headers: data instanceof FormData ? {} : { 'Content-Type': 'application/json' },
+      headers:
+        data instanceof FormData ? {} : { "Content-Type": "application/json" },
       ...options,
     };
     return this.fetchData(endpoint, defaultOptions);
@@ -57,23 +65,31 @@ export class APIClient {
       method: "DELETE",
       ...options,
     };
-    return this.fetchData(endpoint, defaultOptions)
+    return this.fetchData(endpoint, defaultOptions);
   }
 
-  async getShoppingCartItemByIdColor(id: number, colorSearched: string): Promise<{id: number, name: string, price: number, image: any}> {
+  async getShoppingCartItemByIdColor(
+    id: number,
+    colorSearched: string
+  ): Promise<{ id: number; name: string; price: number; image: any }> {
     const data = await this.fetchData(`items/${id}`);
     const item = {
       id: data.id,
       name: data.name,
       price: data.price,
-      image: data.images.map((img: any) => ({ color: img.color, url: img.url })).find((image: {color: string; url: string}) => image.color === colorSearched)?.url
-    }
+      image: data.images
+        .map((img: any) => ({ color: img.color, url: img.url }))
+        .find(
+          (image: { color: string; url: string }) =>
+            image.color === colorSearched
+        )?.url,
+    };
     return item;
   }
 
   async loadItems(startIndex: number): Promise<Item[]> {
     startIndex;
-    const data = await this.fetchData('items/');
+    const data = await this.fetchData("items/");
     const items: Item[] = data.results.map((result: any) => {
       const item = new SimpleItem(
         result.fk_id_multi_item,
@@ -85,67 +101,93 @@ export class APIClient {
         result.material,
         new Provider("Proveedor universal", []) // Assuming all have this provider
       );
-  
-      const replenishments: Replenishment[] = result.replenishments.map((rep: any) => {
-        const locationsMap = new Map<string, number>(Object.entries(rep.locations));
-        return new Replenishment(
-          rep.id,
-          item,
-          new Date(rep.order_date),
-          new Date(rep.arrival_date),
-          rep.unit_cost,
-          rep.unit_discount,
-          rep.total_discount,
-          locationsMap
-        );
-      });
-  
+
+      const replenishments: Replenishment[] = result.replenishments.map(
+        (rep: any) => {
+          const locationsMap = new Map<string, Map<string, number>>(
+            Object.entries(rep.locations)
+          );
+          return new Replenishment(
+            rep.id,
+            item,
+            new Date(rep.order_date),
+            new Date(rep.arrival_date),
+            rep.unit_cost,
+            rep.unit_discount,
+            rep.total_discount,
+            locationsMap
+          );
+        }
+      );
+
       item.setReplenishments(replenishments);
       return item;
     });
-  
+
     return items;
   }
 
-  async saveNewItem(item: Item): Promise<{'id': number, 'images': any[]} | null> {
-    const location = item.getLocations().keys().next().value;
-    const images = item.getImages().map(item => item.image);
-    const colors = item.getImages().map(item => item.color);
-    
-    let formData = new FormData();
-    formData.append('name', item.getName());
-    formData.append('fk_id_provider', '1');
-    formData.append('price', item.getPrice().toString());
-    formData.append('room', item.getRoom());
-    formData.append('material', item.getMaterial());
-    formData.append('unit_cost', item.getReplenishments()[0].getUnitCost().toString());
-    formData.append('unit_discount', item.getReplenishments()[0].getUnitDiscount().toString());
-    formData.append('total_discount', item.getReplenishments()[0].getTotalDiscount().toString());
-    formData.append('location', location!);
-    formData.append('location_stock', item.getLocations().get(location!)!.toString());
-    images.map((image, index) => {
-      formData.append('images', image!);
-      formData.append('colors', colors[index]);
-    })
+  async saveNewItem(item: Item): Promise<{ id: number; images: any[] } | null> {
+    // Crear un FormData para combinar datos y archivos
+    const formData = new FormData();
+
+    // Agregar los datos simples al FormData
+    formData.append("name", item.getName());
+    formData.append("fk_id_provider", "1");
+    formData.append("room", item.getRoom());
+    formData.append("material", item.getMaterial());
+    formData.append("unit_cost", item.getReplenishments()[0].getUnitCost().toString());
+    formData.append("price", item.getPrice().toString());
+    formData.append("description", "");
+    formData.append("unit_discount", item.getReplenishments()[0].getUnitDiscount().toString())
+    formData.append("total_discount", item.getReplenishments()[0].getTotalDiscount().toString())
+
+    // Convertir la ubicación a JSON y agregarla
+    const convertedLocations = this.convertMapToObject(
+      item.getReplenishments()[0].getLocations()
+    );
+    const locationJson = JSON.stringify(convertedLocations);
+    formData.append("location", locationJson);
+
+    // Agregar las imágenes y colores al FormData
+    const images = item.getImages().map((item) => item.image);
+    const colors = item.getImages().map((item) => item.color);
+    images.forEach((image, index) => {
+      formData.append("images", image!); // Aquí asumimos que `image` es un archivo tipo `File`
+      formData.append("colors", colors[index]);
+    });
 
     try {
-        const response = await this.postData('items/create/', formData);
-        return response;
-    } catch (error) {
-        console.error('Error al guardar el artículo:', error);
-        return null;
-    }
-}
+      // Realizar la solicitud POST con el FormData
+      const response = await fetch(`${this.baseUrl}/items/create/`, {
+        method: "POST",
+        body: formData, // Enviar el FormData
+      });
 
-  async editItem(item: Item): Promise<boolean>{
+      // Verificar el estado de la respuesta
+      if (!response.ok) {
+        throw new Error(
+          `Error en la solicitud: ${response.status} ${response.statusText}`
+        );
+      }
+
+      // Procesar la respuesta
+      return await response.json();
+    } catch (error) {
+      console.error("Error al guardar el artículo:", error);
+      return null;
+    }
+  }
+
+  async editItem(item: Item): Promise<boolean> {
     const itemStored = await this.fetchData(`items/${item.getId()}`);
-    
-    console.log(itemStored)
+
+    console.log(itemStored);
     return true;
   }
 
-  async deleteItem(item: Item): Promise<any>{
-    try{
+  async deleteItem(item: Item): Promise<any> {
+    try {
       const answer = await this.deleteData(`items/${item.getId()}/delete/`);
       return answer;
     } catch (error) {
@@ -190,4 +232,13 @@ export class APIClient {
     folder;
     //TODO
   }
+
+  convertMapToObject = (map: Map<any, any>): Record<string, any> => {
+    const obj: Record<string, any> = {};
+    map.forEach((value, key) => {
+      // Si el valor también es un Map, conviértelo recursivamente
+      obj[key] = value instanceof Map ? this.convertMapToObject(value) : value;
+    });
+    return obj;
+  };
 }

@@ -29,10 +29,9 @@ export const NewSimpleItemComponent = ({
   const [material, setMaterial] = useState<string>(item?.getMaterial() || "");
   const [price, setPrice] = useState<string>(item?.getPrice().toString() || "");
   const [cost, setCost] = useState<string>("");
-  const [units, setUnits] = useState<string>(
-    item?.getTotalUnits().toString() || ""
-  );
   const [canSave, setCanSave] = useState(false);
+  const [colorUnits, setColorUnits] = useState<Map<string, number>>(item?.getColorUnits() || new Map<string, number>());
+  const [totalUnits, setTotalUnits] = useState<number>(0);
   const replenishments =
     item
       ?.getReplenishments()
@@ -71,9 +70,8 @@ export const NewSimpleItemComponent = ({
         0,
         0,
 
-        new Map<string, number>([
-          ["Almacén", parseFloat(units) || 0],
-          ["Tienda", 0],
+        new Map<string, Map<string, number>>([
+          ["Almacén", colorUnits]
         ])
       );
       newItem.replenish(replenishment);
@@ -94,18 +92,34 @@ export const NewSimpleItemComponent = ({
     closeNewItem();
   };
 
+
+  const handleTotalUnitsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uniqueColors = new Set(colorImages.map((colorImage) => {return colorImage.color}));
+    uniqueColors.forEach((color)=>{
+      const units = Math.floor(parseInt(event.target.value) / uniqueColors.size);
+      colorUnits.set(color, units);
+    })
+    setTotalUnits(parseFloat(event.target.value));
+  }
+
+  const handleColorUnitChange = (color: string ,event: React.ChangeEvent<HTMLInputElement>) => {
+    const newColorUnits = new Map(colorUnits);
+    newColorUnits.set(color, parseInt(event.target.value) || 0);
+    setColorUnits(newColorUnits);
+    setTotalUnits(Array.from(newColorUnits.values()).reduce((acc, value) => acc + value, 0));
+  }
+
   useEffect(() => {
     const validateForm = () => {
       const validPrice = !fullItem || parseFloat(price) > 0;
       const validCost = !fullItem || parseFloat(cost) > 0;
-      const validUnits = !fullItem || parseInt(units) > 0;
       setCanSave(
-        name !== "" && provider !== "" && validPrice && validCost && validUnits
+        name !== "" && provider !== "" && validPrice && validCost
       );
     };
 
     validateForm();
-  }, [name, provider, price, cost, units]);
+  }, [name, provider, price, cost]);
 
   return (
     <div id="show-new-item-component" className="bg-neutral-300 p-2 rounded">
@@ -184,25 +198,14 @@ export const NewSimpleItemComponent = ({
             />
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
-          {fullItem != false && !item && (
-            <input
-              id="new-item-units"
-              type="number"
-              placeholder="Unidades"
-              className="w-full p-2 rounded"
-              value={units}
-              onChange={(e) => {
-                setUnits(e.target.value);
-              }}
-            />
-          )}
         </div>
         {item && !item.getMultiItem() ? (
           <div>
             <ReplenishmentList replenishments={replenishments} />
           </div>
         ) : (
-          fullItem != false && !item?.getMultiItem() && (
+          fullItem != false &&
+          !item?.getMultiItem() && (
             <div id="new-item-cost-container" className="flex space-x-1">
               <input
                 id="new-item-cost"
@@ -217,6 +220,44 @@ export const NewSimpleItemComponent = ({
               <p className="p-2 bg-neutral-100 rounded">Bs</p>
             </div>
           )
+        )}
+        {fullItem != false && !item && colorImages.length > 0 &&(
+          <div className="space-y-2 bg-neutral-100 rounded p-2">
+            <p className="underline text-xl">Unidades por color:</p>
+            <div className="flex space-x-2 items-center">
+              <label htmlFor="new-item-units">Total:</label>
+              <input
+                id="new-item-total-units"
+                type="number"
+                placeholder="Unds."
+                className="w-20 p-2 rounded border border-neutral-900"
+                value={totalUnits || ""}
+                onChange={handleTotalUnitsChange}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {Array.from(new Set(colorImages.map((item) => item.color))).map(
+                (color, index) => (
+                  <div key={index} className="flex space-x-2 items-center">
+                    <div
+                      className="size-8 border border-neutral-900"
+                      style={{ background: color }}
+                    ></div>
+                    <input
+                      id="new-item-units"
+                      type="number"
+                      placeholder="Unds."
+                      className="w-20 p-2 rounded border border-neutral-900"
+                      value={colorUnits.get(color) || ""}
+                      onChange={(e) => {
+                        handleColorUnitChange(color, e);
+                      }}
+                    />
+                  </div>
+                )
+              )}
+            </div>
+          </div>
         )}
         <p id="new-item-price-cost-description" className="text-xs">
           *El precio es el monto por el cual se vende el item, el costo es lo

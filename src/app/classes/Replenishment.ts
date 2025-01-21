@@ -8,7 +8,7 @@ export class Replenishment {
   private unitCost: number;
   private unitDiscount: number;
   private totalDiscount: number;
-  private locations: Map<string, number>;
+  private locations: Map<string, Map<string, number>>;
 
   constructor(
     id: number,
@@ -18,7 +18,7 @@ export class Replenishment {
     unitCost: number,
     unitDiscount: number,
     totalDiscount: number,
-    locations: Map<string, number>
+    locations: Map<string, Map<string, number>>
   ) {
     this.id = id;
     this.item = item;
@@ -86,11 +86,11 @@ export class Replenishment {
     this.totalDiscount = totalDiscount;
   }
 
-  public getLocations(): Map<string, number> {
+  public getLocations(): Map<string, Map<string, number>> {
     return this.locations;
   }
 
-  public setLocations(locations: Map<string, number>): void {
+  public setLocations(locations: Map<string, Map<string, number>>): void {
     this.locations = locations;
   }
 
@@ -100,23 +100,52 @@ export class Replenishment {
 
   public getTotalUnits(): number {
     let totalUnits = 0;
-    this.locations.forEach((units)=>{
-      totalUnits += units
-    })
+    this.getUnitsPerColor().forEach((unit) => {
+      totalUnits += unit;
+    });
     return totalUnits;
+  }
+
+  public getUnitsPerAllLocation(): Map<string, number> {
+    let totalUnitsPerLocations = new Map<string, number>();
+    this.locations.forEach((unitsPerColor, location) => {
+      if (!(unitsPerColor instanceof Map)) {
+        unitsPerColor = new Map(Object.entries(unitsPerColor));
+      }
+      unitsPerColor.forEach((units) => {
+        totalUnitsPerLocations.set(
+          location,
+          totalUnitsPerLocations.get(location) || 0 + units
+        );
+      });
+    });
+    return totalUnitsPerLocations;
+  }
+
+  public getUnitsPerColor(): Map<string, number> {
+    let totalUnitsPerColor = new Map<string, number>();
+    this.locations.forEach((unitsPerColor) => {
+      if (!(unitsPerColor instanceof Map)) {
+        unitsPerColor = new Map(Object.entries(unitsPerColor));
+      }
+      unitsPerColor.forEach((units, key) => {
+        totalUnitsPerColor.set(key, (totalUnitsPerColor.get(key) || 0) + units);
+      });
+    });
+    return totalUnitsPerColor;
   }
 
   // Método para clonar la instancia actual de Replenishment
   cloneWithNewItem(item: Item): Replenishment {
     return new Replenishment(
-        this.id, // O generar un nuevo ID si es necesario
-        item,
-        new Date(this.orderDate),
-        new Date(this.arrivalDate),
-        this.unitCost,
-        this.unitDiscount,
-        this.totalDiscount,
-        new Map(this.locations)
+      this.id, // O generar un nuevo ID si es necesario
+      item,
+      new Date(this.orderDate),
+      new Date(this.arrivalDate),
+      this.unitCost,
+      this.unitDiscount,
+      this.totalDiscount,
+      new Map(this.locations)
     );
-}
+  }
 }

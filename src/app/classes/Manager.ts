@@ -56,7 +56,6 @@ export class Manager {
     if (response !== null) {
       item.setId(response['id']);
       item.setImages(response['images']);
-      console.log(item.getImages())
       this.items.push(item);
       return true;
     } else {
