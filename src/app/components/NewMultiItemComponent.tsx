@@ -23,13 +23,18 @@ export const NewMultiItemComponent = ({
 }) => {
   const [colorImages, setColorImages] = useState<ImageColor[]>([]);
   const [allItems] = useState<SimpleItem[]>(
-    Manager.getInstance().getSimpleItems().filter((item)=>{return!item.getMultiItem()})
+    Manager.getInstance()
+      .getSimpleItems()
+      .filter((item) => {
+        return !item.getMultiItem();
+      })
   );
   const [selectedItems] = useState<SimpleItem[]>(item?.getSimpleItems() || []);
   const [name, setName] = useState<string>(item?.getName() || "");
   const [price, setPrice] = useState<string>(item?.getPrice().toString() || "");
   const [cost, setCost] = useState<string>("");
-  const [units, setUnits] = useState<string>("");
+  const [colorUnits, setColorUnits] = useState<Map<string, number>>(item?.getColorUnits() || new Map());
+  const [totalUnits, setTotalUnits] = useState<number>(0);
   const [room, setRoom] = useState<string>(item?.getRoom() || "");
   const [material, setMaterial] = useState<string>(item?.getMaterial() || "");
   const [provider, setProvider] = useState<string>(
@@ -73,13 +78,37 @@ export const NewMultiItemComponent = ({
       0,
       0,
       0,
-      new Map<string, number>()
+      new Map<string, Map<string, number>>()
     );
     newItem.setReplenishments([replenishment]);
     setColorImages([...colorImages, ...newItem.getImages()]);
     selectedItems.push(newItem);
     setAllItemsView(false);
   };
+
+  const handleColorUnitChange = (color: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const newColorUnits = new Map(colorUnits);
+    newColorUnits.set(color, parseInt(event.target.value) || 0);
+    setColorUnits(newColorUnits);
+    setTotalUnits(Array.from(newColorUnits.values()).reduce((acc, value) => acc + value, 0));
+  };
+
+  const handleTotalUnitsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uniqueColors = new Set(colorImages.map(colorImage => colorImage.color));
+    uniqueColors.forEach(color => {
+      const units = Math.floor(parseInt(event.target.value) / uniqueColors.size);
+      colorUnits.set(color, units);
+    });
+    setTotalUnits(parseFloat(event.target.value));
+  };
+
+  const handleCostChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCost(event.target.value);
+    selectedItems.forEach((selectedItem)=>{
+      const percentage = selectedItem.getTempPercentage() || 0;
+      selectedItem.getReplenishments()[0].setUnitCost(parseFloat(event.target.value)*percentage);
+    })
+  }
 
   const save = async () => {
     if (item) {
@@ -106,7 +135,8 @@ export const NewMultiItemComponent = ({
               replenishment.cloneWithNewItem(selectedItem);
             // Obtener el nuevo costo unitario basado en el porcentaje correspondiente
             const newUnitCost =
-              selectedItem.getPercentage()! / 100 * replenishment.getUnitCost();
+              (selectedItem.getPercentage()! / 100) *
+              replenishment.getUnitCost();
             // Establecer el nuevo costo unitario al replenishment clonado
             clonedReplenishment.setUnitCost(newUnitCost);
             return clonedReplenishment;
@@ -118,10 +148,7 @@ export const NewMultiItemComponent = ({
       for (const selectedItem of selectedItems) {
         selectedItem.setPercentage(selectedItem.getTempPercentage()!);
         selectedItem.getReplenishments()[0].setLocations(
-          new Map<string, number>([
-            ["almacen", parseFloat(units) || 0],
-            ["Tienda", 0],
-          ])
+          new Map([["Almacén", colorUnits]])
         );
       }
       const newMultiItem = new MultiItem(
@@ -142,17 +169,13 @@ export const NewMultiItemComponent = ({
         parseFloat(cost),
         0,
         0,
-        new Map<string, number>([
-          ["almacen", parseFloat(units) || 0],
-          ["Tienda", 0],
-        ])
+        new Map([["Almacén", colorUnits]])
       );
       newMultiItem.setReplenishments([replenishment]);
       const result = await Manager.getInstance().saveNewMultiItem(newMultiItem);
-      if(result){
+      if (result) {
         saveNewItem(newMultiItem, true);
-      }else{
-
+      } else {
       }
     }
     closeNewMultiItem();
@@ -179,7 +202,6 @@ export const NewMultiItemComponent = ({
           <img src={CloseIcon} className="w-5 h-5" />
         </div>
       )}
-
       <ColorImageComponent
         colorImages={colorImages}
         setColorImages={setColorImages}
@@ -296,19 +318,6 @@ export const NewMultiItemComponent = ({
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
           {!item && (
-            <input
-              id="new-multi-item-units"
-              type="number"
-              placeholder="Unidades"
-              className="w-full p-2 rounded"
-              value={units}
-              onChange={(e) => {
-                setUnits(e.target.value);
-              }}
-            />
-          )}
-        </div>
-        {!item && (
           <div id="new-multi-item-cost-container" className="flex space-x-1">
             <input
               id="new-multi-item-cost"
@@ -316,11 +325,41 @@ export const NewMultiItemComponent = ({
               placeholder="Costo"
               className="w-20 p-2 rounded"
               value={cost}
-              onChange={(e) => {
-                setCost(e.target.value);
-              }}
+              onChange={handleCostChange}
             />
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
+          </div>
+          )}
+        </div>
+        {!item && colorImages.length > 0 && (
+          <div className="space-y-2 bg-neutral-100 rounded p-2">
+            <p className="underline text-lg">Unidades por color:</p>
+            <div className="flex space-x-2 items-center">
+              <label htmlFor="new-item-units">Total:</label>
+              <input
+                id="new-item-total-units"
+                type="number"
+                placeholder="Unds."
+                className="w-20 p-2 rounded border border-neutral-900"
+                value={totalUnits || ""}
+                onChange={handleTotalUnitsChange}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {Array.from(new Set(colorImages.map(item => item.color))).map((color, index) => (
+                <div key={index} className="flex space-x-2 items-center">
+                  <div className="size-8 border border-neutral-900" style={{ background: color }}></div>
+                  <input
+                    id="new-item-units"
+                    type="number"
+                    placeholder="Unds."
+                    className="w-20 p-2 rounded border border-neutral-900"
+                    value={colorUnits.get(color) || ""}
+                    onChange={(e) => handleColorUnitChange(color, e)}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         )}
         <p id="new-multi-item-price-cost-description" className="text-xs">

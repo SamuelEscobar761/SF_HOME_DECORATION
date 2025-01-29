@@ -11,7 +11,7 @@ export const SelectedItemComponent = ({
   numberOfItems: number;
 }) => {
   const [percentage, setPercentage] = useState<number>(
-    item.getPercentage() || 0
+    item.getPercentage() || Math.round(100 / numberOfItems)
   );
   const [cost, setCost] = useState<number>(0);
   const [price, setPrice] = useState<number>(item.getPrice());
@@ -22,9 +22,35 @@ export const SelectedItemComponent = ({
     item.setPrice(parsedPrice);
   };
 
+  const handleCostChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newCost = parseFloat(Number(event.target.value).toFixed(2));
+    setCost(newCost)
+    if (!item.getMultiItem()){
+      const newPercentage =
+        entireCost !== 0 && !Number.isNaN(newCost)
+          ? Math.round((newCost / entireCost) * 100)
+          : 100 / numberOfItems;
+      setPercentage(newPercentage);
+      item.getReplenishments()[0]?.setUnitCost(newCost);
+    }
+  }
+
+  const handlePercentageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newPercentage = Math.round(parseFloat(event.target.value))
+    setPercentage(newPercentage)
+    item.setTempPercentage(newPercentage)
+    if(!item.getMultiItem()){
+      const newCost = parseFloat((entireCost * newPercentage / 100).toFixed(2))
+      setCost(newCost)
+      item.getReplenishments()[0].setUnitCost(newCost);
+    }
+  }
+
   useEffect(() => {
     if (!item.getMultiItem()) {
-      setPercentage(100 / numberOfItems);
+      const newPercentage = Math.round(100 / numberOfItems)
+      setPercentage(newPercentage);
+      setCost(parseFloat((entireCost * newPercentage / 100).toFixed(2)))
     }
   }, [numberOfItems]);
 
@@ -34,18 +60,7 @@ export const SelectedItemComponent = ({
       setCost(newCost);
     }
     item.setTempPercentage(percentage);
-  }, [percentage, entireCost]);
-
-  useEffect(() => {
-    if (!item.getMultiItem()) {
-      const newPercentage =
-        entireCost != 0
-          ? Math.round((cost * 100) / entireCost)
-          : 100 / numberOfItems;
-      setPercentage(newPercentage);
-      item.getReplenishments()[0]?.setUnitCost(cost);
-    }
-  }, [cost]);
+  }, [entireCost]);
 
   return (
     <div
@@ -72,9 +87,7 @@ export const SelectedItemComponent = ({
                 type="number"
                 className="w-10 h-fit border border-neutral-900 p-1 rounded text-right"
                 value={percentage == 0 ? "" : percentage}
-                onChange={(e) => {
-                  setPercentage(Math.round(parseFloat(e.target.value) || 0));
-                }}
+                onChange={handlePercentageChange}
               />
               <p>%</p>
             </div>
@@ -87,11 +100,7 @@ export const SelectedItemComponent = ({
                   type="number"
                   className="w-14 h-fit border border-neutral-900 p-1 rounded text-right"
                   value={cost == 0 ? "" : cost}
-                  onChange={(e) => {
-                    setCost(
-                      parseFloat(parseFloat(e.target.value).toFixed(2)) || 0
-                    );
-                  }}
+                  onChange={handleCostChange}
                 />
                 <p>Bs</p>
               </div>

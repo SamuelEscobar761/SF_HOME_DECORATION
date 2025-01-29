@@ -1,6 +1,7 @@
 import { Folder } from "../interfaces/Folder";
 import { Item } from "./Item";
 import { Manager } from "./Manager";
+import { MultiItem } from "./MultiItem";
 import { Provider } from "./Provider";
 import { Replenishment } from "./Replenishment";
 import { SimpleItem } from "./SimpleItem";
@@ -90,46 +91,95 @@ export class APIClient {
   async loadItems(startIndex: number): Promise<Item[]> {
     startIndex;
     const data = await this.fetchData("items/");
-    const items: Item[] = data.results.map((result: any) => {
-      const item = new SimpleItem(
-        result.fk_id_multi_item,
-        result.id,
-        result.name,
-        result.price,
-        result.images.map((img: any) => ({ color: img.color, url: img.url })),
-        result.room,
-        result.material,
-        new Provider("Proveedor universal", []) // Assuming all have this provider
-      );
-
-      const replenishments: Replenishment[] = result.replenishments.map(
-        (rep: any) => {
-          const locationsMap = new Map<string, Map<string, number>>(
-            Object.entries(rep.locations)
-          );
-          return new Replenishment(
-            rep.id,
-            item,
-            new Date(rep.order_date),
-            new Date(rep.arrival_date),
-            rep.unit_cost,
-            rep.unit_discount,
-            rep.total_discount,
-            locationsMap
-          );
-        }
-      );
-
+  
+    const multiItemMap = new Map<number, MultiItem>();
+    const items: Item[] = [];
+  
+    // Crear todos los items en un solo recorrido
+    data.results.forEach((result: any) => {
+      let item: Item;
+  
+      if (result.id !== result.fk_id_multi_item) {
+        // Crear SimpleItem con el MultiItem correspondiente (si existe)
+        item = new SimpleItem(
+          multiItemMap.get(result.fk_id_multi_item) || null,
+          result.id,
+          result.name,
+          result.price,
+          result.images.map((img: any) => ({ color: img.color, url: img.url })),
+          result.room,
+          result.material,
+          new Provider("Proveedor universal", [])
+        );
+      } else {
+        // Crear MultiItem y almacenarlo en el mapa
+        item = new MultiItem(
+          [],
+          result.id,
+          result.name,
+          result.price,
+          result.images.map((img: any) => ({ color: img.color, url: img.url })),
+          result.room,
+          result.material,
+          new Provider("Proveedor universal", [])
+        );
+        multiItemMap.set(result.id, item as MultiItem);
+      }
+  
+      // Cargar reabastecimientos
+      const replenishments: Replenishment[] = result.replenishments.map((rep: any) => {
+        const locationsMap = new Map<string, Map<string, number>>(Object.entries(rep.locations));
+        return new Replenishment(
+          rep.id,
+          item,
+          new Date(rep.order_date),
+          new Date(rep.arrival_date),
+          rep.unit_cost,
+          rep.unit_discount,
+          rep.total_discount,
+          locationsMap
+        );
+      });
+  
       item.setReplenishments(replenishments);
-      return item;
+      items.push(item);
     });
-
+  
     return items;
+  }
+
+  async editIdMultiItem(id: number): Promise<boolean | null>{
+    const formData = new FormData();
+    formData.append('fk_id_multi_item', id.toString());
+    try {
+      // Realizar la solicitud POST con el FormData
+      const response = await fetch(`${this.baseUrl}/items/${id}/update/`, {
+        method: "PUT",
+        body: formData, // Enviar el FormData
+      });
+
+      // Verificar el estado de la respuesta
+      if (!response.ok) {
+        throw new Error(
+          `Error en la solicitud: ${response.status} ${response.statusText}`
+        );
+      }
+
+      // Procesar la respuesta
+      return await response.json();
+    } catch (error) {
+      console.error("Error al guardar el artículo:", error);
+      return null;
+    }
   }
 
   async saveNewItem(item: Item): Promise<{ id: number; images: any[] } | null> {
     // Crear un FormData para combinar datos y archivos
     const formData = new FormData();
+
+    if (item instanceof SimpleItem && item.getMultiItem()?.getId()) {
+      formData.append("fk_id_multi_item", item.getMultiItem()!.getId().toString());
+    }
 
     // Agregar los datos simples al FormData
     formData.append("name", item.getName());

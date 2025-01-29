@@ -59,7 +59,7 @@ export class Manager {
       this.items.push(item);
       return true;
     } else {
-      console.error("Failed to save item");
+      console.error("Error al guardar el Item.");
       return false;
     }
 }
@@ -90,11 +90,29 @@ export class Manager {
   }
 
   public async saveNewMultiItem(item: MultiItem): Promise<boolean> {
-    item.getSimpleItems().map((simpleItem) => {
-      simpleItem.setMultiItem(item);
-      this.saveNewItem(simpleItem);
-    });
-    return this.saveNewItem(item);
+    const response = await this.apiClient.saveNewItem(item);
+    if (response !== null) {
+      item.setId(response['id']);
+      console.log(item.getId())
+      item.setImages(response['images']);
+      const res = await this.apiClient.editIdMultiItem(item.getId());
+        if(res !== null){
+          this.items.push(item);
+          item.getSimpleItems().map((simpleItem) => {
+            simpleItem.setMultiItem(item);
+            this.saveNewItem(simpleItem);
+
+          });
+          return true;
+        }else{
+          console.error("Error al editar el fk de multi id para el mismo multi id");
+          return false;
+        }
+      
+    } else {
+      console.error("Error al guardar el Item.");
+      return false;
+    }
   }
 
   public async ensureProviderExists(name: string): Promise<Provider> {

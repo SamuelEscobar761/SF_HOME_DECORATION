@@ -140,10 +140,6 @@ export const InventoryPage = () => {
 
   const deleteItem = async (item: any) => {
     const answer = await Manager.getInstance().deleteItem(item);
-    if(answer){
-      console.log('Item deleted');
-      console.log(Manager.getInstance().getItems());
-    }
     setItems([...Manager.getInstance().getItems()]);
   };
 

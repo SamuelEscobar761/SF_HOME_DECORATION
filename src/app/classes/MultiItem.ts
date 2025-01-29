@@ -28,10 +28,10 @@ export class MultiItem extends Item {
     this.simpleItems = simpleItems;
   }
 
-  public move(fromLocation: string, toLocation: string, units: number): void {
-    super.move(fromLocation, toLocation, units);
+  public move(fromLocation: string, toLocation: string, color:string, units: number): void {
+    super.move(fromLocation, toLocation, color, units);
     for(const simpleItem of this.simpleItems){
-      simpleItem.move(fromLocation, toLocation, units);
+      simpleItem.move(fromLocation, toLocation, color, units);
     }
   }
 
