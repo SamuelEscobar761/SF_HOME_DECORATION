@@ -115,7 +115,7 @@ export class Replenishment {
       unitsPerColor.forEach((units) => {
         totalUnitsPerLocations.set(
           location,
-          totalUnitsPerLocations.get(location) || 0 + units
+          (totalUnitsPerLocations.get(location) || 0) + units
         );
       });
     });

@@ -106,7 +106,7 @@ export const NewMultiItemComponent = ({
     setCost(event.target.value);
     selectedItems.forEach((selectedItem)=>{
       const percentage = selectedItem.getTempPercentage() || 0;
-      selectedItem.getReplenishments()[0].setUnitCost(parseFloat(event.target.value)*percentage);
+      selectedItem.getReplenishments()[0].setUnitCost(parseFloat(event.target.value)*percentage/100);
     })
   }
 

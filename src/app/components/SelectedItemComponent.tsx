@@ -36,7 +36,7 @@ export const SelectedItemComponent = ({
   }
 
   const handlePercentageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newPercentage = Math.round(parseFloat(event.target.value))
+    const newPercentage = event.target.value === "" ? 0 : Math.round(parseFloat(event.target.value))
     setPercentage(newPercentage)
     item.setTempPercentage(newPercentage)
     if(!item.getMultiItem()){
@@ -48,9 +48,12 @@ export const SelectedItemComponent = ({
 
   useEffect(() => {
     if (!item.getMultiItem()) {
-      const newPercentage = Math.round(100 / numberOfItems)
+      const newPercentage = Math.round(100 / numberOfItems);
+      const newCost = parseFloat((entireCost * newPercentage / 100).toFixed(2));
       setPercentage(newPercentage);
-      setCost(parseFloat((entireCost * newPercentage / 100).toFixed(2)))
+      setCost(newCost);
+      item.getReplenishments()[0].setUnitCost(newCost);
+
     }
   }, [numberOfItems]);
 
@@ -86,7 +89,7 @@ export const SelectedItemComponent = ({
               <input
                 type="number"
                 className="w-10 h-fit border border-neutral-900 p-1 rounded text-right"
-                value={percentage == 0 ? "" : percentage}
+                value={percentage === 0 ? "" : percentage}
                 onChange={handlePercentageChange}
               />
               <p>%</p>

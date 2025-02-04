@@ -52,7 +52,6 @@ export const AllItemsComponent = ({
           <div
             key={index}
             onClick={() => {
-              
               addItem(item);
               closeBasicItemList();
             }}
