@@ -27,7 +27,7 @@ export class Manager {
     return Manager.instance;
   }
 
-  public getItemFromIdColor(id: number, color: string){
+  public getItemFromIdColor(id: number, color: string) {
     return this.apiClient.getShoppingCartItemByIdColor(id, color);
   }
 
@@ -54,15 +54,15 @@ export class Manager {
   public async saveNewItem(item: Item): Promise<boolean> {
     const response = await this.apiClient.saveNewItem(item);
     if (response !== null) {
-      item.setId(response['id']);
-      item.setImages(response['images']);
+      item.setId(response["id"]);
+      item.setImages(response["images"]);
       this.items.push(item);
       return true;
     } else {
       console.error("Error al guardar el Item.");
       return false;
     }
-}
+  }
 
   public async editItem(item: Item): Promise<boolean> {
     try {
@@ -92,23 +92,35 @@ export class Manager {
   public async saveNewMultiItem(item: MultiItem): Promise<boolean> {
     const response = await this.apiClient.saveNewItem(item);
     if (response !== null) {
-      item.setId(response['id']);
-      console.log(item.getId())
-      item.setImages(response['images']);
+      item.setId(response["id"]);
+      item.setImages(response["images"]);
       const res = await this.apiClient.editIdMultiItem(item.getId());
-        if(res !== null){
-          this.items.push(item);
-          item.getSimpleItems().map((simpleItem) => {
-            simpleItem.setMultiItem(item);
-            this.saveNewItem(simpleItem);
-
-          });
+      if (res !== null) {
+        this.items.push(item);
+        try {
+          // Espera a que todas las promesas se resuelvan
+          const results = await Promise.all(
+            item.getSimpleItems().map(async (simpleItem) => {
+              simpleItem.setMultiItem(item);
+              return this.saveNewItem(simpleItem);
+            })
+          );
+          // Verifica si alguna promesa falló
+          if (results.includes(false)) {
+            console.error("Error al guardar algún item de MultiItem");
+            return false;
+          }
           return true;
-        }else{
-          console.error("Error al editar el fk de multi id para el mismo multi id");
+        } catch (error) {
+          console.error("Error al guardar los items:", error);
           return false;
         }
-      
+      } else {
+        console.error(
+          "Error al editar el fk de multi id para el mismo multi id"
+        );
+        return false;
+      }
     } else {
       console.error("Error al guardar el Item.");
       return false;
@@ -179,9 +191,9 @@ export class Manager {
     this.apiClient.addItemToFolder(item, folder);
   }
 
-  public async ensureItemSaved(itemToEnsure: SimpleItem){
-    for(const item of this.items){
-      if(item === itemToEnsure){
+  public async ensureItemSaved(itemToEnsure: SimpleItem) {
+    for (const item of this.items) {
+      if (item === itemToEnsure) {
         return true;
       }
     }

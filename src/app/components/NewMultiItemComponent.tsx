@@ -175,7 +175,6 @@ export const NewMultiItemComponent = ({
       const result = await Manager.getInstance().saveNewMultiItem(newMultiItem);
       if (result) {
         saveNewItem(newMultiItem, true);
-      } else {
       }
     }
     closeNewMultiItem();

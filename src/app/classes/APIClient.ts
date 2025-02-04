@@ -91,14 +91,14 @@ export class APIClient {
   async loadItems(startIndex: number): Promise<Item[]> {
     startIndex;
     const data = await this.fetchData("items/");
-  
+
     const multiItemMap = new Map<number, MultiItem>();
     const items: Item[] = [];
-  
+
     // Crear todos los items en un solo recorrido
     data.results.forEach((result: any) => {
       let item: Item;
-  
+
       if (result.id !== result.fk_id_multi_item) {
         // Crear SimpleItem con el MultiItem correspondiente (si existe)
         item = new SimpleItem(
@@ -125,32 +125,36 @@ export class APIClient {
         );
         multiItemMap.set(result.id, item as MultiItem);
       }
-  
+
       // Cargar reabastecimientos
-      const replenishments: Replenishment[] = result.replenishments.map((rep: any) => {
-        const locationsMap = new Map<string, Map<string, number>>(Object.entries(rep.locations));
-        return new Replenishment(
-          rep.id,
-          item,
-          new Date(rep.order_date),
-          new Date(rep.arrival_date),
-          rep.unit_cost,
-          rep.unit_discount,
-          rep.total_discount,
-          locationsMap
-        );
-      });
-  
+      const replenishments: Replenishment[] = result.replenishments.map(
+        (rep: any) => {
+          const locationsMap = new Map<string, Map<string, number>>(
+            Object.entries(rep.locations)
+          );
+          return new Replenishment(
+            rep.id,
+            item,
+            new Date(rep.order_date),
+            new Date(rep.arrival_date),
+            rep.unit_cost,
+            rep.unit_discount,
+            rep.total_discount,
+            locationsMap
+          );
+        }
+      );
+
       item.setReplenishments(replenishments);
       items.push(item);
     });
-  
+
     return items;
   }
 
-  async editIdMultiItem(id: number): Promise<boolean | null>{
+  async editIdMultiItem(id: number): Promise<boolean | null> {
     const formData = new FormData();
-    formData.append('fk_id_multi_item', id.toString());
+    formData.append("fk_id_multi_item", id.toString());
     try {
       // Realizar la solicitud POST con el FormData
       const response = await fetch(`${this.baseUrl}/items/${id}/update/`, {
@@ -178,7 +182,10 @@ export class APIClient {
     const formData = new FormData();
 
     if (item instanceof SimpleItem && item.getMultiItem()?.getId()) {
-      formData.append("fk_id_multi_item", item.getMultiItem()!.getId().toString());
+      formData.append(
+        "fk_id_multi_item",
+        item.getMultiItem()!.getId().toString()
+      );
     }
 
     // Agregar los datos simples al FormData
@@ -186,11 +193,20 @@ export class APIClient {
     formData.append("fk_id_provider", "1");
     formData.append("room", item.getRoom());
     formData.append("material", item.getMaterial());
-    formData.append("unit_cost", item.getReplenishments()[0].getUnitCost().toString());
+    formData.append(
+      "unit_cost",
+      item.getReplenishments()[0].getUnitCost().toString()
+    );
     formData.append("price", item.getPrice().toString());
     formData.append("description", "");
-    formData.append("unit_discount", item.getReplenishments()[0].getUnitDiscount().toString())
-    formData.append("total_discount", item.getReplenishments()[0].getTotalDiscount().toString())
+    formData.append(
+      "unit_discount",
+      item.getReplenishments()[0].getUnitDiscount().toString()
+    );
+    formData.append(
+      "total_discount",
+      item.getReplenishments()[0].getTotalDiscount().toString()
+    );
 
     // Convertir la ubicación a JSON y agregarla
     const convertedLocations = this.convertMapToObject(
@@ -200,10 +216,18 @@ export class APIClient {
     formData.append("location", locationJson);
 
     // Agregar las imágenes y colores al FormData
-    const images = item.getImages().map((item) => item.image);
-    const colors = item.getImages().map((item) => item.color);
+    const images = await Promise.all(
+      item
+        .getImages()
+        .map(async (coloImage) =>
+          coloImage.image
+            ? coloImage.image
+            : await this.urlToFile(coloImage.url!, `${item.getId()}.jpg`)
+        )
+    );
+    const colors = item.getImages().map((coloImage) => coloImage.color);
     images.forEach((image, index) => {
-      formData.append("images", image!); // Aquí asumimos que `image` es un archivo tipo `File`
+      formData.append("images", image);
       formData.append("colors", colors[index]);
     });
 
@@ -291,4 +315,15 @@ export class APIClient {
     });
     return obj;
   };
+
+  async urlToFile(
+    url: string,
+    fileName: string,
+    mimeType?: string
+  ): Promise<File> {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const file = new File([blob], fileName, { type: mimeType || blob.type });
+    return file;
+  }
 }
