@@ -17,7 +17,7 @@ export const SelectedItemComponent = ({
   const [price, setPrice] = useState<number>(item.getPrice());
 
   const handlePriceChange = (newPrice: string) => {
-    const parsedPrice = parseFloat(newPrice);
+    const parsedPrice = parseFloat(newPrice) || 0;
     setPrice(parsedPrice);
     item.setPrice(parsedPrice);
   };
@@ -118,7 +118,7 @@ export const SelectedItemComponent = ({
             type="number"
             name="price"
             className="w-14 h-fit border border-neutral-900 p-1 rounded text-right"
-            value={price}
+            value={price == 0 ? "" : price}
             onChange={(e) => {
               handlePriceChange(e.target.value);
             }}
