@@ -23,7 +23,7 @@ export const InventoryPageItem = ({
   setReplenishmentView: any;
   item: Item;
 }) => {
-  const totalStockUnits = Array.from(item.getLocations().values()).reduce(
+  const totalStockUnits = Array.from(item.getUnitsPerLocations().values()).reduce(
     (total: number, units: number) => total + units,
     0
   );
@@ -94,7 +94,7 @@ export const InventoryPageItem = ({
       </div>
       <div id="inventory-item-content" className="mt-2 text-base">
         <div id="stock" className="grid grid-cols-5 gap-4 mt-4">
-          {Array.from(item.getLocations()).map(([key, value], index) => (
+          {Array.from(item.getUnitsPerLocations()).map(([key, value], index) => (
             <React.Fragment key={index}>
               <p className="font-bold">{key}</p>
               <p className="text-right">{value}</p>

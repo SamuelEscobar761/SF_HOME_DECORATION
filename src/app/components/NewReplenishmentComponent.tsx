@@ -173,7 +173,7 @@ export const NewReplenishmentComponent = ({
             onChange={handleToLocationChange}
           >
             <option value="">Seleccionar</option>
-            {Array.from(item.getLocations().keys()).map((location, index) => (
+            {Array.from(item.getUnitsPerLocations().keys()).map((location, index) => (
               <option value={location} key={index}>
                 {location}
               </option>

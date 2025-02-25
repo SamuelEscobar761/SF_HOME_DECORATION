@@ -6,6 +6,7 @@ import { Manager } from "../classes/Manager";
 import { SimpleItem } from "../classes/SimpleItem";
 import { Replenishment } from "../classes/Replenishment";
 import { ReplenishmentList } from "./ReplenishmentsList";
+import { ColorUnitsComponent } from "./ColorUnitsComponent";
 
 interface NewSimpleItemComponentProps {
   closeNewItem: () => void;
@@ -193,7 +194,8 @@ export const NewSimpleItemComponent = ({
                 onChange={handleTotalUnitsChange}
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <ColorUnitsComponent colorImages={colorImages} colorUnits={colorUnits} handleColorUnitChange={handleColorUnitChange} />
+            {/* <div className="grid grid-cols-2 gap-2">
               {Array.from(new Set(colorImages.map(item => item.color))).map((color, index) => (
                 <div key={index} className="flex space-x-2 items-center">
                   <div className="size-8 border border-neutral-900" style={{ background: color }}></div>
@@ -207,7 +209,7 @@ export const NewSimpleItemComponent = ({
                   />
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
         )}
         <p id="new-item-price-cost-description" className="text-xs">

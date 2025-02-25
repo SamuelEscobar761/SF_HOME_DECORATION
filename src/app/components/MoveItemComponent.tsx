@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import { Item } from "../classes/Item";
+import { ColorUnitsComponent } from "./ColorUnitsComponent";
 
 export const MoveItemComponent = ({
   closeMoveItem,
@@ -15,6 +16,13 @@ export const MoveItemComponent = ({
   const [selectedToLocation, setSelectedToLocation] = useState("");
   const [newLocation, setNewLocation] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [colorUnits, setColorUnits] = useState<Map<string, number>>(
+    item.getColorUnits()
+  );
+  const [maxColorUnits, setMaxColorUnits] = useState<Map<string, number>>(
+    new Map()
+  );
+  const [totalUnits, setTotalUnits] = useState<number>(0);
 
   // Maneja la selección de la localización origen
   const handleFromLocationChange = (
@@ -23,7 +31,7 @@ export const MoveItemComponent = ({
     const location = item.getLocations().get(e.target.value);
     if (location) {
       setSelectedFromLocation(e.target.value);
-      setMaxUnits(location);
+      setMaxColorUnits(location);
       setUnitsToMove(""); // Reinicia el input cuando se selecciona una nueva localización
     } else {
       setSelectedFromLocation("");
@@ -53,7 +61,9 @@ export const MoveItemComponent = ({
       newLocation !== "" &&
       (unitsToMove || 0) > 0
     ) {
-      item.move(selectedFromLocation, newLocation, unitsToMove || 0);
+      colorUnits.forEach((value, key) => {
+        item.move(selectedFromLocation, newLocation, key, value || 0);
+      });
     }
     closeMoveItem();
   };
@@ -68,10 +78,34 @@ export const MoveItemComponent = ({
         selectedToLocation !== "" &&
         (unitsToMove || 0) > 0
       ) {
-        item.move(selectedFromLocation, selectedToLocation, unitsToMove || 0);
+        colorUnits.forEach((value, key) => {
+          item.move(selectedFromLocation, newLocation, key, value || 0);
+        });
       }
       closeMoveItem();
     }
+  };
+
+  const handleColorUnitChange = (
+    color: string,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = Number(event.target.value);
+    const newColorUnits = new Map(colorUnits);
+    const safeMaxColorUnits =
+      maxColorUnits instanceof Map
+        ? maxColorUnits
+        : new Map(Object.entries(maxColorUnits));
+    const maxQuantity = Number(safeMaxColorUnits.get(color) || 0);
+    if (value <= maxQuantity && value > 0) {
+      newColorUnits.set(color, value);
+    } else {
+      newColorUnits.set(color, maxQuantity);
+    }
+    setColorUnits(newColorUnits);
+    setTotalUnits(
+      Array.from(newColorUnits.values()).reduce((acc, value) => acc + value, 0)
+    );
   };
 
   return (
@@ -91,7 +125,12 @@ export const MoveItemComponent = ({
       </div>
       <div id="move-item-component-content" className="bg-neutral-100 p-2 mt-2">
         <p className="text-2xl">{item.getName()}</p>
-        <div className="my-2 flex justify-between">
+        <ColorUnitsComponent
+          colorImages={item.getImages()}
+          colorUnits={colorUnits}
+          handleColorUnitChange={handleColorUnitChange}
+        />
+        {/* <div className="my-2 flex justify-between">
           <p>Unidades a mover</p>
           <div className="flex items-end space-x-1">
             <p className="text-xs">Max: {maxUnits}</p>
@@ -104,7 +143,7 @@ export const MoveItemComponent = ({
               disabled={maxUnits === 0} // Deshabilita si el máximo es 0
             />
           </div>
-        </div>
+        </div> */}
         <label htmlFor="previous-location">Previa localización</label>
         <br />
         <select
@@ -113,7 +152,7 @@ export const MoveItemComponent = ({
           onChange={handleFromLocationChange}
         >
           <option value="">Seleccionar:</option>
-          {Array.from(item.getLocations()).map(([key], index) => (
+          {Array.from(item.getUnitsPerLocations()).map(([key], index) => (
             <option value={key} key={index}>
               {key}
             </option>
@@ -128,7 +167,7 @@ export const MoveItemComponent = ({
           onChange={handleToLocationChange}
         >
           <option value="">Seleccionar</option>
-          {Array.from(item.getLocations()).map(([key], index) => (
+          {Array.from(item.getUnitsPerLocations()).map(([key], index) => (
             <option value={key} key={index}>
               {key}
             </option>

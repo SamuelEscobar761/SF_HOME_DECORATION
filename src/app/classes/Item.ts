@@ -106,7 +106,30 @@ export class Item {
     return 14.5;
   }
 
-  public getLocations(): Map<string, number> {
+  public getLocations(): Map<string, Map<string, number>> {
+    const allLocations = new Map<string, Map<string, number>>();
+  
+    // Iterar sobre cada reposición para acceder a sus ubicaciones.
+    this.getReplenishments().forEach(replenishment => {
+      replenishment.getLocations().forEach((innerMap, location) => {
+        // Verificar si ya existe el mapa para esa ubicación.
+        if (!allLocations.has(location)) {
+          allLocations.set(location, innerMap);
+        } else {
+          // Si ya existe, actualizar las cantidades.
+          const existingMap = allLocations.get(location) || new Map();
+          innerMap.forEach((quantity, item) => {
+            const existingQuantity = existingMap.get(item) || 0;
+            existingMap.set(item, existingQuantity + quantity);
+          });
+        }
+      });
+    });
+  
+    return allLocations;
+  }
+
+  public getUnitsPerLocations(): Map<string, number> {
     const allLocations = new Map<string, number>();
     this.getReplenishments().forEach((replenishment) => {
       replenishment.getUnitsPerAllLocation().forEach((value, key) => {
@@ -185,4 +208,6 @@ export class Item {
     });
     return totalColorUnits;
   }
+
+  
 }

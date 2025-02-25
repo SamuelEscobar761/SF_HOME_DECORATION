@@ -11,6 +11,7 @@ import { NewSimpleItemComponent } from "./NewSimpleItemComponent";
 import { Replenishment } from "../classes/Replenishment";
 import { Item } from "../classes/Item";
 import { ReplenishmentList } from "./ReplenishmentsList";
+import { ColorUnitsComponent } from "./ColorUnitsComponent";
 
 export const NewMultiItemComponent = ({
   closeNewMultiItem,
@@ -344,7 +345,8 @@ export const NewMultiItemComponent = ({
                 onChange={handleTotalUnitsChange}
               />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <ColorUnitsComponent colorImages={colorImages} colorUnits={colorUnits} handleColorUnitChange={handleColorUnitChange}/>
+            {/* <div className="grid grid-cols-2 gap-2">
               {Array.from(new Set(colorImages.map(item => item.color))).map((color, index) => (
                 <div key={index} className="flex space-x-2 items-center">
                   <div className="size-8 border border-neutral-900" style={{ background: color }}></div>
@@ -358,7 +360,7 @@ export const NewMultiItemComponent = ({
                   />
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
         )}
         <p id="new-multi-item-price-cost-description" className="text-xs">
