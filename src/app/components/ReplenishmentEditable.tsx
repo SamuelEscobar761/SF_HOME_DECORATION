@@ -18,16 +18,12 @@ export const ReplenishmentEditable = ({
     replenishment.getTotalDiscount()
   );
 
-  const handleLocationChange = (key: string, newValue: number) => {
-    const updatedLocations = new Map(locations);
-    updatedLocations.set(key, newValue | 0);
-    setLocations(updatedLocations);
-    replenishment.setLocations(updatedLocations);
-    console.log(
-      "updated cost" +
-        replenishment.getUnitsPerColor() * replenishment.getUnitCost()
-    );
-  };
+  const handleUnitChange = (units: string, color: string, location: string) => {
+    replenishment.getLocations().get(location)!.set(color, parseFloat(units));
+    const newLocations = new Map(locations);
+    newLocations.get(location)?.set(color, parseFloat(units));
+    setLocations(newLocations);
+  }
 
   const handleDateChange = (date: string) => {
     const newDate = new Date(date);
@@ -39,7 +35,7 @@ export const ReplenishmentEditable = ({
     setCost(parseFloat(cost) || "");
     replenishment.setUnitCost(parseFloat(cost) || 0);
     console.log(
-      "updated cost" + replenishment.getUnitsPerColor() * (parseFloat(cost) | 0)
+      "updated cost: " + parseFloat(cost)
     );
   };
 
@@ -66,8 +62,8 @@ export const ReplenishmentEditable = ({
           }}
         />
       </div>
-      {Array.from(locations.keys()).map((key) => (
-        <div>
+      {Array.from(locations.keys()).map((key, index) => (
+        <div key={index}>
           <p>{key}:</p>
           <div className="grid grid-cols-2">
             {Object.entries(locations.get(key) || {}).map(
@@ -83,6 +79,7 @@ export const ReplenishmentEditable = ({
                   <input
                     type="number"
                     value={units}
+                    onChange={(event)=>{handleUnitChange(event.target.value, color, key)}}
                     placeholder="Unds."
                     className="w-12 px-1 rounded border border-neutral-900"
                   />

@@ -148,7 +148,6 @@ export class APIClient {
       item.setReplenishments(replenishments);
       items.push(item);
     });
-
     return items;
   }
 
