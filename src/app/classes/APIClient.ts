@@ -151,6 +151,34 @@ export class APIClient {
     return items;
   }
 
+  async moveItem(item: Item): Promise<boolean | null> {
+    const formData = new FormData();
+    // Convertir la ubicación a JSON y agregarla
+    const convertedLocations = this.convertMapToObject(
+      item.getReplenishments()[0].getLocations()
+    );
+    const locationJson = JSON.stringify(convertedLocations);
+    formData.append("location", locationJson);
+    
+    // Coneccion con la API
+    try {
+      const response = await fetch(`${this.baseUrl}/items/${item.getId()}/update/`, {
+        method: 'PUT',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Error en la solicitud: ${response.status} ${response.statusText}`
+        );
+      }
+      return await response.json();
+    }catch (error) {
+      console.error("Error al guardar el artículo:", error);
+      return null;
+    }
+  }
+
   async editIdMultiItem(id: number): Promise<boolean | null> {
     const formData = new FormData();
     formData.append("fk_id_multi_item", id.toString());
@@ -254,7 +282,6 @@ export class APIClient {
 
   async editItem(item: Item): Promise<boolean> {
     const itemStored = await this.fetchData(`items/${item.getId()}`);
-
     console.log(itemStored);
     return true;
   }

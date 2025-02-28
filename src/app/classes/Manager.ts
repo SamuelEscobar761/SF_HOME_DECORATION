@@ -199,4 +199,8 @@ export class Manager {
     }
     this.saveNewItem(itemToEnsure);
   }
+
+  public async moveItem(item: Item){
+    this.apiClient.moveItem(item)
+  }
 }

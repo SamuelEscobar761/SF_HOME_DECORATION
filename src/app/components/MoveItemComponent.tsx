@@ -22,6 +22,8 @@ export const MoveItemComponent = ({
   const [maxColorUnits, setMaxColorUnits] = useState<Map<string, number>>(
     new Map()
   );
+
+  //TODO Add totalUnits to frontends
   const [totalUnits, setTotalUnits] = useState<number>(0);
 
   // Maneja la selección de la localización origen
@@ -54,12 +56,17 @@ export const MoveItemComponent = ({
     }
   };
 
+  const checkColorsMoreThanZero = () => {
+    console.log(colorUnits.values());
+    return true;
+  }
+
   // Maneja la confirmación de mover a nueva localización
   const handleConfirmNewLocation = () => {
     if (
       selectedFromLocation !== "" &&
       newLocation !== "" &&
-      (unitsToMove || 0) > 0
+      checkColorsMoreThanZero()
     ) {
       colorUnits.forEach((value, key) => {
         item.move(selectedFromLocation, newLocation, key, value || 0);
@@ -97,7 +104,7 @@ export const MoveItemComponent = ({
         ? maxColorUnits
         : new Map(Object.entries(maxColorUnits));
     const maxQuantity = Number(safeMaxColorUnits.get(color) || 0);
-    if (value <= maxQuantity && value > 0) {
+    if (value <= maxQuantity && value >= 0) {
       newColorUnits.set(color, value);
     } else {
       newColorUnits.set(color, maxQuantity);

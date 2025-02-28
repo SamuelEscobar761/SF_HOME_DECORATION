@@ -162,6 +162,7 @@ export class Item {
         }
       }
     });
+    console.log(this.getReplenishments()[0].getLocations());
   }
 
   public replenish(replenishment: Replenishment): boolean {
