@@ -46,18 +46,7 @@ export const MoveItemComponent = ({
     setSelectedToLocation(e.target.value);
   };
 
-  // Maneja el cambio de unidades
-  const handleUnitsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value);
-    if (value <= maxUnits && value > 0) {
-      setUnitsToMove(value);
-    } else {
-      setUnitsToMove(""); // Asegura que el valor sea un número válido
-    }
-  };
-
   const checkColorsMoreThanZero = () => {
-    console.log(colorUnits.values());
     return true;
   }
 

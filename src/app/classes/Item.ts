@@ -143,27 +143,39 @@ export class Item {
     let remainingUnitsToMove = units;
 
     this.getReplenishments().forEach((replenishment) => {
-      const locations = replenishment.getLocations();
-      const availableUnits = locations.get(fromLocation)!.get(color) || 0;
+        const locations = replenishment.getLocations();
+        let fromLocationMap = locations.get(fromLocation);
 
-      if (availableUnits > 0) {
-        const unitsToMove = Math.min(availableUnits, remainingUnitsToMove);
-        locations.get(fromLocation)!.set(color, availableUnits - unitsToMove);
-
-        const currentLocations = locations.get(toLocation) || new Map<string, number>();
-        const currentUnitsTarget = currentLocations.get(color) || 0;
-        locations.set(toLocation, currentLocations.set(color, currentUnitsTarget + unitsToMove));
-        locations.get
-
-        remainingUnitsToMove -= unitsToMove;
-
-        if (remainingUnitsToMove <= 0) {
-          return;
+        // Comprobar y convertir si es necesario
+        if (!(fromLocationMap instanceof Map)) {
+            fromLocationMap = new Map(Object.entries(fromLocationMap!));
         }
-      }
+
+        const availableUnits = fromLocationMap.get(color) || 0;
+
+        if (availableUnits > 0) {
+            const unitsToMove = Math.min(availableUnits, remainingUnitsToMove);
+            fromLocationMap.set(color, availableUnits - unitsToMove);
+
+            let toLocationMap = locations.get(toLocation);
+            if (!(toLocationMap instanceof Map)) {
+                toLocationMap = new Map(Object.entries(toLocationMap || {}));
+            }
+            const currentUnitsTarget = toLocationMap.get(color) || 0;
+            toLocationMap.set(color, currentUnitsTarget + unitsToMove);
+
+            // Actualizar los mapas en las ubicaciones originales
+            locations.set(fromLocation, fromLocationMap);
+            locations.set(toLocation, toLocationMap);
+
+            remainingUnitsToMove -= unitsToMove;
+            if (remainingUnitsToMove <= 0) {
+                return;
+            }
+        }
     });
-    console.log(this.getReplenishments()[0].getLocations());
   }
+
 
   public replenish(replenishment: Replenishment): boolean {
     const response = Manager.getInstance().replenish(replenishment, this);
