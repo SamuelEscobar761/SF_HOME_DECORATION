@@ -152,6 +152,7 @@ export class APIClient {
   }
 
   async moveItem(item: Item): Promise<boolean | null> {
+    console.log(item.getLocations())
     const formData = new FormData();
     // Convertir la ubicación a JSON y agregarla
     const convertedLocations = this.convertMapToObject(

@@ -140,6 +140,7 @@ export class Item {
   }
 
   public move(fromLocation: string, toLocation: string, color: string, units: number): void {
+    console.log("Moving from: " +  fromLocation + " to " + toLocation + " number of units: " + units)
     let remainingUnitsToMove = units;
 
     this.getReplenishments().forEach((replenishment) => {

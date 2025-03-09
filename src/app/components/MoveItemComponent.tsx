@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import CloseIcon from "../../assets/Close-Icon.svg";
 import { Item } from "../classes/Item";
 import { ColorUnitsComponent } from "./ColorUnitsComponent";
+import { Manager } from "../classes/Manager";
 
 export const MoveItemComponent = ({
   closeMoveItem,
@@ -60,6 +61,7 @@ export const MoveItemComponent = ({
       colorUnits.forEach((value, key) => {
         item.move(selectedFromLocation, newLocation, key, value || 0);
       });
+      Manager.getInstance().moveItem(item);
     }
     closeMoveItem();
   };
@@ -69,14 +71,16 @@ export const MoveItemComponent = ({
     if (selectedToLocation === "Otro") {
       setShowConfirmation(true);
     } else {
+      console.log("moving not new location")
       if (
         selectedFromLocation !== "" &&
         selectedToLocation !== "" &&
-        (unitsToMove || 0) > 0
+        checkColorsMoreThanZero()
       ) {
         colorUnits.forEach((value, key) => {
-          item.move(selectedFromLocation, newLocation, key, value || 0);
+          item.move(selectedFromLocation, selectedToLocation, key, value || 0);
         });
+        Manager.getInstance().moveItem(item);
       }
       closeMoveItem();
     }
