@@ -62,8 +62,7 @@ export const SellPage = () => {
   useEffect(() => {
     const fetchItems = async () => {
       await Manager.getInstance().loadMoreItems();
-      const items = Manager.getInstance().getItems();
-    
+      const items = Manager.getInstance().getItems().filter(item => item.getTotalUnits() > 0);    
       const sellItems = items.map(item => {
         // Asumiendo que cada imagen tiene una propiedad 'url' y 'color'
         const images = item.getImages();
