@@ -311,6 +311,7 @@ export const InventoryPage = () => {
             <NewReplenishmentComponent
               item={replenishmentItem!}
               closeReplenishmentView={() => {
+                setItems([...Manager.getInstance().getItems()]);
                 setReplenishmentView(false);
               }}
             />

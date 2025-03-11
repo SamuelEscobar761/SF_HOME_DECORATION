@@ -178,8 +178,8 @@ export class Item {
   }
 
 
-  public replenish(replenishment: Replenishment): boolean {
-    const response = Manager.getInstance().replenish(replenishment, this);
+  public async replenish(replenishment: Replenishment): Promise<boolean> {
+    const response = await Manager.getInstance().replenish(replenishment, this);
     if (response) {
       this.getReplenishments().push(replenishment);
       return true;

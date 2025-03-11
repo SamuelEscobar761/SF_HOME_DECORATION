@@ -145,12 +145,12 @@ export class Manager {
     ) as SimpleItem[];
   }
 
-  public replenish(replenishment: Replenishment, item: Item): boolean {
-    const id = this.apiClient.replenish(replenishment, item);
+  public async replenish(replenishment: Replenishment, item: Item): Promise<boolean> {
+    const id = await this.apiClient.replenish(replenishment, item);
     if (id == null) {
       return false;
     } else {
-      replenishment.setId(id);
+      replenishment.setId(id | 0);
       return true;
     }
   }

@@ -3,6 +3,7 @@ import CloseIcon from "../../assets/Close-Icon.svg";
 import { Item } from "../classes/Item";
 import { ColorUnitsComponent } from "./ColorUnitsComponent";
 import { Manager } from "../classes/Manager";
+import {checkColorUnitsMoreThanZero} from "../services/ConfirmationsService"
 
 export const MoveItemComponent = ({
   closeMoveItem,
@@ -47,16 +48,12 @@ export const MoveItemComponent = ({
     setSelectedToLocation(e.target.value);
   };
 
-  const checkColorsMoreThanZero = () => {
-    return true;
-  }
-
   // Maneja la confirmación de mover a nueva localización
   const handleConfirmNewLocation = () => {
     if (
       selectedFromLocation !== "" &&
       newLocation !== "" &&
-      checkColorsMoreThanZero()
+      checkColorUnitsMoreThanZero(colorUnits)
     ) {
       colorUnits.forEach((value, key) => {
         item.move(selectedFromLocation, newLocation, key, value || 0);
@@ -75,7 +72,7 @@ export const MoveItemComponent = ({
       if (
         selectedFromLocation !== "" &&
         selectedToLocation !== "" &&
-        checkColorsMoreThanZero()
+        checkColorUnitsMoreThanZero(colorUnits)
       ) {
         colorUnits.forEach((value, key) => {
           item.move(selectedFromLocation, selectedToLocation, key, value || 0);

@@ -35,10 +35,10 @@ export class MultiItem extends Item {
     }
   }
 
-  public replenish(replenishment: Replenishment): boolean {
-    let response = super.replenish(replenishment);
+  public async replenish(replenishment: Replenishment): Promise<boolean> {
+    let response = await super.replenish(replenishment);
     for(const simpleItem of this.getSimpleItems()){
-      response = simpleItem.replenish(replenishment.cloneWithNewItem(simpleItem));
+      response = await simpleItem.replenish(replenishment.cloneWithNewItem(simpleItem));
     }
     return response;
   }

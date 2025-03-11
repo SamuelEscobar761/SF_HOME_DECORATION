@@ -4,6 +4,7 @@ import ReplenishmentIcon from "../../assets/Replenishment-Icon.svg";
 import { Item } from "../classes/Item";
 import { Replenishment } from "../classes/Replenishment";
 import { ColorUnitsComponent } from "./ColorUnitsComponent";
+import { checkColorUnitsMoreThanZero } from "../services/ConfirmationsService";
 
 export const NewReplenishmentComponent = ({
   item,
@@ -13,7 +14,6 @@ export const NewReplenishmentComponent = ({
   closeReplenishmentView: () => void;
 }) => {
   const [cost, setCost] = useState<string>("");
-  const [units, setUnits] = useState<string>("");
   const [storage, setStorage] = useState<string>("");
   const [unitDiscountPercentage, setUnitDiscountPercentage] =
     useState<string>("");
@@ -23,14 +23,13 @@ export const NewReplenishmentComponent = ({
   const [totalDiscount, setTotalDiscount] = useState<string>("");
   const [newLocation, setNewLocation] = useState<string>("");
   const [arriveDate, setArriveDate] = useState<Date>(new Date());
-  const [colorUnits, setColorUnits] = useState<Map<string, number>>(new Map(
-    item.getImages().map(imageColor => [imageColor.color, 0])
-  ));
+  const [colorUnits, setColorUnits] = useState<Map<string, number>>(
+    new Map(item.getImages().map((imageColor) => [imageColor.color, 0]))
+  );
 
-  const replenish = () => {
-    const unitsParsed = parseFloat(units) || 0;
+  const replenish = async () => {
     const costParsed = parseFloat(cost) || 0;
-    if (unitsParsed > 0 && storage !== "" && costParsed > 0) {
+    if (checkColorUnitsMoreThanZero(colorUnits) && storage !== "" && costParsed > 0) {
       const replenishment = new Replenishment(
         0,
         item,
@@ -39,9 +38,9 @@ export const NewReplenishmentComponent = ({
         costParsed,
         parseFloat(unitDiscount) || 0,
         parseFloat(totalDiscount) || 0,
-        new Map<string, number>([[storage, unitsParsed]])
+        new Map<string, Map<string, number>>([[storage, colorUnits]])
       );
-      item.replenish(replenishment);
+      await item.replenish(replenishment);
     }
     closeReplenishmentView();
   };
@@ -51,13 +50,13 @@ export const NewReplenishmentComponent = ({
   };
 
   const handleColorUnitChange = (
-      color: string,
-      event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-       console.log(color, event.target.value);
-       const newMap = new Map(colorUnits);
-       
-    };
+    color: string,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newMap = new Map(colorUnits);
+    newMap.set(color, parseInt(event.target.value));
+    setColorUnits(newMap);
+  };
 
   return (
     <div className="bg-neutral-300 rounded p-2 space-y-2">
@@ -86,20 +85,17 @@ export const NewReplenishmentComponent = ({
         </div>
       </div>
       <div className="p-2 bg-neutral-400 rounded space-y-2">
-        <ColorUnitsComponent colorImages={item.getImages()} colorUnits={colorUnits} handleColorUnitChange={handleColorUnitChange}/>
-        <div className="flex justify-between items-center">
-          <input
-            type="number"
-            name=""
-            id=""
-            placeholder="Unidades"
-            className="w-32 p-2 rounded"
-            value={units}
-            onChange={(e) => {
-              setUnits(e.target.value);
-            }}
-          />
-          <div id="new-replenishment-cost-container" className="flex space-x-1 ">
+        <ColorUnitsComponent
+          colorImages={item.getImages()}
+          colorUnits={colorUnits}
+          handleColorUnitChange={handleColorUnitChange}
+        />
+        <div>
+          <p>Costo Unitario:</p>
+          <div
+            id="new-replenishment-cost-container"
+            className="flex space-x-1 "
+          >
             <input
               id="new-item-cost"
               type="number"
@@ -113,6 +109,7 @@ export const NewReplenishmentComponent = ({
             <p className="p-2 bg-neutral-100 rounded">Bs</p>
           </div>
         </div>
+
         <div>
           <p>Descuento por unidad:</p>
           <div className="flex space-x-3">
@@ -187,11 +184,13 @@ export const NewReplenishmentComponent = ({
             onChange={handleToLocationChange}
           >
             <option value="">Seleccionar</option>
-            {Array.from(item.getUnitsPerLocations().keys()).map((location, index) => (
-              <option value={location} key={index}>
-                {location}
-              </option>
-            ))}
+            {Array.from(item.getUnitsPerLocations().keys()).map(
+              (location, index) => (
+                <option value={location} key={index}>
+                  {location}
+                </option>
+              )
+            )}
             <option value="Otro">Otro</option>
           </select>
         </div>
@@ -207,7 +206,7 @@ export const NewReplenishmentComponent = ({
           </>
         )}
         <p className="w-fit p-2 bg-neutral-100 rounded">
-          Total: {(parseFloat(units) * parseFloat(cost)) | 0} Bs.
+          Total: {Array.from(colorUnits.values()).reduce((sum, value) => sum + value, 0) * parseFloat(cost) | 0} Bs.
         </p>
         <div className="flex justify-between">
           <div>

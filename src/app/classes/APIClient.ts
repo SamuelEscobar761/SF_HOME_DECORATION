@@ -132,7 +132,7 @@ export class APIClient {
           const locationsMap = new Map<string, Map<string, number>>(
             Object.entries(rep.locations)
           );
-          return new Replenishment(
+          const replenishmentCreated = new Replenishment(
             rep.id,
             item,
             new Date(rep.order_date),
@@ -142,6 +142,7 @@ export class APIClient {
             rep.total_discount,
             locationsMap
           );
+          return replenishmentCreated;
         }
       );
 
@@ -315,10 +316,47 @@ export class APIClient {
     return true;
   }
 
-  public replenish(replenishment: Replenishment, item: Item): number | null {
-    replenishment;
-    return item.getReplenishments().length;
+  public async replenish(replenishment: Replenishment, item: Item): Promise<number | null> {
+    const formData = new FormData();
+    const locationsObj = this.convertMapToJson(replenishment.getLocations());
+    formData.append('locations', JSON.stringify(locationsObj));
+    formData.append('order_date', replenishment.getOrderDate().toISOString().split("T")[0]);
+    formData.append('arrival_date', replenishment.getArriveDate().toISOString().split("T")[0]);
+    formData.append('unit_cost', replenishment.getUnitCost().toString());
+    formData.append('unit_discount', replenishment.getUnitDiscount().toString());
+    formData.append('total_discount', replenishment.getTotalDiscount().toString());
+    try {
+      // Realizar la solicitud POST con el FormData
+      const response = await fetch(`${this.baseUrl}/items/${item.getId()}/replenish/`, {
+        method: "POST",
+        body: formData, // Enviar el FormData
+      });
+
+      // Verificar el estado de la respuesta
+      if (!response.ok) {
+        throw new Error(
+          `Error en la solicitud: ${response.status} ${response.statusText}`
+        );
+      }
+
+      // Procesar la respuesta
+      const resp = await response.json();
+      return resp;
+    } catch (error) {
+      console.error("Error al guardar el artículo:", error);
+      return null;
+    }
   }
+
+  private convertMapToJson(map: Map<any, any>): any {
+    const obj = Object.fromEntries(map);
+    for (const key of Object.keys(obj)) {
+        if (obj[key] instanceof Map) {
+            obj[key] = this.convertMapToJson(obj[key]);
+        }
+    }
+    return obj;
+}
 
   async loadFolders(): Promise<Folder[]> {
     return [
