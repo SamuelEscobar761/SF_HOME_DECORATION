@@ -3,6 +3,7 @@ import CloseIcon from "../../assets/Close-Icon.svg";
 import ReplenishmentIcon from "../../assets/Replenishment-Icon.svg";
 import { Item } from "../classes/Item";
 import { Replenishment } from "../classes/Replenishment";
+import { ColorUnitsComponent } from "./ColorUnitsComponent";
 
 export const NewReplenishmentComponent = ({
   item,
@@ -22,6 +23,9 @@ export const NewReplenishmentComponent = ({
   const [totalDiscount, setTotalDiscount] = useState<string>("");
   const [newLocation, setNewLocation] = useState<string>("");
   const [arriveDate, setArriveDate] = useState<Date>(new Date());
+  const [colorUnits, setColorUnits] = useState<Map<string, number>>(new Map(
+    item.getImages().map(imageColor => [imageColor.color, 0])
+  ));
 
   const replenish = () => {
     const unitsParsed = parseFloat(units) || 0;
@@ -45,6 +49,15 @@ export const NewReplenishmentComponent = ({
   const handleToLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setStorage(e.target.value);
   };
+
+  const handleColorUnitChange = (
+      color: string,
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+       console.log(color, event.target.value);
+       const newMap = new Map(colorUnits);
+       
+    };
 
   return (
     <div className="bg-neutral-300 rounded p-2 space-y-2">
@@ -73,6 +86,7 @@ export const NewReplenishmentComponent = ({
         </div>
       </div>
       <div className="p-2 bg-neutral-400 rounded space-y-2">
+        <ColorUnitsComponent colorImages={item.getImages()} colorUnits={colorUnits} handleColorUnitChange={handleColorUnitChange}/>
         <div className="flex justify-between items-center">
           <input
             type="number"
