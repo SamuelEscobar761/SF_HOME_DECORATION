@@ -152,21 +152,34 @@ export class APIClient {
   }
 
   async moveItem(item: Item): Promise<boolean | null> {
-    console.log(item.getLocations())
-    const formData = new FormData();
-    // Convertir la ubicación a JSON y agregarla
-    const convertedLocations = this.convertMapToObject(
-      item.getReplenishments()[0].getLocations()
-    );
-    const locationJson = JSON.stringify(convertedLocations);
-    formData.append("location", locationJson);
-    
-    // Coneccion con la API
+    console.log(item.getLocations());
+    const replenishments = item.getReplenishments().map((replenishment) => ({
+      id: replenishment.getId(), // Añade el ID aquí
+      order_date: replenishment.getOrderDate().toISOString().split("T")[0], // Ajusta el formato de la fecha
+      arrival_date: replenishment.getArriveDate().toISOString().split("T")[0], // Ajusta el formato de la fecha
+      unit_cost: replenishment.getUnitCost(),
+      unit_discount: replenishment.getUnitDiscount(),
+      total_discount: replenishment.getTotalDiscount(),
+      locations: this.convertMapToObject(replenishment.getLocations()),
+    }));
+
+    const body = JSON.stringify({
+      replenishments: replenishments,
+    });
+
+    console.log("El body es: " + body);
+
     try {
-      const response = await fetch(`${this.baseUrl}/items/${item.getId()}/update/`, {
-        method: 'PUT',
-        body: formData,
-      });
+      const response = await fetch(
+        `${this.baseUrl}/items/${item.getId()}/update/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: body,
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
@@ -174,7 +187,7 @@ export class APIClient {
         );
       }
       return await response.json();
-    }catch (error) {
+    } catch (error) {
       console.error("Error al guardar el artículo:", error);
       return null;
     }
