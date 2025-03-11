@@ -72,7 +72,7 @@ export const ShowItemComponent = ({
               key={index}
               src={image}
               alt={`Image ${index + 1}`}
-              className="w-full flex-shrink-0 snap-center object-cover"
+              className="w-full flex-shrink-0 snap-center object-contain"
             />
           ))}
         </div>

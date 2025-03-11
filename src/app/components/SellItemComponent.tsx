@@ -38,7 +38,7 @@ export const SellItemComponent = ({
         <div className="h-52 bg-neutral-100 rounded flex justify-center">
           <img
             src={image}
-            className="h-full flex-shrink-0 snap-center object-cover rounded"
+            className="h-full flex-shrink-0 snap-center object-contain rounded"
           />
         </div>
       </div>

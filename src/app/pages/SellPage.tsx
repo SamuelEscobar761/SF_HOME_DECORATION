@@ -68,9 +68,7 @@ export const SellPage = () => {
         // Asumiendo que cada imagen tiene una propiedad 'url' y 'color'
         const images = item.getImages();
         const colors = [...new Set(images.map(img => img.color))];
-        const units = item.getReplenishments().reduce((sum, replenishment) => {
-          return sum + Array.from(replenishment.getLocations().values()).reduce((acc, val) => acc + val, 0);
-        }, 0);
+        const units = item.getTotalUnits();
     
         return {
           id: item.getId(),
