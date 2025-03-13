@@ -3,7 +3,7 @@ import CloseIcon from "../../assets/Close-Icon.svg";
 import { Item } from "../classes/Item";
 import { ColorUnitsComponent } from "./ColorUnitsComponent";
 import { Manager } from "../classes/Manager";
-import {checkColorUnitsMoreThanZero} from "../services/ConfirmationsService"
+import { checkColorUnitsMoreThanZero } from "../services/ConfirmationsService";
 
 export const MoveItemComponent = ({
   closeMoveItem,
@@ -13,8 +13,6 @@ export const MoveItemComponent = ({
   item: Item;
 }) => {
   const [selectedFromLocation, setSelectedFromLocation] = useState("");
-  const [maxUnits, setMaxUnits] = useState(0);
-  const [unitsToMove, setUnitsToMove] = useState<number | "">(0); // Aseguramos que siempre tenga un valor
   const [selectedToLocation, setSelectedToLocation] = useState("");
   const [newLocation, setNewLocation] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -32,14 +30,14 @@ export const MoveItemComponent = ({
   const handleFromLocationChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
+    console.log(item.getLocations())
     const location = item.getLocations().get(e.target.value);
     if (location) {
       setSelectedFromLocation(e.target.value);
       setMaxColorUnits(location);
-      setUnitsToMove(""); // Reinicia el input cuando se selecciona una nueva localización
     } else {
       setSelectedFromLocation("");
-      setMaxUnits(0);
+      setMaxColorUnits(new Map());
     }
   };
 
@@ -68,7 +66,6 @@ export const MoveItemComponent = ({
     if (selectedToLocation === "Otro") {
       setShowConfirmation(true);
     } else {
-      console.log("moving not new location")
       if (
         selectedFromLocation !== "" &&
         selectedToLocation !== "" &&
@@ -196,7 +193,7 @@ export const MoveItemComponent = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-neutral-100 p-4 rounded shadow-lg text-center">
             <p>
-              ¿Estás seguro que quieres mover {unitsToMove} items a la nueva
+              ¿Estás seguro que quieres mover items a la nueva
               localización: "{newLocation}"?
             </p>
             <button

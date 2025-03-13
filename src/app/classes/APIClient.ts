@@ -168,8 +168,6 @@ export class APIClient {
       replenishments: replenishments,
     });
 
-    console.log("El body es: " + body);
-
     try {
       const response = await fetch(
         `${this.baseUrl}/items/${item.getId()}/update/`,

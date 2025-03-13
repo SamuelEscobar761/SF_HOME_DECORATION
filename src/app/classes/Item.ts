@@ -108,24 +108,28 @@ export class Item {
 
   public getLocations(): Map<string, Map<string, number>> {
     const allLocations = new Map<string, Map<string, number>>();
-  
     // Iterar sobre cada reposición para acceder a sus ubicaciones.
-    this.getReplenishments().forEach(replenishment => {
-      replenishment.getLocations().forEach((innerMap, location) => {
-        // Verificar si ya existe el mapa para esa ubicación.
+    this.getReplenishments().forEach((replenishment) => {
+      replenishment.getLocations().forEach((colorUnits, location) => {
+        if (!(colorUnits instanceof Map)) {
+          colorUnits = new Map(Object.entries(colorUnits!));
+        }
+        // Verificar si ya existe la ubicación en allLocations.
         if (!allLocations.has(location)) {
-          allLocations.set(location, innerMap);
+          allLocations.set(location, colorUnits);
         } else {
-          // Si ya existe, actualizar las cantidades.
-          const existingMap = allLocations.get(location) || new Map();
-          innerMap.forEach((quantity, item) => {
-            const existingQuantity = existingMap.get(item) || 0;
-            existingMap.set(item, existingQuantity + quantity);
-          });
+          colorUnits.forEach((quantity, color) =>{
+            // Verificar si ya existe el color en esa ubicación en allLocations
+            if (!allLocations.get(location)!.has(color)){
+              allLocations.get(location)!.set(color, quantity);
+            }else{
+              allLocations.get(location)!.set(color, allLocations.get(location)!.get(color)! + quantity)
+            }
+          })
         }
       });
     });
-  
+
     return allLocations;
   }
 
@@ -139,44 +143,59 @@ export class Item {
     return allLocations;
   }
 
-  public move(fromLocation: string, toLocation: string, color: string, units: number): void {
-    console.log("Moving from: " +  fromLocation + " to " + toLocation + " number of units: " + units)
+  public move(
+    fromLocation: string,
+    toLocation: string,
+    color: string,
+    units: number
+  ): void {
+    console.log(
+      "Moving from: " +
+        fromLocation +
+        " to " +
+        toLocation +
+        " number of units: " +
+        units
+    );
     let remainingUnitsToMove = units;
 
     this.getReplenishments().forEach((replenishment) => {
-        const locations = replenishment.getLocations();
-        let fromLocationMap = locations.get(fromLocation);
+      console.log("Before:");
+      console.log(replenishment.getLocations());
+      const locations = replenishment.getLocations();
+      let fromLocationMap = locations.get(fromLocation);
 
-        // Comprobar y convertir si es necesario
-        if (!(fromLocationMap instanceof Map)) {
-            fromLocationMap = new Map(Object.entries(fromLocationMap!));
+      // Comprobar y convertir si es necesario
+      if (!(fromLocationMap instanceof Map)) {
+        fromLocationMap = new Map(Object.entries(fromLocationMap!));
+      }
+
+      const availableUnits = fromLocationMap.get(color) || 0;
+
+      if (availableUnits > 0) {
+        const unitsToMove = Math.min(availableUnits, remainingUnitsToMove);
+        fromLocationMap.set(color, availableUnits - unitsToMove);
+
+        let toLocationMap = locations.get(toLocation);
+        if (!(toLocationMap instanceof Map)) {
+          toLocationMap = new Map(Object.entries(toLocationMap || {}));
         }
+        const currentUnitsTarget = toLocationMap.get(color) || 0;
+        toLocationMap.set(color, currentUnitsTarget + unitsToMove);
 
-        const availableUnits = fromLocationMap.get(color) || 0;
+        // Actualizar los mapas en las ubicaciones originales
+        locations.set(fromLocation, fromLocationMap);
+        locations.set(toLocation, toLocationMap);
 
-        if (availableUnits > 0) {
-            const unitsToMove = Math.min(availableUnits, remainingUnitsToMove);
-            fromLocationMap.set(color, availableUnits - unitsToMove);
-
-            let toLocationMap = locations.get(toLocation);
-            if (!(toLocationMap instanceof Map)) {
-                toLocationMap = new Map(Object.entries(toLocationMap || {}));
-            }
-            const currentUnitsTarget = toLocationMap.get(color) || 0;
-            toLocationMap.set(color, currentUnitsTarget + unitsToMove);
-
-            // Actualizar los mapas en las ubicaciones originales
-            locations.set(fromLocation, fromLocationMap);
-            locations.set(toLocation, toLocationMap);
-
-            remainingUnitsToMove -= unitsToMove;
-            if (remainingUnitsToMove <= 0) {
-                return;
-            }
+        remainingUnitsToMove -= unitsToMove;
+        if (remainingUnitsToMove <= 0) {
+          return;
         }
+      }
+      console.log("After:");
+      console.log(replenishment.getLocations());
     });
   }
-
 
   public async replenish(replenishment: Replenishment): Promise<boolean> {
     const response = await Manager.getInstance().replenish(replenishment, this);
@@ -209,19 +228,17 @@ export class Item {
     let units = 0;
     this.getReplenishments().forEach((replenishment) => {
       units += replenishment.getTotalUnits();
-    })
+    });
     return units;
   }
 
   public getColorUnits(): Map<string, number> {
     const totalColorUnits = new Map<string, number>();
     this.getReplenishments().forEach((replenishment) => {
-      replenishment.getUnitsPerColor().forEach((value, key) =>{
-        totalColorUnits.set(key, (totalColorUnits.get(key) || 0) + value)
-      })
+      replenishment.getUnitsPerColor().forEach((value, key) => {
+        totalColorUnits.set(key, (totalColorUnits.get(key) || 0) + value);
+      });
     });
     return totalColorUnits;
   }
-
-  
 }
