@@ -321,13 +321,14 @@ export class APIClient {
     // ✅ Procesar replenishments (incluyendo locations)
     const replenishmentsData = item.getReplenishments().map((rep) => ({
       id: rep.getId(), // puede ser undefined si es nuevo
-      order_date: rep.getOrderDate().toISOString().split("T")[0],
-      arrival_date: rep.getArriveDate().toISOString().split("T")[0],
+      order_date: rep.getOrderDate().toISOString(),
+      arrival_date: rep.getArriveDate().toISOString(),
       unit_cost: rep.getUnitCost(),
       unit_discount: rep.getUnitDiscount(),
       total_discount: rep.getTotalDiscount(),
       locations: this.convertMapToObject(rep.getLocations()),
     }));
+    console.log("🚀 Enviando replenishments:", JSON.stringify(replenishmentsData));
     formData.append("replenishments", JSON.stringify(replenishmentsData));
 
     // ✅ Procesar imágenes y colores

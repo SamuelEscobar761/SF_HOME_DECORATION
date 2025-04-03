@@ -248,6 +248,8 @@ export class Item {
       [...totalColorUnits.entries()].sort((a, b) => b[1] - a[1])
     );
 
+    console.log(sortedColorUnits);
+
     return sortedColorUnits;
   }
 }

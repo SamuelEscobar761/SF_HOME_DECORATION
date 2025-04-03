@@ -235,6 +235,7 @@ export class Item {
   }
 
   public getColorUnits(): Map<string, number> {
+    console.log(this.replenishments)
     const totalColorUnits = new Map<string, number>();
 
     this.getReplenishments().forEach((replenishment) => {

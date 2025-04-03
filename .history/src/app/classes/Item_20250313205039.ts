@@ -236,18 +236,11 @@ export class Item {
 
   public getColorUnits(): Map<string, number> {
     const totalColorUnits = new Map<string, number>();
-
     this.getReplenishments().forEach((replenishment) => {
       replenishment.getUnitsPerColor().forEach((value, key) => {
         totalColorUnits.set(key, (totalColorUnits.get(key) || 0) + value);
       });
     });
-
-    // Ordenar por valor de forma descendente
-    const sortedColorUnits = new Map(
-      [...totalColorUnits.entries()].sort((a, b) => b[1] - a[1])
-    );
-
-    return sortedColorUnits;
+    return totalColorUnits;
   }
 }

@@ -23,7 +23,7 @@ export const ReplenishmentEditable = ({
     const newLocations = new Map(locations);
     newLocations.get(location)?.set(color, parseFloat(units));
     setLocations(newLocations);
-  };
+  }
 
   const handleDateChange = (date: string) => {
     const newDate = new Date(date);
@@ -34,7 +34,9 @@ export const ReplenishmentEditable = ({
   const handleCostChange = (cost: string) => {
     setCost(parseFloat(cost) || "");
     replenishment.setUnitCost(parseFloat(cost) || 0);
-    console.log("updated cost: " + parseFloat(cost));
+    console.log(
+      "updated cost: " + parseFloat(cost)
+    );
   };
 
   const handleUnitDiscountChange = (unitDiscount: string) => {
@@ -63,23 +65,23 @@ export const ReplenishmentEditable = ({
       {Array.from(locations.keys()).map((key, index) => (
         <div key={index}>
           <p>{key}:</p>
-          <div className="grid grid-cols-2 gap-2">
-          {[...(locations.get(key) || new Map())].map(
+          <div className="grid grid-cols-2">
+            {Object.entries(locations.get(key) || {}).map(
               ([color, units], index) => (
+                
                 <div
                   key={`${key}-${color}-${index}`}
                   className="flex space-x-2 items-center"
                 >
+                  <script>console.log({key})</script>
                   <div
                     className="size-8 border border-neutral-900"
                     style={{ background: color }}
                   ></div>
                   <input
                     type="number"
-                    value={typeof units === "number" && !isNaN(units) ? units : ""}
-                    onChange={(event) => {
-                      handleUnitChange(event.target.value, color, key);
-                    }}
+                    value={units}
+                    onChange={(event)=>{handleUnitChange(event.target.value, color, key)}}
                     placeholder="Unds."
                     className="w-12 px-1 rounded border border-neutral-900"
                   />

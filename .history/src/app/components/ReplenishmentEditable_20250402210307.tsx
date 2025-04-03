@@ -60,11 +60,16 @@ export const ReplenishmentEditable = ({
           }}
         />
       </div>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `console.log(${JSON.stringify({ locations })});`,
+        }}
+      />
       {Array.from(locations.keys()).map((key, index) => (
         <div key={index}>
           <p>{key}:</p>
-          <div className="grid grid-cols-2 gap-2">
-          {[...(locations.get(key) || new Map())].map(
+          <div className="grid grid-cols-2">
+            {Object.entries(locations.get(key) || {}).map(
               ([color, units], index) => (
                 <div
                   key={`${key}-${color}-${index}`}
@@ -76,7 +81,7 @@ export const ReplenishmentEditable = ({
                   ></div>
                   <input
                     type="number"
-                    value={typeof units === "number" && !isNaN(units) ? units : ""}
+                    value={units}
                     onChange={(event) => {
                       handleUnitChange(event.target.value, color, key);
                     }}

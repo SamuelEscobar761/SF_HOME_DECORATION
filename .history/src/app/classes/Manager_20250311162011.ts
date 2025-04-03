@@ -66,7 +66,7 @@ export class Manager {
 
   public async editItem(item: Item): Promise<boolean> {
     try {
-      const answer = await this.apiClient.updateItem(item);
+      const answer = await this.apiClient.editItem(item);
       return answer;
     } catch (error) {
       console.log(error);

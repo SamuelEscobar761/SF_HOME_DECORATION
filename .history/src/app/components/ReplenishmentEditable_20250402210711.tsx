@@ -47,6 +47,8 @@ export const ReplenishmentEditable = ({
     replenishment.setTotalDiscount(parseFloat(totalDiscount) || 0);
   };
 
+  console.log(Object.entries(locations.get('Almacén')!))
+
   return (
     <div className="flex flex-col space-y-2 p-2">
       <div className="flex justify-between">
@@ -63,8 +65,8 @@ export const ReplenishmentEditable = ({
       {Array.from(locations.keys()).map((key, index) => (
         <div key={index}>
           <p>{key}:</p>
-          <div className="grid grid-cols-2 gap-2">
-          {[...(locations.get(key) || new Map())].map(
+          <div className="grid grid-cols-2">
+            {Object.entries(locations.get(key) || {}).map(
               ([color, units], index) => (
                 <div
                   key={`${key}-${color}-${index}`}
@@ -76,7 +78,7 @@ export const ReplenishmentEditable = ({
                   ></div>
                   <input
                     type="number"
-                    value={typeof units === "number" && !isNaN(units) ? units : ""}
+                    value={units}
                     onChange={(event) => {
                       handleUnitChange(event.target.value, color, key);
                     }}

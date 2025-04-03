@@ -49,6 +49,8 @@ export class APIClient {
     data: any,
     options: RequestInit = {}
   ): Promise<any> {
+    console.log("con json");
+    console.log(JSON.stringify(data));
     const defaultOptions = {
       method: "POST",
       body: data instanceof FormData ? data : JSON.stringify(data),
@@ -156,6 +158,7 @@ export class APIClient {
   }
 
   async moveItem(item: Item): Promise<boolean | null> {
+    console.log(item.getLocations());
     const replenishments = item.getReplenishments().map((replenishment) => ({
       id: replenishment.getId(), // Añade el ID aquí
       order_date: replenishment.getOrderDate().toISOString().split("T")[0], // Ajusta el formato de la fecha
@@ -321,8 +324,8 @@ export class APIClient {
     // ✅ Procesar replenishments (incluyendo locations)
     const replenishmentsData = item.getReplenishments().map((rep) => ({
       id: rep.getId(), // puede ser undefined si es nuevo
-      order_date: rep.getOrderDate().toISOString().split("T")[0],
-      arrival_date: rep.getArriveDate().toISOString().split("T")[0],
+      order_date: rep.getOrderDate().toISOString(),
+      arrival_date: rep.getArriveDate().toISOString(),
       unit_cost: rep.getUnitCost(),
       unit_discount: rep.getUnitDiscount(),
       total_discount: rep.getTotalDiscount(),

@@ -328,6 +328,7 @@ export class APIClient {
       total_discount: rep.getTotalDiscount(),
       locations: this.convertMapToObject(rep.getLocations()),
     }));
+    console.log("🚀 Enviando replenishments:", JSON.stringify(replenishmentsData));
     formData.append("replenishments", JSON.stringify(replenishmentsData));
 
     // ✅ Procesar imágenes y colores

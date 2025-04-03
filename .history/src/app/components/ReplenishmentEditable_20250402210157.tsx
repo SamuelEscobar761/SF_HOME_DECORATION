@@ -63,20 +63,25 @@ export const ReplenishmentEditable = ({
       {Array.from(locations.keys()).map((key, index) => (
         <div key={index}>
           <p>{key}:</p>
-          <div className="grid grid-cols-2 gap-2">
-          {[...(locations.get(key) || new Map())].map(
+          <div className="grid grid-cols-2">
+            {Object.entries(locations.get(key) || {}).map(
               ([color, units], index) => (
                 <div
                   key={`${key}-${color}-${index}`}
                   className="flex space-x-2 items-center"
                 >
+                  <script
+                    dangerouslySetInnerHTML={{
+                      __html: `console.log(${JSON.stringify({ key })});`,
+                    }}
+                  />
                   <div
                     className="size-8 border border-neutral-900"
                     style={{ background: color }}
                   ></div>
                   <input
                     type="number"
-                    value={typeof units === "number" && !isNaN(units) ? units : ""}
+                    value={units}
                     onChange={(event) => {
                       handleUnitChange(event.target.value, color, key);
                     }}

@@ -76,7 +76,7 @@ export const ReplenishmentEditable = ({
                   ></div>
                   <input
                     type="number"
-                    value={typeof units === "number" && !isNaN(units) ? units : ""}
+                    value={units}
                     onChange={(event) => {
                       handleUnitChange(event.target.value, color, key);
                     }}

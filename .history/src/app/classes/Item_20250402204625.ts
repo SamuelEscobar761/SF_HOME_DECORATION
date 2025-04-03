@@ -235,6 +235,7 @@ export class Item {
   }
 
   public getColorUnits(): Map<string, number> {
+    console.log(this.replenishments)
     const totalColorUnits = new Map<string, number>();
 
     this.getReplenishments().forEach((replenishment) => {
@@ -247,6 +248,8 @@ export class Item {
     const sortedColorUnits = new Map(
       [...totalColorUnits.entries()].sort((a, b) => b[1] - a[1])
     );
+
+    console.log(sortedColorUnits
 
     return sortedColorUnits;
   }

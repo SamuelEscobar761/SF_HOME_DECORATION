@@ -49,6 +49,8 @@ export class APIClient {
     data: any,
     options: RequestInit = {}
   ): Promise<any> {
+    console.log("con json");
+    console.log(JSON.stringify(data));
     const defaultOptions = {
       method: "POST",
       body: data instanceof FormData ? data : JSON.stringify(data),
@@ -130,9 +132,7 @@ export class APIClient {
           const locationsMap = new Map<string, Map<string, number>>(
             Object.entries(rep.locations).map(([location, colors]) => [
               location,
-              new Map<string, number>(
-                Object.entries(colors as Record<string, number>)
-              ),
+              new Map<string, number>(Object.entries(colors)),
             ])
           );
 
@@ -156,6 +156,7 @@ export class APIClient {
   }
 
   async moveItem(item: Item): Promise<boolean | null> {
+    console.log(item.getLocations());
     const replenishments = item.getReplenishments().map((replenishment) => ({
       id: replenishment.getId(), // Añade el ID aquí
       order_date: replenishment.getOrderDate().toISOString().split("T")[0], // Ajusta el formato de la fecha
@@ -295,73 +296,10 @@ export class APIClient {
     }
   }
 
-  async updateItem(item: Item): Promise<any> {
-    const formData = new FormData();
-
-    // Si es un SimpleItem con multiItem, agregalo
-    if (item instanceof SimpleItem && item.getMultiItem()?.getId()) {
-      formData.append(
-        "fk_id_multi_item",
-        item.getMultiItem()!.getId().toString()
-      );
-    }
-
-    formData.append("name", item.getName());
-    formData.append("fk_id_provider", "1");
-    formData.append("room", item.getRoom());
-    formData.append("material", item.getMaterial());
-    formData.append("price", item.getPrice().toString());
-    formData.append("description", "");
-
-    const firstRep = item.getReplenishments()[0];
-    formData.append("unit_cost", firstRep.getUnitCost().toString());
-    formData.append("unit_discount", firstRep.getUnitDiscount().toString());
-    formData.append("total_discount", firstRep.getTotalDiscount().toString());
-
-    // ✅ Procesar replenishments (incluyendo locations)
-    const replenishmentsData = item.getReplenishments().map((rep) => ({
-      id: rep.getId(), // puede ser undefined si es nuevo
-      order_date: rep.getOrderDate().toISOString().split("T")[0],
-      arrival_date: rep.getArriveDate().toISOString().split("T")[0],
-      unit_cost: rep.getUnitCost(),
-      unit_discount: rep.getUnitDiscount(),
-      total_discount: rep.getTotalDiscount(),
-      locations: this.convertMapToObject(rep.getLocations()),
-    }));
-    formData.append("replenishments", JSON.stringify(replenishmentsData));
-
-    // ✅ Procesar imágenes y colores
-    const images = await Promise.all(
-      item
-        .getImages()
-        .map(async (ci) =>
-          ci.image
-            ? ci.image
-            : await this.urlToFile(ci.url!, `${item.getId()}.jpg`)
-        )
-    );
-    const colors = item.getImages().map((ci) => ci.color);
-
-    images.forEach((image, index) => {
-      formData.append("images", image);
-      formData.append("colors", colors[index]);
-    });
-
-    try {
-      const response = await fetch(`${this.baseUrl}/items/${item.getId()}/update/`, {
-        method: "PUT",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error en la solicitud: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Error al actualizar el item:", error);
-      return null;
-    }
+  async editItem(item: Item): Promise<boolean> {
+    const itemStored = await this.fetchData(`items/${item.getId()}`);
+    console.log(itemStored);
+    return true;
   }
 
   async deleteItem(item: Item): Promise<any> {
