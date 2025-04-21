@@ -1,4 +1,5 @@
 import { Item } from "./Item";
+import { Manager } from "./Manager";
 
 export class Provider {
   private id: number;
@@ -114,5 +115,9 @@ export class Provider {
 
   public setId(id: number): void {
     this.id = id;
+  }
+
+  async update(imageFile: File | null): Promise<boolean> {
+    return Manager.getInstance().updateProvider(this, imageFile);
   }
 }

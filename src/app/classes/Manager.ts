@@ -239,4 +239,30 @@ export class Manager {
       );
     }
   }
+
+  public async updateProvider(
+    provider: Provider,
+    imageFile: File | null
+  ): Promise<boolean> {
+    try {
+      if (imageFile) {
+        provider.setImage(URL.createObjectURL(imageFile));
+      }
+
+      // 1) Delegamos al APIClient
+      const success = await this.apiClient.updateProvider(provider, imageFile);
+
+      // 2) Si fue exitoso, reemplazamos en nuestro array interno
+      if (success) {
+        this.providers = this.providers.map((p) =>
+          p.getId() === provider.getId() ? provider : p
+        );
+      }
+
+      return success;
+    } catch (error) {
+      console.error("Error en Manager.updateProvider:", error);
+      return false;
+    }
+  }
 }

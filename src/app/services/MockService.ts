@@ -13,7 +13,8 @@ export const mockedProviders: Provider[] = [
     "912345678",
     "maria.gonzalez@tapizpacifico.cl",
     "Av. Providencia 1234, Santiago",
-    "76543210"
+    "76543210",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYk0y5ErS0OpznJCynbaV7ogUB9svJmPFcJg&s",
   ),
   new Provider(
     2,
@@ -24,18 +25,20 @@ export const mockedProviders: Provider[] = [
     "913456789",
     "javier.perez@decorhome.cl",
     "Calle Condell 56, Valparaíso",
-    "76543211"
+    "76543211",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBobeUUbiwP9HY4Bp-pWC53g2_XOz_tjBTsg&s",
   ),
   new Provider(
     3,
-    "Fundas y Más",
+    "TodoHogar",
     [],
     "Camila",
     "Rojas",
     "914567890",
     "camila.rojas@fundasymas.cl",
     "Av. O'Higgins 789, Rancagua",
-    "76543212"
+    "76543212",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQejUvf2B6StIMs5Wl_R5dGqIfd36NwtP-hfw&s",
   ),
   new Provider(
     4,
@@ -46,18 +49,20 @@ export const mockedProviders: Provider[] = [
     "915678901",
     "andres.martinez@estilohogar.cl",
     "Calle Colón 321, Concepción",
-    "76543213"
+    "76543213",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvVowsPEOQ7kCjTvUZEN7-URzifhrT15r5QQ&s",
   ),
   new Provider(
     5,
-    "Ambientes Únicos",
+    "El Container",
     [],
     "Lorena",
     "Vargas",
     "916789012",
     "lorena.vargas@ambientesunicos.cl",
     "Av. Libertad 210, La Serena",
-    "76543214"
+    "76543214",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSConsCTCsQjsjbGA2rvVerpfDwSdqRsuJZ2A&s",
   ),
 ];
 

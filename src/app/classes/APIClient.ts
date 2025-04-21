@@ -1,5 +1,9 @@
 import { Folder } from "../interfaces/Folder";
-import { mockedAllUserAuthorizations, mockedProviders, mockedUsers } from "../services/MockService";
+import {
+  mockedAllUserAuthorizations,
+  mockedProviders,
+  mockedUsers,
+} from "../services/MockService";
 import { Item } from "./Item";
 import { Manager } from "./Manager";
 import { MultiItem } from "./MultiItem";
@@ -514,21 +518,33 @@ export class APIClient {
 
   async getAllAuthorizations(): Promise<UserAuthorization[]> {
     console.log("These authorizations are being mocked");
-    try{
+    try {
       return await mockedAllUserAuthorizations;
-    }catch (e) {
+    } catch (e) {
       console.error("Error getting authorizations", e);
       throw new Error("Error getting authorizations");
     }
   }
 
   async updateUser(selectedUser: User): Promise<boolean> {
-    try{
-      console.log("We need to implement the method to update the user", selectedUser);
+    try {
+      console.log(
+        "We need to implement the method to update the user",
+        selectedUser
+      );
       return true;
-    }catch(e){
+    } catch (e) {
       console.error("Error actualzando el usuario", e);
       return false;
     }
+  }
+
+  async updateProvider(
+    provider: Provider,
+    imageFile: File | null
+  ): Promise<boolean> {
+    // Por ahora simulamos siempre true; cuando tengas backend,
+    // aquí enviarás el FormData al endpoint real.
+    return true;
   }
 }

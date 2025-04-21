@@ -1,81 +1,91 @@
-import { useEffect, useState } from "react";
+// pages/providers/ProvidersPage.tsx
+import { useEffect, useState, useCallback } from "react";
 import { ProviderCardComponent } from "../../components/ProviderCardComponent";
-import { OptionsButtonComponent } from "../../components/OptionsButtonComponent";
 import { Manager } from "../../classes/Manager";
 import { Provider } from "../../classes/Provider";
+import { ProviderEditModal } from "./components/ProviderEditModal";
 
 export const ProvidersPage = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [optionsIsOpen, setOptionsIsOpen] = useState<boolean>(false);
-  const [filtredProviders, setFiltredProviders] = useState<Provider[]>([]);
+  const [filtered, setFiltered] = useState<Provider[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [current, setCurrent] = useState<Provider | null>(null);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toLowerCase(); // Pasamos el valor a minúsculas
-    setSearchTerm(value);
-
-    // Filtramos solo si hay items disponibles
-    if (providers.length > 0) {
-      const filtered = providers.filter(
-        (providers) =>
-          providers.getName().toLowerCase().includes(value) ||
-          providers.getContactName().toLowerCase().includes(value)||
-          providers.getContactLastname().toLowerCase().includes(value)
-      );
-      setFiltredProviders(filtered);
-    }
-  };
-
-
-  useEffect(()=>{
-    const loadProviders = async () =>{
-      const providers = await Manager.getInstance().loadProviders();
-      setProviders(providers);
-      setFiltredProviders(providers);
-    }
-    loadProviders();
+  useEffect(() => {
+    (async () => {
+      const list = await Manager.getInstance().loadProviders();
+      setProviders(list);
+      setFiltered(list);
+    })();
   }, []);
 
-  
+  const doFilter = useCallback(
+    (term: string) => {
+      setFiltered(
+        providers.filter((p) =>
+          [p.getName(), p.getContactName(), p.getContactLastname()].some((f) =>
+            f.toLowerCase().includes(term)
+          )
+        )
+      );
+    },
+    [providers]
+  );
+
+  const onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const t = e.target.value.toLowerCase();
+    setSearchTerm(t);
+    doFilter(t);
+  };
+
+  const openModal = (p: Provider) => {
+    setCurrent(p);
+    setModalOpen(true);
+  };
+  const closeModal = () => setModalOpen(false);
+
+  // tras guardar, recarga lista
+  const onSaved = async () => {
+    const list = await Manager.getInstance().loadProviders();
+    setProviders(list);
+    doFilter(searchTerm);
+  };
+
   return (
-    <div id="provider-page" className="min-h-screen p-2 space-y-4">
-      <div id="provider-page-top-buttons" className="flex justify-between">
-        <div id="search-bar">
-          <input
-            type="text"
-            placeholder="Buscar"
-            value={searchTerm}
-            onChange={handleSearch}
-            className="rounded-full py-1 px-2 text-base border border-neutral-900"
+    <div className="min-h-screen p-4 space-y-4">
+      <div className="flex justify-center">
+        <input
+          type="text"
+          placeholder="Buscar proveedores..."
+          value={searchTerm}
+          onChange={onSearch}
+          className="border rounded-full px-3 py-2 w-full max-w-md focus:outline-none focus:ring"
+        />
+      </div>
+      <div className="space-y-2">
+        {filtered.map((p) => (
+          <ProviderCardComponent
+            key={p.getId()}
+            provider={p}
+            onClick={() => openModal(p)}
           />
-        </div>
-        {/* <div id="options-button">
-          <button
-            onClick={() => setOptionsIsOpen(!optionsIsOpen)}
-            className="flex flex-col justify-center items-center w-8 h-8 bg-transparent rounded focus:outline-none"
-          >
-            <span className="block w-1 h-1 bg-black rounded-full mb-1"></span>
-            <span className="block w-1 h-1 bg-black rounded-full mb-1"></span>
-            <span className="block w-1 h-1 bg-black rounded-full"></span>
-          </button>
-        </div> */}
-        {optionsIsOpen && (
-          <div
-            id="inventory-page-options-container"
-            className="fixed w-screen h-screen z-40"
-            onClick={() => {
-              setOptionsIsOpen(false);
-            }}
-          >
-            <OptionsButtonComponent settings={[]} />
-          </div>
+        ))}
+        {filtered.length === 0 && (
+          <p className="text-center text-gray-500">Sin proveedores.</p>
         )}
       </div>
-      <div id="providers-cards-container" className="space-y-2">
-        {filtredProviders.map((provider, index) => (
-          <ProviderCardComponent key={index} provider={provider}/>
-        ))}
-      </div>
+
+      {current && (
+        <div className="top-0 left-0 inset-2 -">
+          <ProviderEditModal
+            provider={current}
+            isOpen={modalOpen}
+            onClose={closeModal}
+            onSaved={onSaved}
+          />
+        </div>
+      )}
     </div>
   );
 };
