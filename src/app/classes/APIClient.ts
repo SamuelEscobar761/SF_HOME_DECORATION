@@ -383,10 +383,11 @@ export class APIClient {
     }
   }
 
-  async saveNewProvider(name: string): Promise<boolean> {
+  async saveNewProvider(name: string): Promise<Provider> {
     name;
+    const id = Math.floor(Math.random() * 100000);
     //save new provider with empty data, only name on DB
-    return true;
+    return new Provider(id, name);
   }
 
   public async replenish(
@@ -543,6 +544,7 @@ export class APIClient {
     provider: Provider,
     imageFile: File | null
   ): Promise<boolean> {
+    console.log(provider, imageFile);
     // Por ahora simulamos siempre true; cuando tengas backend,
     // aquí enviarás el FormData al endpoint real.
     return true;

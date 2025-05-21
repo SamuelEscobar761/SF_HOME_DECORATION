@@ -14,7 +14,9 @@ export const UsersPage = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [allAuths, setAllAuths] = useState<UserAuthorization[]>([]);
   const [authStates, setAuthStates] = useState<Record<number, boolean>>({});
+  const [isCreate, setIsCreate] = useState(false);
 
+  // Load users and authorizations
   useEffect(() => {
     (async () => {
       const loaded = await Manager.getInstance().loadUsers();
@@ -25,6 +27,7 @@ export const UsersPage = () => {
     })();
   }, []);
 
+  // Filter on search term
   useEffect(() => {
     const term = searchTerm.toLowerCase().trim();
     setFilteredUsers(
@@ -38,7 +41,9 @@ export const UsersPage = () => {
     );
   }, [searchTerm, users]);
 
+  // Open modal to edit existing user
   const openModal = (user: User) => {
+    setIsCreate(false);
     setSelectedUser(user);
     const initStates: Record<number, boolean> = {};
     allAuths.forEach((auth) => {
@@ -47,6 +52,16 @@ export const UsersPage = () => {
         .some((ua) => ua.getId() === auth.getId() && ua.isAccess());
     });
     setAuthStates(initStates);
+    setModalOpen(true);
+  };
+
+  // Open modal to create a new user
+  const openCreateModal = () => {
+    setIsCreate(true);
+    // initialize a blank User; adjust constructor arguments as needed
+    const blank = new User(0, "", "", "", "", []);
+    setSelectedUser(blank);
+    setAuthStates({});
     setModalOpen(true);
   };
 
@@ -75,7 +90,7 @@ export const UsersPage = () => {
         selectedUser.setPhone(value);
         break;
     }
-    // trigger re-render
+    // Trigger re-render
     setSelectedUser(
       Object.assign(
         Object.create(Object.getPrototypeOf(selectedUser)),
@@ -86,22 +101,47 @@ export const UsersPage = () => {
 
   const handleSave = async () => {
     if (!selectedUser) return;
-    const updatedAuths = allAuths.map(
-      (auth) =>
-        new UserAuthorization(
-          auth.getId(),
-          auth.getName(),
-          authStates[auth.getId()]
-        )
-    );
-    selectedUser.setAuthorizations(updatedAuths);
-    await Manager.getInstance().updateUser(selectedUser);
+    if (isCreate) {
+      // Create new user
+      await Manager.getInstance().createUser(selectedUser);
+    } else {
+      // Update authorizations then user
+      const updatedAuths = allAuths.map(
+        (auth) =>
+          new UserAuthorization(
+            auth.getId(),
+            auth.getName(),
+            authStates[auth.getId()]
+          )
+      );
+      selectedUser.setAuthorizations(updatedAuths);
+      await Manager.getInstance().updateUser(selectedUser);
+    }
+    // Refresh list
+    const reloaded = await Manager.getInstance().loadUsers();
+    setUsers(reloaded);
+    setFilteredUsers(reloaded);
     closeModal();
+  };
+
+  const handleDelete = async () => {
+    if (!selectedUser) return;
+    await Manager.getInstance().deleteUser(selectedUser.getId());
+    const reloaded = await Manager.getInstance().loadUsers();
+    setUsers(reloaded);
+    setFilteredUsers(reloaded);
+    closeModal();
+  };
+
+  const handleResetPassword = async () => {
+    if (!selectedUser) return;
+    await Manager.getInstance().resetPassword(selectedUser.getId());
+    // You may want to show a toast or alert here
   };
 
   return (
     <div className="min-h-screen p-4 space-y-4">
-      <div className="flex justify-center">
+      <div className="flex justify-center space-x-2">
         <input
           type="text"
           placeholder="Buscar..."
@@ -109,6 +149,12 @@ export const UsersPage = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border rounded-full px-3 py-2 w-full max-w-md focus:outline-none focus:ring"
         />
+        <button
+          onClick={openCreateModal}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Nuevo usuario
+        </button>
       </div>
 
       {filteredUsers.length > 0 ? (
@@ -124,17 +170,18 @@ export const UsersPage = () => {
       )}
 
       {modalOpen && selectedUser && (
-        <div className="top-0 left-0 bg-primary">
-          <UserEditModal
-            user={selectedUser}
-            auths={allAuths}
-            authStates={authStates}
-            onClose={closeModal}
-            onToggleAuth={handleToggleAuth}
-            onFieldChange={handleFieldChange}
-            onSave={handleSave}
-          />
-        </div>
+        <UserEditModal
+          user={selectedUser}
+          auths={allAuths}
+          authStates={authStates}
+          isCreate={isCreate}
+          onClose={closeModal}
+          onToggleAuth={handleToggleAuth}
+          onFieldChange={handleFieldChange}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          onResetPassword={handleResetPassword}
+        />
       )}
     </div>
   );

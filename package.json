@@ -13,6 +13,7 @@
     "@mui/x-charts": "^7.14.0",
     "@uiw/react-color-sketch": "^2.3.0",
     "classnames": "^2.5.1",
+    "date-fns": "^4.1.0",
     "extract-colors": "^4.0.8",
     "js-cookie": "^3.0.5",
     "ml-kmeans": "^6.0.0",

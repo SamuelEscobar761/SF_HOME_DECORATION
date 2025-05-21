@@ -8,6 +8,15 @@ import { Folder } from "../interfaces/Folder";
 import { User } from "./User";
 
 export class Manager {
+  createUser(selectedUser: User) {
+    throw new Error("Method not implemented.");
+  }
+  deleteUser(arg0: number) {
+    throw new Error("Method not implemented.");
+  }
+  resetPassword(arg0: number) {
+    throw new Error("Method not implemented.");
+  }
   private static instance: Manager;
   private items: Item[] = [];
   private folders: Folder[] = [];
@@ -135,9 +144,8 @@ export class Manager {
         return provider;
       }
     });
-    const provider = new Provider(0, name, []);
+    const provider = await this.apiClient.saveNewProvider(name);
     this.providers.push(provider);
-    this.apiClient.saveNewProvider(name);
     return provider;
   }
 
