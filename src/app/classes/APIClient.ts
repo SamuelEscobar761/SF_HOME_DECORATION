@@ -1,11 +1,6 @@
 import { Folder } from "../interfaces/Folder";
-import {
-  mockedAllUserAuthorizations,
-  mockedProviders,
-  mockedUsers,
-} from "../services/MockService";
+import { mockedProviders } from "../services/MockService";
 import { Item } from "./Item";
-import { Manager } from "./Manager";
 import { MultiItem } from "./MultiItem";
 import { Provider } from "./Provider";
 import { Replenishment } from "./Replenishment";
@@ -451,30 +446,162 @@ export class APIClient {
   }
 
   async loadFolders(): Promise<Folder[]> {
-    return [
-      { id: 1, name: "Primera Carpeta", items: [] },
-      { id: 2, name: "Segunda Carpeta", items: [] },
-      { id: 3, name: "Tercera Carpeta", items: [] },
-    ];
+    try {
+      const response = await this.fetchData("folders/");
+
+      // Transformar los ítems de cada carpeta en instancias completas de Item
+      const foldersWithItems = response.map((folder: any) => {
+        const itemInstances = folder.items.map((itemData: any) => {
+          // Determinar si es un SimpleItem o MultiItem basado en fk_id_multi_item
+          let item: Item;
+
+          if (itemData.id !== itemData.fk_id_multi_item) {
+            // Es un SimpleItem
+            item = new SimpleItem(
+              null, // multiItem, lo actualizaremos si es necesario después
+              itemData.id,
+              itemData.name,
+              itemData.price,
+              itemData.images?.map((img: any) => ({
+                color: img.color,
+                url: img.url,
+                image: null,
+              })) || [],
+              itemData.room || "",
+              itemData.material || "",
+              new Provider(itemData.fk_id_provider || 0, "Proveedor universal")
+            );
+          } else {
+            // Es un MultiItem
+            item = new MultiItem(
+              [], // simpleItems, se llenarían en otro proceso si es necesario
+              itemData.id,
+              itemData.name,
+              itemData.price,
+              itemData.images?.map((img: any) => ({
+                color: img.color,
+                url: img.url,
+                image: null,
+              })) || [],
+              itemData.room || "",
+              itemData.material || "",
+              new Provider(
+                itemData.fk_id_provider || 0,
+                "Proveedor universal",
+                []
+              )
+            );
+          }
+
+          // Cargar reabastecimientos si existen
+          if (itemData.replenishments && itemData.replenishments.length > 0) {
+            const replenishments: Replenishment[] = itemData.replenishments.map(
+              (rep: any) => {
+                const locationsMap = new Map<string, Map<string, number>>();
+
+                if (rep.locations) {
+                  Object.entries(rep.locations).forEach(
+                    ([location, colors]) => {
+                      const colorsMap = new Map<string, number>();
+                      Object.entries(colors as Record<string, number>).forEach(
+                        ([color, units]) => {
+                          colorsMap.set(color, units as number);
+                        }
+                      );
+                      locationsMap.set(location, colorsMap);
+                    }
+                  );
+                }
+
+                return new Replenishment(
+                  rep.id,
+                  item,
+                  new Date(rep.order_date),
+                  new Date(rep.arrival_date),
+                  rep.unit_cost,
+                  rep.unit_discount,
+                  rep.total_discount,
+                  locationsMap
+                );
+              }
+            );
+
+            item.setReplenishments(replenishments);
+          } else {
+            // Si no hay reposiciones, crear una vacía para evitar errores
+            const emptyLocationsMap = new Map<string, Map<string, number>>();
+            const emptyReplenishment = new Replenishment(
+              0,
+              item,
+              new Date(),
+              new Date(),
+              0,
+              0,
+              0,
+              emptyLocationsMap
+            );
+            item.setReplenishments([emptyReplenishment]);
+          }
+
+          return item;
+        });
+
+        return {
+          id: folder.id,
+          name: folder.name,
+          items: itemInstances,
+        };
+      });
+
+      return foldersWithItems;
+    } catch (error) {
+      console.error("Error al cargar carpetas:", error);
+      return [];
+    }
   }
 
   async saveNewFolder(folder: Folder): Promise<Folder> {
-    return {
-      id: Manager.getInstance().getFolders().length,
-      name: folder.name,
-      items: folder.items,
-    };
+    try {
+      const response = await this.postData("folders/create/", {
+        name: folder.name,
+      });
+      return response;
+    } catch (error) {
+      console.error("Error al guardar nueva carpeta:", error);
+      throw error;
+    }
   }
 
   async deleteFolder(id: number) {
-    id;
-    //TODO
+    try {
+      return await this.deleteData(`folders/${id}/delete/`);
+    } catch (error) {
+      console.error("Error al eliminar carpeta:", error);
+      throw error;
+    }
   }
 
   async addItemToFolder(item: Item, folder: Folder) {
-    item;
-    folder;
-    //TODO
+    try {
+      return await this.postData(
+        `folders/${folder.id}/items/${item.getId()}/add/`,
+        {}
+      );
+    } catch (error) {
+      console.error("Error al añadir ítem a carpeta:", error);
+      throw error;
+    }
+  }
+
+  async removeItemFromFolder(item: Item, folder: Folder) {
+    try {
+      return await this.deleteData(
+        `folders/${folder.id}/items/${item.getId()}/remove/`
+      );
+    } catch (error) {
+      console.error("Error al eliminar ítem de carpeta:", error);
+      throw error;
+    }
   }
 
   convertMapToObject = (map: Map<any, any>): Record<string, any> => {
@@ -497,16 +624,6 @@ export class APIClient {
     return file;
   }
 
-  async loadUsers(): Promise<User[]> {
-    console.log("These users are being mocked");
-    try {
-      return await mockedUsers;
-    } catch (e) {
-      console.error("Error getting proviers", e);
-      throw new Error("Error getting proviers");
-    }
-  }
-
   async loadProviders(): Promise<Provider[]> {
     console.log("These providers are being mocked");
     try {
@@ -514,29 +631,6 @@ export class APIClient {
     } catch (e) {
       console.error("Error getting proviers", e);
       throw new Error("Error getting proviers");
-    }
-  }
-
-  async getAllAuthorizations(): Promise<UserAuthorization[]> {
-    console.log("These authorizations are being mocked");
-    try {
-      return await mockedAllUserAuthorizations;
-    } catch (e) {
-      console.error("Error getting authorizations", e);
-      throw new Error("Error getting authorizations");
-    }
-  }
-
-  async updateUser(selectedUser: User): Promise<boolean> {
-    try {
-      console.log(
-        "We need to implement the method to update the user",
-        selectedUser
-      );
-      return true;
-    } catch (e) {
-      console.error("Error actualzando el usuario", e);
-      return false;
     }
   }
 
@@ -548,5 +642,133 @@ export class APIClient {
     // Por ahora simulamos siempre true; cuando tengas backend,
     // aquí enviarás el FormData al endpoint real.
     return true;
+  }
+
+  // ================= MÉTODOS PARA USUARIOS =================
+
+  async loadUsers(): Promise<User[]> {
+    try {
+      const response = await this.fetchData("users/");
+
+      return response.map((userData: any) => {
+        const authorizations = userData.authorizations.map((auth: any) => {
+          const authorization = new UserAuthorization(
+            auth.id,
+            auth.authorization_name,
+            auth.is_active
+          );
+          return authorization;
+        });
+
+        return new User(
+          userData.id,
+          userData.name,
+          userData.lastname,
+          userData.email,
+          userData.phone || "",
+          authorizations,
+          userData.image || undefined
+        );
+      });
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+      return [];
+    }
+  }
+
+  async getAllAuthorizations(): Promise<UserAuthorization[]> {
+    try {
+      const response = await this.fetchData("users/authorization-types/");
+
+      return response.map((authData: any) => {
+        const authorization = new UserAuthorization(
+          authData.id,
+          authData.name,
+          false // Por defecto, no activo
+        );
+        return authorization;
+      });
+    } catch (error) {
+      console.error("Error al cargar tipos de autorización:", error);
+      return [];
+    }
+  }
+
+  async createUser(user: User): Promise<boolean> {
+    try {
+      const userData = {
+        name: user.getName(),
+        lastname: user.getLastname(),
+        email: user.getEmail(),
+        phone: user.getPhone(),
+        image: user.getImage(),
+        // No enviamos contraseña para que el sistema genere una automáticamente
+      };
+
+      await this.postData("users/create/", userData);
+      return true;
+    } catch (error) {
+      console.error("Error al crear usuario:", error);
+      return false;
+    }
+  }
+
+  async updateUser(user: User): Promise<boolean> {
+    try {
+      // Actualizar datos básicos del usuario
+      const userData = {
+        name: user.getName(),
+        lastname: user.getLastname(),
+        email: user.getEmail(),
+        phone: user.getPhone(),
+        image: user.getImage(),
+      };
+
+      await this.fetchData(`users/${user.getId()}/update/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      // Actualizar autorizaciones
+      const authData = {
+        authorizations: user.getAuthorizations().map((auth) => ({
+          [auth.getId()]: auth.isAccess(),
+        })),
+      };
+
+      await this.fetchData(`users/${user.getId()}/authorizations/`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(authData),
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error al actualizar usuario:", error);
+      return false;
+    }
+  }
+
+  async deleteUser(userId: number): Promise<boolean> {
+    try {
+      await this.deleteData(`users/${userId}/delete/`);
+      return true;
+    } catch (error) {
+      console.error("Error al eliminar usuario:", error);
+      return false;
+    }
+  }
+
+  async resetPassword(userId: number): Promise<string | null> {
+    try {
+      const response = await this.postData("users/reset-password/", {
+        user_id: userId,
+      });
+      return response.password;
+    } catch (error) {
+      console.error("Error al restablecer contraseña:", error);
+      return null;
+    }
   }
 }

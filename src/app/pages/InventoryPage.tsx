@@ -90,8 +90,15 @@ export const InventoryPage = () => {
     setNewFolderView(false);
   };
 
-  const deleteFolder = (id: number) => {
-    Manager.getInstance().deleteFolder(id);
+  const deleteFolder = async (id: number) => {
+    try {
+      await Manager.getInstance().deleteFolder(id);
+      // Actualizar la lista de carpetas después de eliminar
+      setFolders([...Manager.getInstance().getFolders()]);
+    } catch (error) {
+      console.error("Error al eliminar carpeta:", error);
+      alert("No se pudo eliminar la carpeta, revisa tu conexión a internet");
+    }
   };
 
   const selectFolder = (folder: Folder) => {
@@ -107,23 +114,46 @@ export const InventoryPage = () => {
       const response = await Manager.getInstance().saveNewItem(item);
       if (!response) {
         alert("No se pudo guardar el item, revisa tu conexión a internet");
-      }else{
-        setItems([...Manager.getInstance().getItems()])
+      } else {
+        setItems([...Manager.getInstance().getItems()]);
       }
     } else {
       const response = await Manager.getInstance().editItem(item);
       if (!response) {
         alert("No se pudo editar el item, revisa tu conexión a internet");
+      } else {
+        setItems([...Manager.getInstance().getItems()]);
       }
     }
   };
 
-  const saveNewMultiItem = async (item: Item, isNew: boolean) => {
-    item;
-    isNew;
+  const saveNewMultiItem = async (item: MultiItem, isNew: boolean) => {
     setEditingItem(undefined);
-    setItems([...Manager.getInstance().getItems()]);
-  }
+    try {
+      if (isNew) {
+        const response = await Manager.getInstance().saveNewMultiItem(item);
+        if (!response) {
+          alert(
+            "No se pudo guardar el item compuesto, revisa tu conexión a internet"
+          );
+        } else {
+          setItems([...Manager.getInstance().getItems()]);
+        }
+      } else {
+        const response = await Manager.getInstance().editItem(item);
+        if (!response) {
+          alert(
+            "No se pudo editar el item compuesto, revisa tu conexión a internet"
+          );
+        } else {
+          setItems([...Manager.getInstance().getItems()]);
+        }
+      }
+    } catch (error) {
+      console.error("Error al guardar/editar item compuesto:", error);
+      alert("Ocurrió un error, revisa tu conexión a internet");
+    }
+  };
 
   const newMultiItem = () => {
     setMultiItemView(true);
@@ -138,13 +168,53 @@ export const InventoryPage = () => {
     setEditingItem(item);
   };
 
-  const deleteItem = async (item: any) => {
-    await Manager.getInstance().deleteItem(item);
-    setItems([...Manager.getInstance().getItems()]);
+  const deleteItem = async (item: Item) => {
+    try {
+      await Manager.getInstance().deleteItem(item);
+      setItems([...Manager.getInstance().getItems()]);
+
+      // Si estamos en la vista de una carpeta, actualizar también esa vista
+      if (selectedFolder && itemsOfFolderView) {
+        const updatedFolder = Manager.getInstance()
+          .getFolders()
+          .find((f) => f.id === selectedFolder.id);
+        if (updatedFolder) {
+          setSelectedFolder(updatedFolder);
+          setFilteredItems(updatedFolder.items);
+        }
+      }
+    } catch (error) {
+      console.error("Error al eliminar item:", error);
+      alert("No se pudo eliminar el item, revisa tu conexión a internet");
+    }
   };
 
-  const addItemToFolder = (item: Item) => {
-    Manager.getInstance().addItemToFolder(item, selectedFolder!);
+  const addItemToFolder = async (item: Item) => {
+    try {
+      await Manager.getInstance().addItemToFolder(item, selectedFolder!);
+      // Actualizar la carpeta seleccionada
+      const updatedFolders = [...Manager.getInstance().getFolders()];
+      setFolders(updatedFolders);
+
+      // Si estamos viendo los items de la carpeta, actualizar también esa vista
+      if (selectedFolder) {
+        const updatedFolder = updatedFolders.find(
+          (f) => f.id === selectedFolder.id
+        );
+        if (updatedFolder) {
+          setSelectedFolder(updatedFolder);
+          setFilteredItems(updatedFolder.items);
+        }
+      }
+
+      // Cerrar la selección de items
+      setSelectItemsView(false);
+    } catch (error) {
+      console.error("Error al añadir item a la carpeta:", error);
+      alert(
+        "No se pudo añadir el item a la carpeta, revisa tu conexión a internet"
+      );
+    }
   };
 
   useEffect(() => {
@@ -180,7 +250,14 @@ export const InventoryPage = () => {
       );
       setFilteredItems(filtered);
     }
-  }, [searchTerm]);
+  }, [
+    searchTerm,
+    items,
+    folders,
+    selectedFolder,
+    foldersView,
+    itemsOfFolderView,
+  ]);
 
   useEffect(() => {
     const loadFolders = async () => {
@@ -228,6 +305,74 @@ export const InventoryPage = () => {
       window.removeEventListener("popstate", handleBackButton);
     };
   }, [searchView, foldersView, itemsOfFolderView]);
+
+  // Componente para manejar errores en InventoryPageItem
+  const SafeInventoryPageItem = (props: {
+    item: Item;
+    setItemToMove: () => void;
+    setItemToShow: (item: Item) => void;
+    setItemToEdit: () => void;
+    setItemToDelete: () => void;
+    setReplenishmentView: () => void;
+  }) => {
+    try {
+      // Verificar que el ítem tenga todos los métodos necesarios
+      if (!props.item.getUnitsPerLocations) {
+        // Si no tiene el método getUnitsPerLocations, implementarlo temporalmente
+        (props.item as any).getUnitsPerLocations = () => {
+          console.warn(
+            "Usando getUnitsPerLocations fallback para ítem:",
+            props.item.getId()
+          );
+          const result = new Map<string, number>();
+          try {
+            const replenishments = props.item.getReplenishments();
+            if (replenishments && replenishments.length > 0) {
+              replenishments.forEach((rep) => {
+                if (rep.getUnitsPerAllLocation) {
+                  const locations = rep.getUnitsPerAllLocation();
+                  locations.forEach((value, key) => {
+                    result.set(key, (result.get(key) || 0) + value);
+                  });
+                }
+              });
+            }
+          } catch (e) {
+            console.error("Error generando unitsPerLocations:", e);
+          }
+          return result;
+        };
+      }
+
+      return <InventoryPageItem {...props} />;
+    } catch (error) {
+      console.error("Error al renderizar InventoryPageItem:", error);
+      return (
+        <div className="p-4 border border-red-300 rounded bg-red-50">
+          <p className="text-red-600 font-medium">Error al cargar este item</p>
+          <p className="text-sm text-gray-600">
+            {props.item && typeof props.item.getName === "function"
+              ? props.item.getName()
+              : "Item desconocido"}
+          </p>
+          <div className="mt-2 flex gap-2">
+            <button
+              className="px-3 py-1 bg-blue-100 text-blue-800 rounded"
+              onClick={props.setItemToEdit}
+            >
+              Editar
+            </button>
+            <button
+              className="px-3 py-1 bg-red-100 text-red-800 rounded"
+              onClick={props.setItemToDelete}
+            >
+              Eliminar
+            </button>
+          </div>
+        </div>
+      );
+    }
+  };
 
   return (
     <div id="inventory-page" className="p-2">
@@ -393,19 +538,13 @@ export const InventoryPage = () => {
         {!foldersView || itemsOfFolderView ? (
           filteredItems.length > 0 ? (
             filteredItems.map((item, index) => (
-              <InventoryPageItem
+              <SafeInventoryPageItem
                 key={index}
-                setItemToMove={() => {
-                  handleMoveItem(item);
-                }}
                 item={item}
+                setItemToMove={() => handleMoveItem(item)}
                 setItemToShow={setItemToShow}
-                setItemToEdit={() => {
-                  editItem(item);
-                }}
-                setItemToDelete={() => {
-                  deleteItem(item);
-                }}
+                setItemToEdit={() => editItem(item)}
+                setItemToDelete={() => deleteItem(item)}
                 setReplenishmentView={() => {
                   setReplenishmentView(true);
                   setReplenishmentItem(item);

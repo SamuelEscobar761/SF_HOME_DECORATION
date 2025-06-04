@@ -8,15 +8,6 @@ import { Folder } from "../interfaces/Folder";
 import { User } from "./User";
 
 export class Manager {
-  createUser(selectedUser: User) {
-    throw new Error("Method not implemented.");
-  }
-  deleteUser(arg0: number) {
-    throw new Error("Method not implemented.");
-  }
-  resetPassword(arg0: number) {
-    throw new Error("Method not implemented.");
-  }
   private static instance: Manager;
   private items: Item[] = [];
   private folders: Folder[] = [];
@@ -172,7 +163,8 @@ export class Manager {
     try {
       this.setFolders(await this.apiClient.loadFolders());
     } catch (error) {
-      console.log(error);
+      console.error("Error al cargar carpetas:", error);
+      this.setFolders([]);
     }
   }
 
@@ -181,27 +173,51 @@ export class Manager {
     setFolders: React.Dispatch<React.SetStateAction<Folder[]>>
   ) {
     try {
-      this.folders.push(await this.apiClient.saveNewFolder(folder));
-      setFolders(this.folders);
+      const newFolder = await this.apiClient.saveNewFolder(folder);
+      this.folders.push(newFolder);
+      setFolders([...this.folders]);
     } catch (error) {
-      console.log(error);
+      console.error("Error al guardar nueva carpeta:", error);
     }
   }
 
   public async deleteFolder(id: number) {
     try {
-      this.folders.filter((folder) => {
-        folder.id != id;
-      });
       await this.apiClient.deleteFolder(id);
+      this.folders = this.folders.filter((folder) => folder.id !== id);
     } catch (error) {
-      console.log(error);
+      console.error("Error al eliminar carpeta:", error);
     }
   }
 
   public async addItemToFolder(item: Item, folder: Folder) {
-    folder.items.push(item);
-    this.apiClient.addItemToFolder(item, folder);
+    try {
+      await this.apiClient.addItemToFolder(item, folder);
+      // Actualizar la carpeta local con el nuevo ítem
+      const updatedFolder = this.folders.find((f) => f.id === folder.id);
+      if (updatedFolder) {
+        if (!updatedFolder.items.some((i) => i.getId() === item.getId())) {
+          updatedFolder.items.push(item);
+        }
+      }
+    } catch (error) {
+      console.error("Error al añadir ítem a carpeta:", error);
+    }
+  }
+
+  public async removeItemFromFolder(item: Item, folder: Folder) {
+    try {
+      await this.apiClient.removeItemFromFolder(item, folder);
+      // Actualizar la carpeta local eliminando el ítem
+      const updatedFolder = this.folders.find((f) => f.id === folder.id);
+      if (updatedFolder) {
+        updatedFolder.items = updatedFolder.items.filter(
+          (i) => i.getId() !== item.getId()
+        );
+      }
+    } catch (error) {
+      console.error("Error al eliminar ítem de carpeta:", error);
+    }
   }
 
   public async ensureItemSaved(itemToEnsure: SimpleItem) {
@@ -226,26 +242,102 @@ export class Manager {
     return this.getProviders();
   }
 
+  // ================= MÉTODOS PARA USUARIOS =================
+
   public getUsers() {
     return this.users;
   }
 
   public async loadUsers() {
-    this.users = await this.apiClient.loadUsers();
-    return this.getUsers();
+    try {
+      this.users = await this.apiClient.loadUsers();
+      return this.users;
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+      return [];
+    }
   }
 
   public async getAllAuthorizations() {
-    return await this.apiClient.getAllAuthorizations();
+    try {
+      return await this.apiClient.getAllAuthorizations();
+    } catch (error) {
+      console.error("Error al obtener autorizaciones:", error);
+      return [];
+    }
   }
 
-  public async updateUser(selectedUser: User) {
-    const response = await this.apiClient.updateUser(selectedUser);
-    if (response) {
-      this.users = this.users.map((u) =>
-        u.getId() === selectedUser.getId() ? selectedUser : u
-      );
+  public async createUser(user: User): Promise<boolean> {
+    try {
+      const response = await this.apiClient.createUser(user);
+      if (response) {
+        // Recargar la lista de usuarios para incluir el nuevo usuario
+        await this.loadUsers();
+      }
+      return response;
+    } catch (error) {
+      console.error("Error al crear usuario:", error);
+      return false;
     }
+  }
+
+  public async updateUser(user: User) {
+    try {
+      const response = await this.apiClient.updateUser(user);
+      if (response) {
+        // Actualizar el usuario en la lista local
+        this.users = this.users.map((u) =>
+          u.getId() === user.getId() ? user : u
+        );
+      }
+      return response;
+    } catch (error) {
+      console.error("Error al actualizar usuario:", error);
+      return false;
+    }
+  }
+
+  public async deleteUser(userId: number) {
+    try {
+      const response = await this.apiClient.deleteUser(userId);
+      if (response) {
+        // Eliminar el usuario de la lista local
+        this.users = this.users.filter((u) => u.getId() !== userId);
+      }
+      return response;
+    } catch (error) {
+      console.error("Error al eliminar usuario:", error);
+      return false;
+    }
+  }
+
+  public async resetPassword(userId: number) {
+    try {
+      const newPassword = await this.apiClient.resetPassword(userId);
+      if (newPassword) {
+        // Aquí podrías mostrar un mensaje al usuario con la nueva contraseña
+        // O enviar un correo electrónico con la nueva contraseña
+        return newPassword;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error al restablecer contraseña:", error);
+      return null;
+    }
+  }
+
+  public getUserById(userId: number): User | undefined {
+    return this.users.find((u) => u.getId() === userId);
+  }
+
+  // Este método es útil para comprobar si un usuario tiene un permiso específico
+  public hasPermission(userId: number, permissionName: string): boolean {
+    const user = this.getUserById(userId);
+    if (!user) return false;
+
+    return user
+      .getAuthorizations()
+      .some((auth) => auth.getName() === permissionName && auth.isAccess());
   }
 
   public async updateProvider(

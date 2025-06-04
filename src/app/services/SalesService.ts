@@ -207,12 +207,12 @@ export class SalesService {
       console.warn("Error al obtener estadísticas de utilidades:", error);
       // En caso de error, devolver datos de ejemplo
       return [
-        ["Ene", 3500.0],
-        ["Feb", 2800.0],
-        ["Mar", 2200.0],
-        ["Abr", 4700.0],
-        ["May", 1800.0],
-        ["Jun", 4500.0],
+        ["Ene", 0],
+        ["Feb", 0],
+        ["Mar", 0],
+        ["Abr", 0],
+        ["May", 0],
+        ["Jun", 0],
       ];
     }
   }
@@ -241,17 +241,18 @@ export class SalesService {
       }
 
       const data = await response.json();
+      console.log(data);
       return data.inventory;
     } catch (error) {
       console.warn("Error al obtener estadísticas de inventario:", error);
       // En caso de error, devolver datos de ejemplo
       return [
-        ["Ene", 12500.0],
-        ["Feb", 13800.0],
-        ["Mar", 14200.0],
-        ["Abr", 13700.0],
-        ["May", 15800.0],
-        ["Jun", 16500.0],
+        ["Ene", 0],
+        ["Feb", 0],
+        ["Mar", 0],
+        ["Abr", 0],
+        ["May", 0],
+        ["Jun", 0],
       ];
     }
   }
